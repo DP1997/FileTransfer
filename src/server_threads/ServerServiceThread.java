@@ -42,7 +42,7 @@ public class ServerServiceThread extends Thread{
 				fileName = br.readLine();
 				// sende Datei zum Client
 				new ServerSendThread(connection, fileName).start();
-		        connection.close();
+				while(true) {}
 			}
     	} catch (IOException e) {
     		e.printStackTrace();

@@ -7,7 +7,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import utils.FileUtils;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -21,7 +20,7 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			//loading the fxml file
-			Parent root = new FXMLLoader.load(getClass().getResource("FileTransfer.fxml"));
+			FXMLLoader loader = new FXMLLoader(Main.class.getResource("FileTransfer.fxml"));
 			loader.setOn
 			
 			AnchorPane pane = loader.load();
