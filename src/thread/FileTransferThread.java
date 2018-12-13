@@ -32,14 +32,17 @@ public class FileTransferThread extends Thread{
 			
 			if (bos != null) {
 				System.out.println("Connection established");
-				sendFile(bos);
+				
+				// sende Datei zum Client
+				sendFileToClient(bos);
+		        connection.close();
 			}
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
 	}
 	
-	public void sendFile(BufferedOutputStream bos) throws IOException {
+	public void sendFileToClient(BufferedOutputStream bos) throws IOException {
 		fileChosenPath = FileUtils.getChosenFileName(sharePath);
 		// ausgewählte Datei des Clients
 	    File myFile = new File(fileChosenPath);
@@ -50,8 +53,6 @@ public class FileTransferThread extends Thread{
 	    	bis.read(mybytearray, 0, mybytearray.length);
 	        bos.write(mybytearray, 0, mybytearray.length);
 	        bos.flush();
-	        connection.close();
-	        return;
 	    } catch (FileNotFoundException e) {
 	        e.printStackTrace();
 	    }	
