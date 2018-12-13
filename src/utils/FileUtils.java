@@ -53,4 +53,8 @@ public class FileUtils {
 		}
 		return null;
 	}
+	public static String getChosenFileName(String sharePath) {
+		String chosenFile = sharePath + "xd.fxml";
+		return chosenFile;
+	}
 }
