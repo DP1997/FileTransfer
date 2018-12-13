@@ -8,16 +8,22 @@ import javafx.stage.Stage;
 
 public class FileUtils {
 	
-	public static File[] getFileArray(String path) {
+	public static String[] getFileNames(String path) {
 		
 		File folder = new File(path);
-		File[] listOfFiles = folder.listFiles();
+		File[] files = folder.listFiles();
 		
+		String[] fileNames = new String[files.length];
 		
-		return listOfFiles;
+		for (int i = 0; i < files.length; i++) {
+		  if (files[i].isFile()) {
+		    fileNames[i] = files[i].getName();
+		  } 
+		}
+		return fileNames;
 	}
 	
-	public static void getFileInformation(File[] files){
+	    /*
 		for (int i = 0; i < files.length; i++) {
 			  if (files[i].isFile()) {
 			    System.out.println("File " + files[i].getName() + " " + files[i].length());
@@ -26,7 +32,7 @@ public class FileUtils {
 			  }
 			}	
 		}
-	
+	*/
 	public static String chooseDownloadDirectory(Stage stage) {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Ordner zur Synchronisation angeben");

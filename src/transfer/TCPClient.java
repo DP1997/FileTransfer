@@ -2,12 +2,13 @@ package transfer;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 import utils.FileUtils;
 
 class TCPClient {
 
-    private final static String serverIP = "10.0.188.22";
+    private final static String serverIP = "127.0.0.1";
     private final static int serverPort = 3248;
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private final static String fileChosen = "";
@@ -30,11 +31,13 @@ class TCPClient {
             ex.printStackTrace();
         }
         System.out.println("Connection established");
-        
         try ( ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream())){
         	Object object = objectInput.readObject();
-        	File[] fileArrays = (File[]) object;
-        	FileUtils.getFileInformation(fileArrays);
+        	String [] fileNames = (String[]) object;
+        	for(String s : fileNames) {
+        		System.out.println(s);
+        		System.out.println("Client");
+        	}
         }
         catch (Exception e) {
         	e.printStackTrace();
