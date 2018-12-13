@@ -19,6 +19,7 @@ import utils.FileUtils;
 public class FileTransferThread extends Thread{
 	
 	private Socket connection = null;
+	
     private String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private String fileName = "";
 

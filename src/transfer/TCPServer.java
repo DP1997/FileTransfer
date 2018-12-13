@@ -7,7 +7,7 @@ import thread.FileTransferThread;
 
 class TCPServer {
 
-    private final static String dir= "/home/donald/Downloads";
+    private final static String dir = "/home/donald/Downloads";
 
     public static void main(String args[]) {
        
