@@ -8,7 +8,7 @@ import utils.FileUtils;
 
 class TCPClient {
 
-    private final static String serverIP = "127.0.0.1";
+    private final static String serverIP = "192.168.0.7";
     private final static int serverPort = 3248;
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private final static String fileChosen = "";
@@ -33,10 +33,10 @@ class TCPClient {
         System.out.println("Connection established");
         try ( ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream())){
         	Object object = objectInput.readObject();
-        	String [] fileNames = (String[]) object;
+        	ArrayList<String> fileNames = (ArrayList<String>) object;
+        	System.out.println("Ordner des Servers:");
         	for(String s : fileNames) {
         		System.out.println(s);
-        		System.out.println("Client");
         	}
         }
         catch (Exception e) {
