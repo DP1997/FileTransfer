@@ -3,23 +3,25 @@ package utils;
 import java.io.File;
 import java.util.ArrayList;
 
+import datatypes.FileInformation;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 public class FileUtils {
 	
-	public static ArrayList<String> getFileNames(String path) {
+	public static ArrayList<FileInformation> getFileNames(String path) {
 		
-		ArrayList<String> fileNames = new ArrayList<String>();
+		ArrayList<FileInformation> fileInfos = new ArrayList<FileInformation>();
 		
 		File folder = new File(path);
 		File[] files = folder.listFiles();
 		for (int i = 0; i < files.length; i++) {
 		  if (files[i].isFile()) {
-		    fileNames.add(files[i].getName());
+		    FileInformation fi = new FileInformation(files[i].getName(),files[i].length());
+		    fileInfos.add(fi);
 		  } 
 		}
-		return fileNames;
+		return fileInfos;
 	}
 	    /*
 		for (int i = 0; i < files.length; i++) {
