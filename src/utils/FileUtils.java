@@ -9,19 +9,30 @@ import javafx.stage.Stage;
 
 public class FileUtils {
 	
-	public static ArrayList<FileInformation> getFileNames(String path) {
+	public static ArrayList<String> getFileNames(String path) {
 		
-		ArrayList<FileInformation> fileInfos = new ArrayList<FileInformation>();
+		ArrayList<String> fileNames = new ArrayList<String>();
 		
 		File folder = new File(path);
 		File[] files = folder.listFiles();
 		for (int i = 0; i < files.length; i++) {
 		  if (files[i].isFile()) {
-		    FileInformation fi = new FileInformation(files[i].getName(),files[i].length());
-		    fileInfos.add(fi);
+			  fileNames.add(files[i].getName());
 		  } 
 		}
-		return fileInfos;
+		return fileNames;
+	}
+	public static ArrayList<Long> getFileLengths(String path) {
+		ArrayList<Long> fileLengths = new ArrayList<Long>();
+		
+		File folder = new File(path);
+		File[] files = folder.listFiles();
+		for (int i = 0; i < files.length; i++) {
+		  if (files[i].isFile()) {
+			  fileLengths.add(files[i].length());
+		  } 
+		}
+		return fileLengths;
 	}
 	    /*
 		for (int i = 0; i < files.length; i++) {
