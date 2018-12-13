@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import utils.FileUtils;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
@@ -21,7 +22,8 @@ public class Main extends Application {
 			AnchorPane pane = loader.load();
 			
 			FileTransferController controller = loader.getController();
-			
+			primaryStage.initStyle(StageStyle.TRANSPARENT);
+			/*
 			//setting height and width of the window
 			primaryStage.setMinHeight(400);
 			primaryStage.setMinWidth(400);
@@ -29,7 +31,7 @@ public class Main extends Application {
 			primaryStage.setTitle("FileTransfer");
 			//window should not be resizable
 			primaryStage.setResizable(false);
-			
+			*/
 			//creating a new scene
 			Scene scene = new Scene(pane);
 			primaryStage.setScene(scene);
