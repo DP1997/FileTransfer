@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 package transfer;
 
 import java.awt.SecondaryLoop;
@@ -81,8 +79,8 @@ class TCPClient {
                         bytesRead = is.read(aByte);
                 } while (bytesRead != -1);
 
-                System.out.println("Die Datei wurde übertragen");
-                System.out.println("Dateigröße: " + byteCounter);
+                System.out.println("Die Datei wurde ï¿½bertragen");
+                System.out.println("Dateigrï¿½ï¿½e: " + byteCounter);
                                 
                 bos.write(baos.toByteArray());
                
@@ -113,4 +111,4 @@ class TCPClient {
         }
     }
 }
->>>>>>> branch 'master' of https://github.com/roninshowdown/eva_ws18.git
+
