@@ -13,6 +13,7 @@ class TCPClient {
 
     private final static String serverIP = "192.168.0.7";
     private final static int serverPort = 3248;
+    
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private static String fileName = "";
     
