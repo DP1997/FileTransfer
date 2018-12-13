@@ -14,11 +14,15 @@ import javafx.scene.layout.BorderPane;
 
 public class Main extends Application {
 	
+	private double xOffset;
+	private double yOffset;
 	@Override
 	public void start(Stage primaryStage) {
 		try {
 			//loading the fxml file
 			FXMLLoader loader = new FXMLLoader(Main.class.getResource("FileTransfer.fxml"));
+			loader.setOn
+			
 			AnchorPane pane = loader.load();
 			
 			FileTransferController controller = loader.getController();
