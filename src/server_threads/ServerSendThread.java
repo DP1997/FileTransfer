@@ -13,6 +13,7 @@ import java.net.Socket;
 public class ServerSendThread extends Thread {
 	
     private String fileName = "";
+    private String sharePath = "/home/donald/Schreibtisch";
 	private Socket connection = null;
 	
 	public ServerSendThread(Socket sock, String fileName) {
@@ -30,7 +31,7 @@ public class ServerSendThread extends Thread {
 	}
 	
 	public void sendFileToClient(BufferedOutputStream bos) throws IOException {
-		String filePath = ServerServiceThread.sharePath + "/" + fileName;
+		String filePath = sharePath + "/" + fileName;
 		// ausgew�hlte Datei des Clients
 	    File myFile = new File(filePath);
 	    

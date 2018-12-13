@@ -20,7 +20,9 @@ public class ServerServiceThread extends Thread{
 	
 	private Socket connection = null;
 	
-    public static String sharePath = "/home/donald/Schreibtisch";
+    private String sharePath = "/home/donald/Schreibtisch";
+    private String fileName = "";
+
 	
 	public ServerServiceThread(Socket sock) {
 		super("FileTransferThread");
@@ -38,17 +40,34 @@ public class ServerServiceThread extends Thread{
 				System.out.println("Connection established");
 				
 				// fileName wird gelesen
-				String fileName = "";
-				fileName = br.readLine();
+				while((fileName = br.readLine()) != null) {
 				// sende Datei zum Client
-				new ServerSendThread(connection, fileName).start();
+				sendFileToClient(bos);
+				System.out.println("Datei: " + fileName + " gesendet");
+				}
 		        connection.close();
 			}
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
 	}
-		
+	
+	public void sendFileToClient(BufferedOutputStream bos) throws IOException {
+		String filePath = sharePath + "/" + fileName;
+		// ausgew�hlte Datei des Clients
+	    File myFile = new File(filePath);
+	    
+	    byte[] mybytearray = new byte[(int) myFile.length()];
+	
+	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
+	    	bis.read(mybytearray, 0, mybytearray.length);
+	        bos.write(mybytearray, 0, mybytearray.length);
+	        bos.flush();
+	    } catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	    }	
+	}
+	
 	public void shareDirInformation() {
 		
 		try{
