@@ -46,6 +46,7 @@ public class ServerServiceThread extends Thread{
 				//
 				System.out.println("Datei: " + fileName + " gesendet");
 		        connection.close();
+				
 			}
     	} catch (IOException e) {
     		e.printStackTrace();
