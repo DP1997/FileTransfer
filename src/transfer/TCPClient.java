@@ -33,12 +33,14 @@ class TCPClient {
         }
         System.out.println("Connection established");
         try ( ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream())){
-        	Object object = objectInput.readObject();
-        	ArrayList<FileInformation> files = (ArrayList<FileInformation>) object;
+        	Object fileNamesObj = objectInput.readObject();
+        	Object fileLengthsObj = objectInput.readObject();
+        	ArrayList<String> fileNames = (ArrayList<String>) fileNamesObj;
+        	ArrayList<Long> fileLengths  = (ArrayList<Long>) fileLengthsObj;
         	System.out.println("Ordner des Servers:");
-        	for (FileInformation fi : files) {
-				System.out.println(fi.fileName + " " + fi.byteLength + " Bytes");
-        	}
+			for (int i = 0; i < fileNames.size(); i++) {
+				System.out.print(fileNames.get(i) + " " + fileLengths.get(i) + " Bytes");
+			}
         }
         catch (Exception e) {
         	e.printStackTrace();

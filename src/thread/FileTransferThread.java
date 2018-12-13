@@ -58,12 +58,14 @@ public class FileTransferThread extends Thread{
 		try (ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream())){
 		
 			if (oos != null) {
-				ArrayList<FileInformation> files = FileUtils.getFileNames(sharePath);
-				oos.writeObject(files);
+				ArrayList<String> fileNames = FileUtils.getFileNames(sharePath);
+				ArrayList<Long> fileLengths = FileUtils.getFileLengths(sharePath);
+				oos.writeObject(fileNames);
+				oos.writeObject(fileLengths);
 				System.out.println("Server-Ordner:");
-	        	for (FileInformation fi : files) {
-					System.out.println(fi.fileName + " " + fi.byteLength + " Bytes");
-	        	}
+				for (int i = 0; i < fileNames.size(); i++) {
+					System.out.print(fileNames.get(i) + " " + fileLengths.get(i) + " Bytes");
+				}
             }
         } catch (IOException e) {
 			e.printStackTrace();
