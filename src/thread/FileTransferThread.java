@@ -38,7 +38,14 @@ public class FileTransferThread extends Thread{
 			
 			if (bos != null && br != null) {
 				System.out.println("Connection established");
-				
+				while(true) {
+					switch(was der client schickt) {
+					case 1: new thread //download
+					case 2: new thread//refresh
+					...//abbruch
+					
+					}
+				}
 				fileName = br.readLine();
 					System.out.println("Datei: " + fileName + " gesendet");
 					// sende Datei zum Client
