@@ -43,6 +43,7 @@ public class ServerServiceThread extends Thread{
 				while((fileName = br.readLine()) != null) {
 				// sende Datei zum Client
 				sendFileToClient(bos);
+				//
 				System.out.println("Datei: " + fileName + " gesendet");
 				}
 		        connection.close();
