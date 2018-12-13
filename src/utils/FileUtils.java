@@ -8,22 +8,25 @@ import javafx.stage.Stage;
 
 public class FileUtils {
 	
-	public static ArrayList<String> getFileInformation(String path) {
-		
-		ArrayList<String> fileNames = new ArrayList<String>();
+	public static File[] getFileArray(String path) {
 		
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
-
-		for (int i = 0; i < listOfFiles.length; i++) {
-		  if (listOfFiles[i].isFile()) {
-		    System.out.println("File " + listOfFiles[i].getName());
-		  } else if (listOfFiles[i].isDirectory()) {
-		    System.out.println("Directory " + listOfFiles[i].getName());
-		  }
-		}
-		return fileNames;
+		
+		
+		return listOfFiles;
 	}
+	
+	public static void getFileInformation(File[] files){
+		for (int i = 0; i < files.length; i++) {
+			  if (files[i].isFile()) {
+			    System.out.println("File " + files[i].getName() + " " + files[i].length());
+			  } else if (files[i].isDirectory()) {
+			    System.out.println("Directory " + files[i].getName());
+			  }
+			}	
+		}
+	
 	public static String chooseDownloadDirectory(Stage stage) {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Ordner zur Synchronisation angeben");

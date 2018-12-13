@@ -6,12 +6,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.*;
+import java.util.ArrayList;
+
+import utils.FileUtils;
 
 public class FileTransferThread extends Thread{
 	
 	private Socket connection = null;
-    private String dataToSend = "/home/donald/Downloads";
+    private String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
 
 	
 	public FileTransferThread(Socket sock) {
@@ -20,11 +24,14 @@ public class FileTransferThread extends Thread{
 	}
 	
 	public void run() {
+		System.out.println("Connection established");
 		
+		shareDirInformation();
+		/*
 		try (BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream())){
 			
 			if (bos != null) {
-                File myFile = new File(dataToSend);
+                File myFile = new File(sharePath);
                 byte[] mybytearray = new byte[(int) myFile.length()];
 
                 try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
@@ -42,5 +49,20 @@ public class FileTransferThread extends Thread{
         } catch (IOException e) {
 			e.printStackTrace();
 		}
+		*/
+	}
+	
+	public void shareDirInformation() {
+		
+		try (ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream())){
+		
+			if (oos != null) {
+				File[] fileArrays = FileUtils.getFileArray(sharePath);
+				oos.writeObject(fileArrays);
+            }
+        } catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Share-Ordner mitgeteilt.");
 	}
 }

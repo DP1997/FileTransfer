@@ -22,7 +22,7 @@ public class Main extends Application {
 			
 			//Tests
 			String chosenFile = FileUtils.chooseDownloadDirectory(primaryStage);
-			if(chosenFile != null) FileUtils.getFileInformation(chosenFile);
+			if(chosenFile != null) FileUtils.getFileArray(chosenFile);
 			
 			
 			
