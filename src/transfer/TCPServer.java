@@ -3,7 +3,7 @@ package transfer;
 import java.io.*;
 import java.net.*;
 
-import thread.FileTransferThread;
+import server_threads.ServerServiceThread;
 
 class TCPServer {
 
@@ -13,7 +13,7 @@ class TCPServer {
        
         try (ServerSocket welcomeSocket = new ServerSocket(3248)){
             while(true) {
-            	(new FileTransferThread(welcomeSocket.accept())).start();
+            	(new ServerServiceThread(welcomeSocket.accept())).start();
             }
 
         } catch (IOException e) {

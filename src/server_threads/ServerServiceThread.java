@@ -1,4 +1,4 @@
-package thread;
+package server_threads;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -16,15 +16,13 @@ import java.util.ArrayList;
 import datatypes.FileInformation;
 import utils.FileUtils;
 
-public class FileTransferThread extends Thread{
+public class ServerServiceThread extends Thread{
 	
 	private Socket connection = null;
 	
-    private String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
-    private String fileName = "";
-
+    public static String sharePath = "/home/donald/Schreibtisch";
 	
-	public FileTransferThread(Socket sock) {
+	public ServerServiceThread(Socket sock) {
 		super("FileTransferThread");
 		this.connection = sock; 	
 	}
@@ -39,34 +37,18 @@ public class FileTransferThread extends Thread{
 			if (bos != null && br != null) {
 				System.out.println("Connection established");
 				
-				while((fileName = br.readLine()) != null) {
+				// fileName wird gelesen
+				String fileName = "";
+				fileName = br.readLine();
 				// sende Datei zum Client
-				sendFileToClient(bos);
-				System.out.println("Datei: " + fileName + " gesendet");
-				}
+				new ServerSendThread(connection, fileName).start();
 		        connection.close();
 			}
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
 	}
-	
-	public void sendFileToClient(BufferedOutputStream bos) throws IOException {
-		fileName = FileUtils.getChosenFileName(sharePath);
-		// ausgew�hlte Datei des Clients
-	    File myFile = new File(fileName);
-	    
-	    byte[] mybytearray = new byte[(int) myFile.length()];
-	
-	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
-	    	bis.read(mybytearray, 0, mybytearray.length);
-	        bos.write(mybytearray, 0, mybytearray.length);
-	        bos.flush();
-	    } catch (FileNotFoundException e) {
-	        e.printStackTrace();
-	    }	
-	}
-	
+		
 	public void shareDirInformation() {
 		
 		try{
@@ -78,7 +60,7 @@ public class FileTransferThread extends Thread{
 				oos.writeObject(fileLengths);
 				System.out.println("Server-Ordner:");
 				for (int i = 0; i < fileNames.size(); i++) {
-					System.out.print(fileNames.get(i) + " " + fileLengths.get(i) + " Bytes");
+					System.out.println(fileNames.get(i) + " " + fileLengths.get(i) + " Bytes");
 				}
             }
         } catch (IOException e) {

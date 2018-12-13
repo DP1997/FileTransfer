@@ -1,6 +1,5 @@
 package transfer;
 
-import java.awt.SecondaryLoop;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -22,34 +21,33 @@ class TCPClient {
         Socket clientSocket = null;
         InputStream is = null;
         
-        // Verbindungsaufbau
         try {
+            // Verbindungsaufbau
             clientSocket = new Socket( serverIP , serverPort );
             is = clientSocket.getInputStream();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        System.out.println("Connection established");
-        // Empfange DirInformation
-        receiveDirInformation(clientSocket);
-        
-        Scanner sc = new Scanner(System.in);
-        while((fileName = sc.nextLine()) != null) {
-        	System.out.println("Anfrage gesendet");
+            
+            System.out.println("Connection established");
+            // Empfange DirInformation
+            receiveDirInformation(clientSocket);
+            
+            Scanner sc = new Scanner(System.in);
+            fileName = sc.nextLine();
         	// teile Server den angeforderten Dateinamen mit
             contactServer(clientSocket);
             
             //lade Datei herunter
             downloadFileFromServer(is);
             System.out.println("Download erfolgreich");
-        }
-        clientSocket.close();
-        
-		
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }		
     }
     public static void contactServer(Socket clientSocket){
-    	try(OutputStreamWriter bos = new OutputStreamWriter(clientSocket.getOutputStream())){
-    		bos.write(fileName, 0, fileName.length());
+    	try{
+    		// auto-flush
+    		PrintWriter pw = new PrintWriter(clientSocket.getOutputStream(), true);
+    		pw.println((fileName));
+    		System.out.println("Suche nach File: " + fileName);
     	} catch(Exception ex) {
     		ex.printStackTrace();
     	}
@@ -79,14 +77,12 @@ class TCPClient {
                         bytesRead = is.read(aByte);
                 } while (bytesRead != -1);
 
-                System.out.println("Die Datei wurde ï¿½bertragen");
-                System.out.println("Dateigrï¿½ï¿½e: " + byteCounter);
+                System.out.println("Die Datei wurde empfangen");
+                System.out.println("Dateigröße: " + byteCounter);
                                 
                 bos.write(baos.toByteArray());
                
-                bos.flush();
-                bos.close();              
-                
+                bos.flush();             
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
