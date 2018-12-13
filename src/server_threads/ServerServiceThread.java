@@ -40,13 +40,12 @@ public class ServerServiceThread extends Thread{
 				System.out.println("Connection established");
 				
 				// fileName wird gelesen
-				while((fileName = br.readLine()) != null) {
+				fileName = br.readLine();
 				// sende Datei zum Client
 				sendFileToClient(bos);
 				//
 				System.out.println("Datei: " + fileName + " gesendet");
-				}
-		        connection.close();
+				
 			}
     	} catch (IOException e) {
     		e.printStackTrace();
