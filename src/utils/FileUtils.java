@@ -8,21 +8,19 @@ import javafx.stage.Stage;
 
 public class FileUtils {
 	
-	public static String[] getFileNames(String path) {
+	public static ArrayList<String> getFileNames(String path) {
+		
+		ArrayList<String> fileNames = new ArrayList<String>();
 		
 		File folder = new File(path);
 		File[] files = folder.listFiles();
-		
-		String[] fileNames = new String[files.length];
-		
 		for (int i = 0; i < files.length; i++) {
 		  if (files[i].isFile()) {
-		    fileNames[i] = files[i].getName();
+		    fileNames.add(files[i].getName());
 		  } 
 		}
 		return fileNames;
 	}
-	
 	    /*
 		for (int i = 0; i < files.length; i++) {
 			  if (files[i].isFile()) {
