@@ -17,6 +17,7 @@ public class FileTransferThread extends Thread{
 	
 	private Socket connection = null;
     private String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
+    private String fileChosenPath = "";
 
 	
 	public FileTransferThread(Socket sock) {
@@ -25,32 +26,35 @@ public class FileTransferThread extends Thread{
 	}
 	
 	public void run() {
-		System.out.println("Connection established");
-		
 		shareDirInformation();
-		/*
+		//...
 		try (BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream())){
 			
 			if (bos != null) {
-                File myFile = new File(sharePath);
-                byte[] mybytearray = new byte[(int) myFile.length()];
-
-                try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
-                	bis.read(mybytearray, 0, mybytearray.length);
-                    bos.write(mybytearray, 0, mybytearray.length);
-                    bos.flush();
-                    connection.close();
-
-                    // File sent -> exit run()
-                    return;
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (IOException e) {
-			e.printStackTrace();
-		}
-		*/
+				System.out.println("Connection established");
+				sendFile(bos);
+			}
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
+	}
+	
+	public void sendFile(BufferedOutputStream bos) throws IOException {
+		fileChosenPath = FileUtils.getChosenFileName(sharePath);
+		// ausgewählte Datei des Clients
+	    File myFile = new File(fileChosenPath);
+	    
+	    byte[] mybytearray = new byte[(int) myFile.length()];
+	
+	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
+	    	bis.read(mybytearray, 0, mybytearray.length);
+	        bos.write(mybytearray, 0, mybytearray.length);
+	        bos.flush();
+	        connection.close();
+	        return;
+	    } catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	    }	
 	}
 	
 	public void shareDirInformation() {

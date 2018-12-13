@@ -12,7 +12,7 @@ class TCPClient {
     private final static String serverIP = "192.168.0.7";
     private final static int serverPort = 3248;
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
-    private final static String fileChosen = "";
+    private final static String fileChosenPath = "";
     
     public static void main(String args[]) {
     	
@@ -32,6 +32,8 @@ class TCPClient {
             ex.printStackTrace();
         }
         System.out.println("Connection established");
+        
+        // sende Share-Ordner Informationen
         try ( ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream())){
         	Object fileNamesObj = objectInput.readObject();
         	Object fileLengthsObj = objectInput.readObject();
@@ -45,6 +47,7 @@ class TCPClient {
         catch (Exception e) {
         	e.printStackTrace();
         }
+        
         /*
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
