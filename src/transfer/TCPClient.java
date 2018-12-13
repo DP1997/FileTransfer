@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
+import datatypes.FileInformation;
 import utils.FileUtils;
 
 class TCPClient {
@@ -33,10 +34,10 @@ class TCPClient {
         System.out.println("Connection established");
         try ( ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream())){
         	Object object = objectInput.readObject();
-        	ArrayList<String> fileNames = (ArrayList<String>) object;
+        	ArrayList<FileInformation> files = (ArrayList<FileInformation>) object;
         	System.out.println("Ordner des Servers:");
-        	for(String s : fileNames) {
-        		System.out.println(s);
+        	for (FileInformation fi : files) {
+				System.out.println(fi.fileName + " " + fi.byteLength + " Bytes");
         	}
         }
         catch (Exception e) {

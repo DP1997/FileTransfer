@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.ArrayList;
 
+import datatypes.FileInformation;
 import utils.FileUtils;
 
 public class FileTransferThread extends Thread{
@@ -57,12 +58,12 @@ public class FileTransferThread extends Thread{
 		try (ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream())){
 		
 			if (oos != null) {
-				ArrayList<String> fileNames = FileUtils.getFileNames(sharePath);
-				oos.writeObject(fileNames);
+				ArrayList<FileInformation> files = FileUtils.getFileNames(sharePath);
+				oos.writeObject(files);
 				System.out.println("Server-Ordner:");
-				for(String s : fileNames) {
-					System.out.println(s);
-				}
+	        	for (FileInformation fi : files) {
+					System.out.println(fi.fileName + " " + fi.byteLength + " Bytes");
+	        	}
             }
         } catch (IOException e) {
 			e.printStackTrace();
