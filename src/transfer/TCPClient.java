@@ -1,31 +1,45 @@
 package transfer;
 
 import java.io.*;
-import java.io.ByteArrayOutputStream;
 import java.net.*;
+
+import utils.FileUtils;
 
 class TCPClient {
 
     private final static String serverIP = "10.0.188.22";
     private final static int serverPort = 3248;
-    private final static String fileOutput = "C:\\Users\\Mirco\\Desktop\\testout.zip";
-
+    private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
+    private final static String fileChosen = "";
+    
     public static void main(String args[]) {
+    	
         byte[] aByte = new byte[1];
         int bytesRead;
 
         Socket clientSocket = null;
         InputStream is = null;
         int byteCounter = 0;
-
+        
+        		
+        // Verbindungsaufbau
         try {
             clientSocket = new Socket( serverIP , serverPort );
-            System.out.println("Connection established");
             is = clientSocket.getInputStream();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
+        System.out.println("Connection established");
+        
+        try ( ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream())){
+        	Object object = objectInput.readObject();
+        	File[] fileArrays = (File[]) object;
+        	FileUtils.getFileInformation(fileArrays);
+        }
+        catch (Exception e) {
+        	e.printStackTrace();
+        }
+        /*
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         if (is != null) {
@@ -33,7 +47,7 @@ class TCPClient {
             FileOutputStream fos = null;
             BufferedOutputStream bos = null;
             try {
-                fos = new FileOutputStream( fileOutput );
+                fos = new FileOutputStream( sharePath );
                 bos = new BufferedOutputStream(fos);
                 bytesRead = is.read(aByte, 0, aByte.length);
 
@@ -49,7 +63,7 @@ class TCPClient {
                 //Test
                 /*
                 UnzipUtil.startUnzipping(fileOutput, baos);
-                */
+                
                 
                 bos.write(baos.toByteArray());
                
@@ -62,5 +76,7 @@ class TCPClient {
                 ex.printStackTrace();
             }
         }
+		*/
+		
     }
 }
