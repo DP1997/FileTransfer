@@ -36,7 +36,7 @@ public class FileTransferThread extends Thread{
 				
 				// sende Datei zum Client
 				sendFileToClient(bos);
-		        connection.close();
+				
 			}
     	} catch (IOException e) {
     		e.printStackTrace();
@@ -61,8 +61,8 @@ public class FileTransferThread extends Thread{
 	
 	public void shareDirInformation() {
 		
-		try (ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream())){
-		
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream());
 			if (oos != null) {
 				ArrayList<String> fileNames = FileUtils.getFileNames(sharePath);
 				ArrayList<Long> fileLengths = FileUtils.getFileLengths(sharePath);

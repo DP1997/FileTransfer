@@ -2,21 +2,36 @@ package application;
 	
 import java.io.File;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import utils.FileUtils;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
 
-
 public class Main extends Application {
+	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			BorderPane root = new BorderPane();
-			Scene scene = new Scene(root,400,400);
-			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			//loading the fxml file
+			FXMLLoader loader = new FXMLLoader(Main.class.getResource("FileTransfer.fxml"));
+			AnchorPane pane = loader.load();
+			
+			FileTransferController controller = loader.getController();
+			
+			//setting height and width of the window
+			primaryStage.setMinHeight(400);
+			primaryStage.setMinWidth(400);
+			//setting title
+			primaryStage.setTitle("FileTransfer");
+			//window should not be resizable
+			primaryStage.setResizable(false);
+			
+			//creating a new scene
+			Scene scene = new Scene(pane);
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			
