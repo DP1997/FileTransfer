@@ -1,9 +1,8 @@
-package thread;
+package server_threads;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,15 +16,13 @@ import java.util.ArrayList;
 import datatypes.FileInformation;
 import utils.FileUtils;
 
-public class FileTransferThread extends Thread{
+public class ServerServiceThread extends Thread{
 	
 	private Socket connection = null;
 	
-    private String sharePath = "/home/donald/Schreibtisch";
-    private String fileName = "";
-
+    public static String sharePath = "/home/donald/Schreibtisch";
 	
-	public FileTransferThread(Socket sock) {
+	public ServerServiceThread(Socket sock) {
 		super("FileTransferThread");
 		this.connection = sock; 	
 	}
@@ -34,47 +31,24 @@ public class FileTransferThread extends Thread{
 		shareDirInformation();
 		//...
 		try (BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream());
-				BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))){
+				BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream())))
+		{
 			
 			if (bos != null && br != null) {
 				System.out.println("Connection established");
-				while(true) {
-					switch(was der client schickt) {
-					case 1: new thread //download
-					case 2: new thread//refresh
-					...//abbruch
-					
-					}
-				}
+				
+				// fileName wird gelesen
+				String fileName = "";
 				fileName = br.readLine();
-					System.out.println("Datei: " + fileName + " gesendet");
-					// sende Datei zum Client
-					sendFileToClient(bos);
-
-				
-				
+				// sende Datei zum Client
+				new ServerSendThread(connection, fileName).start();
+		        connection.close();
 			}
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
 	}
-	
-	public void sendFileToClient(BufferedOutputStream bos) throws IOException {
-		String filePath = sharePath+"/"+fileName;
-		// ausgew�hlte Datei des Clients
-	    File myFile = new File(filePath);
-	    
-	    byte[] mybytearray = new byte[(int) myFile.length()];
-	
-	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
-	    	bis.read(mybytearray, 0, mybytearray.length);
-	        bos.write(mybytearray, 0, mybytearray.length);
-	        bos.flush();
-	    } catch (FileNotFoundException e) {
-	        e.printStackTrace();
-	    }	
-	}
-	
+		
 	public void shareDirInformation() {
 		
 		try{
