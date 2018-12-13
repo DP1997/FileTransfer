@@ -2,10 +2,13 @@ package thread;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ public class FileTransferThread extends Thread{
 	
 	private Socket connection = null;
     private String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
-    private String fileChosenPath = "";
+    private String fileName = "";
 
 	
 	public FileTransferThread(Socket sock) {
@@ -28,13 +31,18 @@ public class FileTransferThread extends Thread{
 	public void run() {
 		shareDirInformation();
 		//...
-		try (BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream())){
+		try (BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream());
+				BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream())))
+		{
 			
-			if (bos != null) {
+			if (bos != null && br != null) {
 				System.out.println("Connection established");
 				
+				while((fileName = br.readLine()) != null) {
 				// sende Datei zum Client
 				sendFileToClient(bos);
+				System.out.println("Datei: " + fileName + " gesendet");
+				}
 		        connection.close();
 			}
     	} catch (IOException e) {
@@ -43,9 +51,9 @@ public class FileTransferThread extends Thread{
 	}
 	
 	public void sendFileToClient(BufferedOutputStream bos) throws IOException {
-		fileChosenPath = FileUtils.getChosenFileName(sharePath);
+		fileName = FileUtils.getChosenFileName(sharePath);
 		// ausgewählte Datei des Clients
-	    File myFile = new File(fileChosenPath);
+	    File myFile = new File(fileName);
 	    
 	    byte[] mybytearray = new byte[(int) myFile.length()];
 	
@@ -60,8 +68,8 @@ public class FileTransferThread extends Thread{
 	
 	public void shareDirInformation() {
 		
-		try (ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream())){
-		
+		try{
+			ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream());
 			if (oos != null) {
 				ArrayList<String> fileNames = FileUtils.getFileNames(sharePath);
 				ArrayList<Long> fileLengths = FileUtils.getFileLengths(sharePath);
