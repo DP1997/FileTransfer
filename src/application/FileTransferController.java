@@ -1,5 +1,6 @@
 package application;
 
+import java.awt.Label;
 import java.io.File;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -30,10 +31,17 @@ public class FileTransferController {
 
     @FXML
     private ImageView button_download, button_explorer, button_refresh, button_explorer2
-    				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished;
+    				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished,
+    				  noConnection, connectionEstablished;
 
     @FXML
     private TextField textfield_port, textfield_ip, textfield_dpath;
+    
+    @FXML
+    private Label labelConnection, labelNoConnection, labelErrorConnection;
+   
+    
+    
     
     @FXML
     public void topBarIconClicked(MouseEvent e) {
@@ -122,8 +130,15 @@ public class FileTransferController {
     }
     
     private void establishConnection() {
-    	//read textfields
-    	//do socket garbage
+    	boolean connection = false;
+    	if (connection) {
+    		// change Text and Image
+    		noConnection.setVisible(false);
+    		labelNoConnection.setVisible(false);
+    		
+    		labelConnection.setVisible(true);
+    		connectionEstablished.setVisible(true);
+    	}
     }
     
     private void requestFileDownload() {

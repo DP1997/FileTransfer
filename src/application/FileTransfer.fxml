@@ -83,6 +83,11 @@
                   <Font size="20.0" />
                </font>
             </Label>
+            <Label fx:id="labelErrorConnection" layoutX="106.0" layoutY="401.0" text="FEHLER BEIM VERBINDEN MIT DEM SERVER" textFill="#d71313">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
          </children>
       </AnchorPane>
       <AnchorPane id="downloadView" fx:id="downloadView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;" visible="false">
