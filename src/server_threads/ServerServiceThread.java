@@ -45,7 +45,7 @@ public class ServerServiceThread extends Thread{
 						switch(fileName) {
 						case "refresh": shareDirInformation();
 										break;
-						default: 		if(fileNames.contains(fileName)) sendFileToClient();
+						default: 		if(fileNames != null) if(fileNames.contains(fileName)) sendFileToClient();
 										System.out.println("Datei: " + fileName + " gesendet");								
 						}
 					}

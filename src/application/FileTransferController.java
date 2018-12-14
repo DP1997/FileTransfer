@@ -2,10 +2,13 @@ package application;
 
 import java.io.File;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -34,6 +37,16 @@ public class FileTransferController {
 
     @FXML
     private TextField textfield_port, textfield_ip, textfield_dpath;
+    
+    @FXML
+    private static ListView<String> listView;
+    	
+    private static ObservableList<String> items;
+    
+    public FileTransferController() {
+    	items = FXCollections.observableArrayList();
+        listView = new ListView<>(items);
+    }
     
     @FXML
     public void topBarIconClicked(MouseEvent e) {
@@ -135,6 +148,10 @@ public class FileTransferController {
     private void requestFileListRefresh() {
     	TCPClient.contactServer("refresh");
     	TCPClient.receiveDirInformation();
+    	for(int i = 0; i < TCPClient.fileNames.size(); i++) {
+    		listView.getItems().add(TCPClient.fileNames.get(i) + ", " + TCPClient.fileLengths.get(i));
+    	}
+    	
     }
 }
     	
