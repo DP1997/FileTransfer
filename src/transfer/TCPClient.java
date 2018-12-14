@@ -16,6 +16,7 @@ public class TCPClient {
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private static Socket clientSocket = null;
 
+    private static ArrayList<String> fileNames;
     
     public static void main(String args[]) throws IOException {
         
@@ -26,7 +27,7 @@ public class TCPClient {
             System.out.println("Connection established");
             
             // Empfange DirInformation
-            receiveDirInformation(clientSocket);
+            receiveDirInformation();
             
             Scanner sc = new Scanner(System.in);
             String fileName = sc.nextLine();
@@ -41,11 +42,11 @@ public class TCPClient {
         }		
     }
     
-    public static void contactServer(String fileName){
+    public static void contactServer(String action){
     	try (PrintWriter pw = new PrintWriter(clientSocket.getOutputStream(), true)){
     		// auto-flush
-    		pw.println((fileName));
-    		System.out.println("Suche nach File: " + fileName);
+    		pw.println((action));
+    		System.out.println("Suche nach File: " + action);
     	} catch(Exception ex) {
     		ex.printStackTrace();
     	}
@@ -84,13 +85,13 @@ public class TCPClient {
         
     }
     
-    public static void receiveDirInformation(Socket clientSocket) {
+    public static void receiveDirInformation() {
         // empfange Share-Ordner Informationen
-        try {
-        	ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream());
+        try (ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream())){
+        	
         	Object fileNamesObj = objectInput.readObject();
         	Object fileLengthsObj = objectInput.readObject();
-        	ArrayList<String> fileNames = (ArrayList<String>) fileNamesObj;
+        	fileNames = (ArrayList<String>) fileNamesObj;
         	ArrayList<Long> fileLengths  = (ArrayList<Long>) fileLengthsObj;
         	System.out.println("Ordner des Servers:");
 			for (int i = 0; i < fileNames.size(); i++) {
