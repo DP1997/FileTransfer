@@ -61,15 +61,6 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			
-<<<<<<< HEAD
-			
-			
-			
-=======
-			//Tests
-			//String chosenFile = FileUtils.chooseDownloadDirectory(primaryStage);
->>>>>>> branch 'master' of https://github.com/roninshowdown/eva_ws18.git
-			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
