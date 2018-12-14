@@ -41,8 +41,9 @@ public class FileTransferController {
     
     @FXML
     private Label labelConnection, labelNoConnection, labelErrorConnection;
-   
     
+    // green HEX: 53BA3A
+    //
     
     
     @FXML
@@ -104,6 +105,7 @@ public class FileTransferController {
 		File selectedDirectory = chooser.showDialog(stage);
 		if(selectedDirectory != null) {
 			textfield_dpath.setText(selectedDirectory.getAbsolutePath());
+			
 		}
 	}
     
@@ -134,20 +136,23 @@ public class FileTransferController {
     }
     
     private void establishConnection() {
+    	boolean connected = false;
     	String ip = textfield_ip.getText();
     	String port = textfield_port.getText();
     	try {
 			TCPClient.connectToServer(ip, Integer.valueOf(port));
+			connected = true;
 		} catch (IOException e) {
 			labelErrorConnection.setVisible(true);
 			e.printStackTrace();
 		}
-
+    	if(connected) {
 		noConnection.setVisible(false);
 		labelNoConnection.setVisible(false);
 		
 		labelConnection.setVisible(true);
 		connectionEstablished.setVisible(true);
+    	}
     }
     
     
