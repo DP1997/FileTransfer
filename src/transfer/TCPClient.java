@@ -14,35 +14,34 @@ public class TCPClient {
     private final static int serverPort = 3248;
     
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
+    private static Socket clientSocket = null;
+
     
     public static void main(String args[]) throws IOException {
-    	
-        Socket clientSocket = null;
-        InputStream is = null;
         
         try {
+        	
             // Verbindungsaufbau
             clientSocket = new Socket( serverIP , serverPort );
-            is = clientSocket.getInputStream();
-            
             System.out.println("Connection established");
+            
             // Empfange DirInformation
             receiveDirInformation(clientSocket);
             
             Scanner sc = new Scanner(System.in);
             String fileName = sc.nextLine();
         	// teile Server den angeforderten Dateinamen mit
-            contactServer(clientSocket, fileName);
+            contactServer(fileName);
             
             //lade Datei herunter
-            downloadFileFromServer(is, fileName);
+            downloadFileFromServer(fileName);
             System.out.println("Download erfolgreich");
         } catch (IOException ex) {
             ex.printStackTrace();
         }		
     }
     
-    public static void contactServer(Socket clientSocket, String fileName){
+    public static void contactServer(String fileName){
     	try (PrintWriter pw = new PrintWriter(clientSocket.getOutputStream(), true)){
     		// auto-flush
     		pw.println((fileName));
@@ -53,24 +52,19 @@ public class TCPClient {
     	
     }
     
-    public static void downloadFileFromServer(InputStream is, String fileName) {
-        
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    public static void downloadFileFromServer(String fileName) {
+    	
+    	String filePath = sharePath + "\\" + fileName;
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        	InputStream is = clientSocket.getInputStream();
+        	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
+            
+            if (is != null && bos != null && baos != null) {
+            	byte[] aByte = new byte[1];
+                int bytesRead;
+                int byteCounter = 0;
 
-        byte[] aByte = new byte[1];
-        int bytesRead;
-        int byteCounter = 0;
-        
-        if (is != null) {
-
-            FileOutputStream fos = null;
-            BufferedOutputStream bos = null;
-            try {
-            	String filePath = sharePath + "\\" + fileName;
-                fos = new FileOutputStream(filePath);
-                bos = new BufferedOutputStream(fos);
                 bytesRead = is.read(aByte, 0, aByte.length);
-
                 do {
                 		byteCounter++;
                         baos.write(aByte);
@@ -81,13 +75,15 @@ public class TCPClient {
                 System.out.println("Dateigroese: " + byteCounter);
                                 
                 bos.write(baos.toByteArray());
-               
                 bos.flush();             
-            } catch (IOException ex) {
-                ex.printStackTrace();
             }
-        }
+        } catch (IOException e) {
+			e.printStackTrace();
+		}
+
+        
     }
+    
     public static void receiveDirInformation(Socket clientSocket) {
         // empfange Share-Ordner Informationen
         try {
