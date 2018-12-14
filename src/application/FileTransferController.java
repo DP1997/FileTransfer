@@ -6,8 +6,6 @@ import java.io.IOException;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
@@ -19,10 +17,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 
 import javafx.stage.Window;
-import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 
 import transfer.*;
 
@@ -43,18 +37,17 @@ public class FileTransferController {
     private TextField textfield_port, textfield_ip, textfield_dpath;
     
     @FXML
-    private static ListView<String> listView;
-    	
-    private static ObservableList<String> items;
+    private Label labelConnection, labelNoConnection, labelErrorConnection;
+
+    
+    private static ObservableList<String> items = null;
+    private static ListView<String> list 		= null;
     
     public FileTransferController() {
     	items = FXCollections.observableArrayList();
-        listView = new ListView<>(items);
+    	list = new ListView<>(items);
     }
     
-    @FXML
-    private Label labelConnection, labelNoConnection, labelErrorConnection;
-   
     @FXML
     public void topBarIconClicked(MouseEvent e) {
     	ImageView source = (ImageView) e.getSource();
@@ -114,6 +107,7 @@ public class FileTransferController {
 		File selectedDirectory = chooser.showDialog(stage);
 		if(selectedDirectory != null) {
 			textfield_dpath.setText(selectedDirectory.getAbsolutePath());
+			
 		}
 	}
     
@@ -138,26 +132,31 @@ public class FileTransferController {
     	if(source.getId().equals("button_explorer")) {
     		//open file explorer view
     	}
+    	
+    	//settingsView
     	if(source.getId().equals("button_explorer2")) {
     		chooseDownloadDirectory(e);
     	}
     }
     
     private void establishConnection() {
+    	boolean connected = false;
     	String ip = textfield_ip.getText();
     	String port = textfield_port.getText();
     	try {
 			TCPClient.connectToServer(ip, Integer.valueOf(port));
+			connected = true;
 		} catch (IOException e) {
 			labelErrorConnection.setVisible(true);
 			e.printStackTrace();
 		}
-
+    	if(connected) {
 		noConnection.setVisible(false);
 		labelNoConnection.setVisible(false);
 		
 		labelConnection.setVisible(true);
 		connectionEstablished.setVisible(true);
+    	}
     }
     
     
@@ -171,6 +170,9 @@ public class FileTransferController {
     private void requestFileListRefresh() {
     	TCPClient.contactServer("refresh");
     	TCPClient.receiveDirInformation();
+		for (int i = 0; i < TCPClient.fileNames.size(); i++) {
+			list.getItems().add(TCPClient.fileNames.get(i) + ", " + TCPClient.fileLengths.get(i) + " Bytes");
+		}
     }
 }
     	

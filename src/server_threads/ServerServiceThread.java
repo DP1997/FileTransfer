@@ -23,8 +23,8 @@ public class ServerServiceThread extends Thread{
     private String sharePath = "/home/donald/Schreibtisch";
     private String fileName = "";
     
-    private static ArrayList<String> fileNames;
-    private static ArrayList<Long> fileLengths;
+    private static ArrayList<String> fileNames = null;
+    private static ArrayList<Long> fileLengths = null;
 
 	
 	public ServerServiceThread(Socket sock) {

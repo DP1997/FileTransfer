@@ -20,7 +20,7 @@ public class TCPClient {
     public static ArrayList<Long> fileLengths = null;
     
     public static void connectToServer(String serverIP, int serverPort) throws IOException {
-        
+        if(clientSocket == null) {
         try {
         	
             // Verbindungsaufbau
@@ -29,10 +29,10 @@ public class TCPClient {
             
             // Empfange DirInformation
             receiveDirInformation();
-            
         } catch (IOException ex) {
             ex.printStackTrace();
-        }		
+        }
+        }
     }
     
     public static void contactServer(String action){
