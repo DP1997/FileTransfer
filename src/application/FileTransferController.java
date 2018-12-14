@@ -108,10 +108,12 @@ public class FileTransferController {
     	
     	//downloadView
     	if(source.getId().equals("button_download")) {
-    		//download file
+    		//request file download
+    		requestFileDownload();
     	}
     	if(source.getId().equals("button_refresh")) {
     		//request file refresh
+    		requestFileListRefresh();
     	}
     	if(source.getId().equals("button_explorer")) {
     		//open file explorer view
@@ -128,6 +130,11 @@ public class FileTransferController {
     	String fileName = "";
     	TCPClient.contactServer(fileName);
     	TCPClient.downloadFileFromServer(fileName);
+    }
+    
+    private void requestFileListRefresh() {
+    	TCPClient.contactServer("refresh");
+    	TCPClient.receiveDirInformation();
     }
 }
     	

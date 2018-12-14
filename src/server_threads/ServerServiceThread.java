@@ -22,6 +22,9 @@ public class ServerServiceThread extends Thread{
 	
     private String sharePath = "/home/donald/Schreibtisch";
     private String fileName = "";
+    
+    private static ArrayList<String> fileNames;
+    private static ArrayList<Long> fileLengths;
 
 	
 	public ServerServiceThread(Socket sock) {
@@ -30,52 +33,53 @@ public class ServerServiceThread extends Thread{
 	}
 	
 	public void run() {
+		//initial sharing
 		shareDirInformation();
-		//...
-		try (BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream());
-				BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream())))
-		{
-			
-			if (bos != null && br != null) {
+		
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))){
+			if (br != null) {
 				System.out.println("Connection established");
 				
-				// fileName wird gelesen
-				fileName = br.readLine();
-				// sende Datei zum Client
-				sendFileToClient(bos);
-				//
-				System.out.println("Datei: " + fileName + " gesendet");
-		        connection.close();
-				
+				while(!connection.isClosed()) {
+					if((fileName = br.readLine()) != null) {
+						switch(fileName) {
+						case "refresh": shareDirInformation();
+										break;
+						default: 		if(fileNames.contains(fileName)) sendFileToClient();
+										System.out.println("Datei: " + fileName + " gesendet");								
+						}
+					}
+				}		
 			}
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
 	}
 	
-	public void sendFileToClient(BufferedOutputStream bos) throws IOException {
+	public void sendFileToClient() throws IOException {
 		String filePath = sharePath + "/" + fileName;
 		// ausgew�hlte Datei des Clients
 	    File myFile = new File(filePath);
 	    
 	    byte[] mybytearray = new byte[(int) myFile.length()];
 	
-	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
-	    	bis.read(mybytearray, 0, mybytearray.length);
-	        bos.write(mybytearray, 0, mybytearray.length);
-	        bos.flush();
+	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile));
+	    	 BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream())) {
+	    	if (bis != null && bos != null) {
+		    	bis.read(mybytearray, 0, mybytearray.length);
+		        bos.write(mybytearray, 0, mybytearray.length);
+		        bos.flush();
+	    	}
 	    } catch (FileNotFoundException e) {
 	        e.printStackTrace();
 	    }	
 	}
 	
 	public void shareDirInformation() {
-		
-		try{
-			ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream());
+		try (ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream())){
 			if (oos != null) {
-				ArrayList<String> fileNames = FileUtils.getFileNames(sharePath);
-				ArrayList<Long> fileLengths = FileUtils.getFileLengths(sharePath);
+				fileNames = FileUtils.getFileNames(sharePath);
+				fileLengths = FileUtils.getFileLengths(sharePath);
 				oos.writeObject(fileNames);
 				oos.writeObject(fileLengths);
 				System.out.println("Server-Ordner:");
