@@ -8,13 +8,12 @@ import java.util.Scanner;
 import datatypes.FileInformation;
 import utils.FileUtils;
 
-class TCPClient {
+public class TCPClient {
 
     private final static String serverIP = "192.168.0.7";
     private final static int serverPort = 3248;
     
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
-    private static String fileName = "";
     
     public static void main(String args[]) throws IOException {
     	
@@ -31,21 +30,21 @@ class TCPClient {
             receiveDirInformation(clientSocket);
             
             Scanner sc = new Scanner(System.in);
-            fileName = sc.nextLine();
+            String fileName = sc.nextLine();
         	// teile Server den angeforderten Dateinamen mit
-            contactServer(clientSocket);
+            contactServer(clientSocket, fileName);
             
             //lade Datei herunter
-            downloadFileFromServer(is);
+            downloadFileFromServer(is, fileName);
             System.out.println("Download erfolgreich");
         } catch (IOException ex) {
             ex.printStackTrace();
         }		
     }
-    public static void contactServer(Socket clientSocket){
-    	try{
+    
+    public static void contactServer(Socket clientSocket, String fileName){
+    	try (PrintWriter pw = new PrintWriter(clientSocket.getOutputStream(), true)){
     		// auto-flush
-    		PrintWriter pw = new PrintWriter(clientSocket.getOutputStream(), true);
     		pw.println((fileName));
     		System.out.println("Suche nach File: " + fileName);
     	} catch(Exception ex) {
@@ -53,7 +52,8 @@ class TCPClient {
     	}
     	
     }
-    public static void downloadFileFromServer(InputStream is) {
+    
+    public static void downloadFileFromServer(InputStream is, String fileName) {
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -78,7 +78,7 @@ class TCPClient {
                 } while (bytesRead != -1);
 
                 System.out.println("Die Datei wurde empfangen");
-                System.out.println("Dateigröße: " + byteCounter);
+                System.out.println("Dateigroese: " + byteCounter);
                                 
                 bos.write(baos.toByteArray());
                
