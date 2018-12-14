@@ -118,6 +118,33 @@ public class FileTransferController {
     		iv_indic.setVisible(false);
     	}
     }
+    
+    @FXML
+    public void handleMouseClick(MouseEvent e) {
+    	ImageView source = (ImageView) e.getSource();
+    	
+    	//connectionView
+    	if(source.getId().equals("connectToServer")) {
+    		establishConnection();
+    	}
+    	
+    	//downloadView
+    	if(source.getId().equals("button_download")) {
+    		//download file
+    	}
+    	if(source.getId().equals("button_refresh")) {
+    		//request file refresh
+    	}
+    	if(source.getId().equals("button_explorer")) {
+    		//open file explorer view
+    	}
+    }
+    
+    private void establishConnection() {
+    	//read textfields
+    	//do socket garbage
+    }
+    
 }
     	
 
