@@ -16,6 +16,7 @@ public class TCPClient {
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private static Socket clientSocket = null;
 
+    private static ArrayList<String> fileNames;
     
     public static void main(String args[]) throws IOException {
         
@@ -90,7 +91,7 @@ public class TCPClient {
         	
         	Object fileNamesObj = objectInput.readObject();
         	Object fileLengthsObj = objectInput.readObject();
-        	ArrayList<String> fileNames = (ArrayList<String>) fileNamesObj;
+        	fileNames = (ArrayList<String>) fileNamesObj;
         	ArrayList<Long> fileLengths  = (ArrayList<Long>) fileLengthsObj;
         	System.out.println("Ordner des Servers:");
 			for (int i = 0; i < fileNames.size(); i++) {
