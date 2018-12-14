@@ -34,7 +34,7 @@ public class FileTransferController {
     @FXML
     private ImageView button_download, button_explorer, button_refresh, button_explorer2
     				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished,
-    				  noConnection, connectionEstablished;
+    				  noConnection, connectionEstablished, geprueftHaken;
 
     @FXML
     private TextField textfield_port, textfield_ip, textfield_dpath;
@@ -105,7 +105,7 @@ public class FileTransferController {
 		File selectedDirectory = chooser.showDialog(stage);
 		if(selectedDirectory != null) {
 			textfield_dpath.setText(selectedDirectory.getAbsolutePath());
-			
+			geprueftHaken.setVisible(true);
 		}
 	}
     

@@ -129,7 +129,7 @@
          <children>
             <Label layoutX="40.0" layoutY="47.0" text="DOWNLOADPATH" textFill="#ddd8d8">
                <font>
-                  <Font size="20.0" />
+                  <Font size="20.0 " />
                </font>
             </Label>
             <TextField fx:id="textfield_dpath" editable="false" layoutX="40.0" layoutY="94.0" prefHeight="26.0" prefWidth="392.0" text="BITTE PFAD ANGEBEN">
@@ -141,7 +141,7 @@
                   <Image url="@images/icons8-ordner-öffnen-filled-96.png" />
                </image>
             </ImageView>
-            <ImageView layoutX="236.0" layoutY="264.0">
+            <ImageView fx:id="geprueftHaken" layoutX="236.0" layoutY="264.0" visible="false">
                <image>
                   <Image url="@images/icons8-geprüft-96.png" />
                </image>
