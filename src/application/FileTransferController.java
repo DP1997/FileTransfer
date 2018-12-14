@@ -1,6 +1,8 @@
 package application;
 
 import java.io.File;
+import java.io.IOException;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,6 +11,7 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -33,7 +36,8 @@ public class FileTransferController {
 
     @FXML
     private ImageView button_download, button_explorer, button_refresh, button_explorer2
-    				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished;
+    				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished,
+    				  noConnection, connectionEstablished;
 
     @FXML
     private TextField textfield_port, textfield_ip, textfield_dpath;
@@ -48,6 +52,9 @@ public class FileTransferController {
         listView = new ListView<>(items);
     }
     
+    @FXML
+    private Label labelConnection, labelNoConnection, labelErrorConnection;
+   
     @FXML
     public void topBarIconClicked(MouseEvent e) {
     	ImageView source = (ImageView) e.getSource();
@@ -131,12 +138,28 @@ public class FileTransferController {
     	if(source.getId().equals("button_explorer")) {
     		//open file explorer view
     	}
+    	if(source.getId().equals("button_explorer2")) {
+    		chooseDownloadDirectory(e);
+    	}
     }
     
     private void establishConnection() {
-    	//read textfields
-    	//do socket garbage
+    	String ip = textfield_ip.getText();
+    	String port = textfield_port.getText();
+    	try {
+			TCPClient.connectToServer(ip, Integer.valueOf(port));
+		} catch (IOException e) {
+			labelErrorConnection.setVisible(true);
+			e.printStackTrace();
+		}
+
+		noConnection.setVisible(false);
+		labelNoConnection.setVisible(false);
+		
+		labelConnection.setVisible(true);
+		connectionEstablished.setVisible(true);
     }
+    
     
     private void requestFileDownload() {
     	//read marked list entry
@@ -148,10 +171,6 @@ public class FileTransferController {
     private void requestFileListRefresh() {
     	TCPClient.contactServer("refresh");
     	TCPClient.receiveDirInformation();
-    	for(int i = 0; i < TCPClient.fileNames.size(); i++) {
-    		listView.getItems().add(TCPClient.fileNames.get(i) + ", " + TCPClient.fileLengths.get(i));
-    	}
-    	
     }
 }
     	

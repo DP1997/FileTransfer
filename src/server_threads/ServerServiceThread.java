@@ -76,7 +76,9 @@ public class ServerServiceThread extends Thread{
 	}
 	
 	public void shareDirInformation() {
-		try (ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream())){
+		try {
+			//no auto-close, because we still need the connection
+			ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream());
 			if (oos != null) {
 				fileNames = FileUtils.getFileNames(sharePath);
 				fileLengths = FileUtils.getFileLengths(sharePath);
