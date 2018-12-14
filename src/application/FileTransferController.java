@@ -18,61 +18,22 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 
+import transfer.*;
+
 public class FileTransferController {
 
     @FXML
     private ImageView conView_indic, downloadView_indic, settingsView_indic;
 
     @FXML
-    private AnchorPane downloadView;
+    private AnchorPane topbar, downloadView, connectionView, settingsView;
 
     @FXML
-    private ImageView button_download;
+    private ImageView button_download, button_explorer, button_refresh, button_explorer2
+    				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished;
 
     @FXML
-    private ImageView button_explorer;
-
-    @FXML
-    private ImageView button_refresh;
-
-    @FXML
-    private AnchorPane settingsView;
-
-    @FXML
-    private TextField textfield_dpath;
-
-    @FXML
-    private ImageView button_explorer2;
-
-    @FXML
-    private AnchorPane topbar;
-
-    @FXML
-    private ImageView openConView;
-
-    @FXML
-    private ImageView openDownloadView;
-
-    @FXML
-    private ImageView openSettingsView;
-
-    @FXML
-    private ImageView shutdown;
-
-    @FXML
-    private AnchorPane connectionView;
-
-    @FXML
-    private ImageView connectToServer;
-
-    @FXML
-    private ImageView conEstablished;
-
-    @FXML
-    private TextField textfield_port;
-
-    @FXML
-    private TextField textfield_ip;
+    private TextField textfield_port, textfield_ip, textfield_dpath;
     
     @FXML
     public void topBarIconClicked(MouseEvent e) {
@@ -123,7 +84,7 @@ public class FileTransferController {
     	}
     }
 
-	public void chooseDownloadDirectory(MouseEvent e) {
+	private void chooseDownloadDirectory(MouseEvent e) {
     	// get Stage
         Node source = (Node) e.getSource();
         Window stage = source.getScene().getWindow();
@@ -163,6 +124,12 @@ public class FileTransferController {
     private void establishConnection() {
     	//read textfields
     	//do socket garbage
+    }
+    
+    private void requestFileDownload() {
+    	//read marked list entry
+    	String fileName = "";
+    	TCPClient.contactServer(clientSocket, fileName);
     }
 }
     	
