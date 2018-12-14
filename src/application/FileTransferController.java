@@ -79,32 +79,32 @@ public class FileTransferController {
     	ImageView source = (ImageView) e.getSource();
     	if(source.getId().equals("openConView")) {
     		if(connectionView.isVisible()) {
-    			visibilityControll(connectionView, conView_indic, false);
+    			visibilityControl(connectionView, conView_indic, false);
     		}
     		else {
-    			visibilityControll(connectionView, conView_indic, true);
-    			visibilityControll(downloadView, downloadView_indic, false);
-    			visibilityControll(settingsView, settingsView_indic, false);
+    			visibilityControl(connectionView, conView_indic, true);
+    			visibilityControl(downloadView, downloadView_indic, false);
+    			visibilityControl(settingsView, settingsView_indic, false);
     		}
     	}
     	else if(source.getId().equals("openDownloadView")) {
       		if(downloadView.isVisible()) {
-    			visibilityControll(downloadView, downloadView_indic, false);
+    			visibilityControl(downloadView, downloadView_indic, false);
     		}
     		else {
-    			visibilityControll(downloadView, downloadView_indic, true);
-    			visibilityControll(connectionView, conView_indic, false);
-    			visibilityControll(settingsView, settingsView_indic, false);
+    			visibilityControl(downloadView, downloadView_indic, true);
+    			visibilityControl(connectionView, conView_indic, false);
+    			visibilityControl(settingsView, settingsView_indic, false);
     		}
     	}
     	else if(source.getId().equals("openSettingsView")) {
       		if(settingsView.isVisible()) {
-    			visibilityControll(settingsView, settingsView_indic, false);
+    			visibilityControl(settingsView, settingsView_indic, false);
     		}
     		else {
-    			visibilityControll(settingsView, settingsView_indic, true);
-    			visibilityControll(downloadView, downloadView_indic, false);
-    			visibilityControll(connectionView, conView_indic, false);
+    			visibilityControl(settingsView, settingsView_indic, true);
+    			visibilityControl(downloadView, downloadView_indic, false);
+    			visibilityControl(connectionView, conView_indic, false);
     		}
     	}
     	else if(source.getId().equals("shutdown")) {
@@ -113,7 +113,7 @@ public class FileTransferController {
     	
     }
     
-    private void visibilityControll(AnchorPane ap, ImageView iv_indic, boolean visible) {
+    private void visibilityControl(AnchorPane ap, ImageView iv_indic, boolean visible) {
     	if(visible) {
     		ap.setVisible(true);
     		iv_indic.setVisible(true);
@@ -128,7 +128,6 @@ public class FileTransferController {
         Node source = (Node) e.getSource();
         Window stage = source.getScene().getWindow();
         
-    	String input = "Bitte Pfad angeben";
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Download-Ordner angeben");
 		File selectedDirectory = chooser.showDialog(stage);
