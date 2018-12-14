@@ -12,6 +12,7 @@ public class TCPClient {
 
     private final static String serverIP = "192.168.0.7";
     private final static int serverPort = 3248;
+    public static boolean connectionSuccessful = false;
     
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private static Socket clientSocket = null;
@@ -19,18 +20,14 @@ public class TCPClient {
     private static ArrayList<String> fileNames;
     
     public static void connectToServer(String serverIP, int serverPort) throws IOException {
-        if(clientSocket == null) {
-        try {
-        	
+        if(clientSocket == null) {   	
             // Verbindungsaufbau
             clientSocket = new Socket( serverIP , serverPort );
             System.out.println("Connection established");
+            connectionSuccessful = true;
             
             // Empfange DirInformation
             receiveDirInformation();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
         }
     }
     
@@ -43,6 +40,11 @@ public class TCPClient {
     		ex.printStackTrace();
     	}
     	
+    }
+    public static void deleteConnection () {
+    	if(clientSocket != null || clientSocket.isConnected()) {
+    		clientSocket.isClosed();
+    	}
     }
     
     public static void downloadFileFromServer(String fileName) {

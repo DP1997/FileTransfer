@@ -34,7 +34,7 @@ public class FileTransferController {
     @FXML
     private ImageView button_download, button_explorer, button_refresh, button_explorer2
     				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished,
-    				  noConnection, connectionEstablished, geprueftHaken;
+    				  noConnection, connectionEstablished, geprueftHaken, disconnect, connect;
 
     @FXML
     private TextField textfield_port, textfield_ip, textfield_dpath;
@@ -114,10 +114,12 @@ public class FileTransferController {
     	ImageView source = (ImageView) e.getSource();
     	
     	//connectionView
-    	if(source.getId().equals("connectToServer")) {
+    	if(source.getId().equals("connect") && connect.isVisible()) {
     		establishConnection();
     	}
-    	
+    	if(source.getId().equals("disconnect") && disconnect.isVisible()) {
+    		deleteConnection();
+    	}    	
     	//downloadView
     	if(source.getId().equals("button_download")) {
     		//request file download
@@ -142,8 +144,9 @@ public class FileTransferController {
     	try {
 			TCPClient.connectToServer(ip, Integer.valueOf(port));
 			connected = true;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			labelErrorConnection.setVisible(true);
+			labelNoConnection.setVisible(false);
 			e.printStackTrace();
 		}
     	if(connected) {
@@ -152,7 +155,14 @@ public class FileTransferController {
 		
 		labelConnection.setVisible(true);
 		connectionEstablished.setVisible(true);
+		/*
+		disconnect.setVisible(true);
+		connect.setVisible(false);
+		*/
     	}
+    }
+    private void deleteConnection() {
+    	TCPClient.deleteConnection();
     }
     
     
