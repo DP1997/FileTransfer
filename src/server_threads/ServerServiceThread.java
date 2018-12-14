@@ -23,8 +23,8 @@ public class ServerServiceThread extends Thread{
     private String sharePath = "/home/donald/Schreibtisch";
     private String fileName = "";
     
-    private static ArrayList<String> fileNames;
-    private static ArrayList<Long> fileLengths;
+    private static ArrayList<String> fileNames = null;
+    private static ArrayList<Long> fileLengths = null;
 
 	
 	public ServerServiceThread(Socket sock) {
@@ -45,7 +45,7 @@ public class ServerServiceThread extends Thread{
 						switch(fileName) {
 						case "refresh": shareDirInformation();
 										break;
-						default: 		if(fileNames.contains(fileName)) sendFileToClient();
+						default: 		if(fileNames != null) if(fileNames.contains(fileName)) sendFileToClient();
 										System.out.println("Datei: " + fileName + " gesendet");								
 						}
 					}
@@ -76,7 +76,9 @@ public class ServerServiceThread extends Thread{
 	}
 	
 	public void shareDirInformation() {
-		try (ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream())){
+		try {
+			//no auto-close, because we still need the connection
+			ObjectOutputStream oos = new ObjectOutputStream(connection.getOutputStream());
 			if (oos != null) {
 				fileNames = FileUtils.getFileNames(sharePath);
 				fileLengths = FileUtils.getFileLengths(sharePath);

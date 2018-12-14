@@ -7,6 +7,7 @@ import server_threads.ServerServiceThread;
 
 class TCPServer {
 
+	//TODO 
     private final static String dir = "/home/donald/Downloads";
 
     public static void main(String args[]) {

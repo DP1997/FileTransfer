@@ -4,10 +4,11 @@ import java.io.File;
 import java.io.IOException;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
@@ -16,10 +17,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 
 import javafx.stage.Window;
-import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 
 import transfer.*;
 
@@ -41,10 +38,15 @@ public class FileTransferController {
     
     @FXML
     private Label labelConnection, labelNoConnection, labelErrorConnection;
+
     
-    // green HEX: 53BA3A
-    //
+    private static ObservableList<String> items = null;
+    private static ListView<String> list 		= null;
     
+    public FileTransferController() {
+    	items = FXCollections.observableArrayList();
+    	list = new ListView<>(items);
+    }
     
     @FXML
     public void topBarIconClicked(MouseEvent e) {
@@ -132,6 +134,8 @@ public class FileTransferController {
     	if(source.getId().equals("button_explorer")) {
     		//open file explorer view
     	}
+    	
+    	//settingsView
     	if(source.getId().equals("button_explorer2")) {
     		chooseDownloadDirectory(e);
     	}
@@ -176,6 +180,9 @@ public class FileTransferController {
     private void requestFileListRefresh() {
     	TCPClient.contactServer("refresh");
     	TCPClient.receiveDirInformation();
+		for (int i = 0; i < TCPClient.fileNames.size(); i++) {
+			list.getItems().add(TCPClient.fileNames.get(i) + ", " + TCPClient.fileLengths.get(i) + " Bytes");
+		}
     }
 }
     	
