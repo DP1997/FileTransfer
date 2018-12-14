@@ -44,15 +44,6 @@ public class FileUtils {
 			}	
 		}
 	*/
-	public static String chooseDownloadDirectory(Stage stage) {
-		DirectoryChooser chooser = new DirectoryChooser();
-		chooser.setTitle("Ordner zur Synchronisation angeben");
-		File selectedDirectory = chooser.showDialog(stage);
-		if(selectedDirectory != null) {
-			return selectedDirectory.getAbsolutePath();
-		}
-		return null;
-	}
 	public static String getChosenFileName(String sharePath) {
 		String chosenFile = sharePath + "/xd2.txt";
 		return chosenFile;

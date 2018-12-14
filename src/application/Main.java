@@ -36,8 +36,8 @@ public class Main extends Application {
 			root.setOnMouseDragged(new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent event) {
-					primaryStage.setX(event.getSceneX() - xOffset);
-					primaryStage.setY(event.getSceneY() - yOffset);
+					primaryStage.setX(event.getScreenX() - xOffset);
+					primaryStage.setY(event.getScreenY() - yOffset);
 				}
 			});
 			
@@ -48,8 +48,7 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			
-			//Tests
-			String chosenFile = FileUtils.chooseDownloadDirectory(primaryStage);
+			
 			
 			
 			
