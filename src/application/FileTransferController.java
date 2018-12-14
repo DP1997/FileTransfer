@@ -122,7 +122,7 @@ public class FileTransferController {
     		iv_indic.setVisible(false);
     	}
     }
-    @FXML
+
 	public void chooseDownloadDirectory(MouseEvent e) {
     	// get Stage
         Node source = (Node) e.getSource();
@@ -154,6 +154,9 @@ public class FileTransferController {
     	}
     	if(source.getId().equals("button_explorer")) {
     		//open file explorer view
+    	}
+    	if(source.getId().equals("button_explorer2")) {
+    		chooseDownloadDirectory(e);
     	}
     }
     
