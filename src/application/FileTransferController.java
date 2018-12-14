@@ -1,12 +1,14 @@
 package application;
 
-import java.awt.Label;
 import java.io.File;
+import java.io.IOException;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -132,16 +134,22 @@ public class FileTransferController {
     }
     
     private void establishConnection() {
-    	boolean connection = false;
-    	if (connection) {
-    		// change Text and Image
-    		noConnection.setVisible(false);
-    		labelNoConnection.setVisible(false);
-    		
-    		labelConnection.setVisible(true);
-    		connectionEstablished.setVisible(true);
-    	}
+    	String ip = textfield_ip.getText();
+    	String port = textfield_port.getText();
+    	try {
+			TCPClient.connectToServer(ip, Integer.valueOf(port));
+		} catch (IOException e) {
+			labelErrorConnection.setVisible(true);
+			e.printStackTrace();
+		}
+
+		noConnection.setVisible(false);
+		labelNoConnection.setVisible(false);
+		
+		labelConnection.setVisible(true);
+		connectionEstablished.setVisible(true);
     }
+    
     
     private void requestFileDownload() {
     	//read marked list entry

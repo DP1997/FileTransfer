@@ -41,7 +41,7 @@
          </children></AnchorPane>
       <AnchorPane fx:id="connectionView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;">
          <children>
-            <ImageView fx:id="connectToServer" fitHeight="69.0" fitWidth="71.0" layoutX="447.0" layoutY="92.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="connectToServer" fitHeight="69.0" fitWidth="71.0" layoutX="447.0" layoutY="92.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/icons8-link-filled-100.png" />
                </image>
@@ -73,17 +73,17 @@
                   <Image url="@images/icons8-getrennt-filled-100.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="connectionEstablished" fitHeight="69.0" fitWidth="71.0" layoutX="256.0" layoutY="304.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="connectionEstablished" fitHeight="69.0" fitWidth="71.0" layoutX="256.0" layoutY="304.0" pickOnBounds="true" preserveRatio="true" visible="false">
                <image>
                   <Image url="@images/icons8-verbunden-filled-100.png" />
                </image>
             </ImageView>
-            <Label fx:id="labelConncetion" layoutX="166.0" layoutY="402.0" text="VERBINDUNG HERGESTELLT" textFill="#53ba3a">
+            <Label fx:id="labelConnection" layoutX="166.0" layoutY="402.0" text="VERBINDUNG HERGESTELLT" textFill="#53ba3a" visible="false">
                <font>
                   <Font size="20.0" />
                </font>
             </Label>
-            <Label fx:id="labelErrorConnection" layoutX="106.0" layoutY="401.0" text="FEHLER BEIM VERBINDEN MIT DEM SERVER" textFill="#d71313">
+            <Label fx:id="labelErrorConnection" layoutX="97.0" layoutY="402.0" text="FEHLER BEIM VERBINDEN MIT DEM SERVER" textFill="#d71313" visible="false">
                <font>
                   <Font size="20.0" />
                </font>

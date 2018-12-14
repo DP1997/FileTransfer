@@ -18,7 +18,7 @@ public class TCPClient {
 
     private static ArrayList<String> fileNames;
     
-    public static void main(String args[]) throws IOException {
+    public static void connectToServer(String serverIP, int serverPort) throws IOException {
         
         try {
         	
@@ -29,14 +29,6 @@ public class TCPClient {
             // Empfange DirInformation
             receiveDirInformation();
             
-            Scanner sc = new Scanner(System.in);
-            String fileName = sc.nextLine();
-        	// teile Server den angeforderten Dateinamen mit
-            contactServer(fileName);
-            
-            //lade Datei herunter
-            downloadFileFromServer(fileName);
-            System.out.println("Download erfolgreich");
         } catch (IOException ex) {
             ex.printStackTrace();
         }		
