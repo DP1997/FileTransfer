@@ -129,7 +129,8 @@ public class FileTransferController {
     private void requestFileDownload() {
     	//read marked list entry
     	String fileName = "";
-    	TCPClient.contactServer(clientSocket, fileName);
+    	TCPClient.contactServer(fileName);
+    	TCPClient.downloadFileFromServer(fileName);
     }
 }
     	
