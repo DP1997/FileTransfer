@@ -63,8 +63,8 @@ public class ServerServiceThread extends Thread{
 	    
 	    byte[] mybytearray = new byte[(int) myFile.length()];
 	
-	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile));
-	    	 BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream())) {
+	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
+	    	BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream());
 	    	if (bis != null && bos != null) {
 		    	bis.read(mybytearray, 0, mybytearray.length);
 		        bos.write(mybytearray, 0, mybytearray.length);

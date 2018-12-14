@@ -3,15 +3,9 @@ package transfer;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
-import datatypes.FileInformation;
-import utils.FileUtils;
 
 public class TCPClient {
-
-    private final static String serverIP = "192.168.0.7";
-    private final static int serverPort = 3248;
     
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private static Socket clientSocket = null;
@@ -19,24 +13,42 @@ public class TCPClient {
     public static ArrayList<String> fileNames = null;
     public static ArrayList<Long> fileLengths = null;
     
+    private static PrintWriter pw 				 = null;
+    private static ObjectInputStream objectInput = null;
+    private static InputStream is 				 = null;
+    
     public static void connectToServer(String serverIP, int serverPort) throws IOException {
         if(clientSocket == null) {
-        try {
-        	
-            // Verbindungsaufbau
-            clientSocket = new Socket( serverIP , serverPort );
-            System.out.println("Connection established");
-            
-            // Empfange DirInformation
-            receiveDirInformation();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+	        try {
+	        	
+	            // Verbindungsaufbau
+	            clientSocket = new Socket( serverIP , serverPort );
+	            System.out.println("Connection established");
+	            
+	            // Empfange DirInformation
+	            receiveDirInformation();
+	        } catch (IOException ex) {
+	            ex.printStackTrace();
+	        }
         }
     }
     
+    private void initializeStreams() {
+    	try {
+    		if (clientSocket == null) return;
+			pw = new PrintWriter(clientSocket.getOutputStream(), true);
+			is = clientSocket.getInputStream();
+			objectInput = new ObjectInputStream(clientSocket.getInputStream());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    
+    
     public static void contactServer(String action){
-    	try (PrintWriter pw = new PrintWriter(clientSocket.getOutputStream(), true)){
+    	try {
     		// auto-flush
     		pw.println((action));
     		System.out.println("Suche nach File: " + action);
@@ -50,9 +62,8 @@ public class TCPClient {
     	
     	String filePath = sharePath + "\\" + fileName;
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        	InputStream is = clientSocket.getInputStream();
         	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
-            
+        	
             if (is != null && bos != null && baos != null) {
             	byte[] aByte = new byte[1];
                 int bytesRead;
@@ -80,8 +91,7 @@ public class TCPClient {
     
     public static void receiveDirInformation() {
         // empfange Share-Ordner Informationen
-        try (ObjectInputStream objectInput = new ObjectInputStream(clientSocket.getInputStream())){
-        	
+        try {
         	Object fileNamesObj = objectInput.readObject();
         	Object fileLengthsObj = objectInput.readObject();
         	fileNames = (ArrayList<String>) fileNamesObj;
@@ -95,6 +105,10 @@ public class TCPClient {
         catch (Exception e) {
         	e.printStackTrace();
         }
+    }
+    
+    public void closeStreams() {
+    	
     }
 }
 

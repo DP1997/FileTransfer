@@ -1,4 +1,3 @@
-
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
@@ -10,7 +9,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="600.0" style="-fx-background-color: null;" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.FileTransferController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="600.0" style="-fx-background-color: null;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.FileTransferController">
    <children>
       <ImageView fx:id="conView_indic" fitHeight="52.0" fitWidth="53.0" layoutX="38.0" layoutY="94.0" pickOnBounds="true" preserveRatio="true" visible="false">
          <image>
@@ -98,17 +97,17 @@
                   <Font size="17.0" />
                </font>
             </RadioButton>
-            <ImageView fx:id="button_download" fitHeight="69.0" fitWidth="71.0" layoutX="482.0" layoutY="410.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="button_download" fitHeight="69.0" fitWidth="71.0" layoutX="482.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/icons8-herunterladen-96.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="button_explorer" fitHeight="69.0" fitWidth="71.0" layoutX="381.0" layoutY="410.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="button_explorer" fitHeight="69.0" fitWidth="71.0" layoutX="381.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/icons8-ordner-öffnen-filled-96.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="button_refresh" fitHeight="69.0" fitWidth="69.0" layoutX="275.0" layoutY="410.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="button_refresh" fitHeight="69.0" fitWidth="69.0" layoutX="275.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/icons8-synchronisieren-filled-96.png" />
                </image>
