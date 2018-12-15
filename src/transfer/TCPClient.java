@@ -21,10 +21,11 @@ public class TCPClient {
     
     public static void connectToServer(String serverIP, String serverPort) throws Exception{
     		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
-  
+    		
+    		Socket clientSocket = new Socket();
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
-    		System.out.println("Verbindung hat geklappt");
+    		System.out.println("Verbindung erfolgreich");
     }
     
     public static void contactServer(String action){
@@ -38,7 +39,7 @@ public class TCPClient {
     	
     }
     public static void deleteConnection () throws IOException {
-    	if(clientSocket != null || clientSocket.isConnected()) {
+    	if(clientSocket != null) {
     		clientSocket.close();
     	}
     }

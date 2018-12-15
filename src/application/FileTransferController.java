@@ -121,46 +121,41 @@ public class FileTransferController {
 	}
     
     @FXML
-    public void handleMouseClick(MouseEvent e) {
+    public void handleMouseClick(MouseEvent e){
     	ImageView source = (ImageView) e.getSource();
     	
     	//connectionView
-    	if(source.getId().equals("connect") && connect.isVisible() && 
-    			(TCPClient.clientSocket == null || TCPClient.clientSocket.isClosed())
-    			|| !TCPClient.clientSocket.isConnected()) {
+    	if(source.getId().equals("connect") && connect.isVisible()) {
     		establishConnection();
     	}
     	
-    	if(source.getId().equals("disconnect") && disconnect.isVisible() &&
-    			(TCPClient.clientSocket != null || !TCPClient.clientSocket.isClosed())
-    			|| TCPClient.clientSocket.isConnected()){
+    	else if(source.getId().equals("disconnect") && disconnect.isVisible()) {
     		deleteConnection();
     	}
     	    	
     	//downloadView
-    	if(source.getId().equals("button_download")) {
+    	else if(source.getId().equals("button_download")) {
     		//request file download
     		requestFileDownload();
     	}
-    	if(source.getId().equals("button_refresh")) {
+    	else if(source.getId().equals("button_refresh")) {
     		//request file refresh
     		requestFileListRefresh();
     	}
-    	if(source.getId().equals("button_explorer")) {
+    	else if(source.getId().equals("button_explorer")) {
     		//open file explorer view
     	}
     	
     	//settingsView
-    	if(source.getId().equals("button_explorer2")) {
+    	else if(source.getId().equals("button_explorer2")) {
     		chooseDownloadDirectory(e);
     	}
     }
     
-    private void establishConnection() {
+    private void establishConnection(){
     	clearAllGUI();
     	for(int i = 0; i < 5; i ++) {
 	    	try {
-	    		connect();
 	    		String serverIP = textfield_ip.getText();
 	    		String serverPort = textfield_port.getText();
 	    		TCPClient.connectToServer(serverIP, serverPort);
@@ -170,6 +165,7 @@ public class FileTransferController {
 	    		System.out.println("Timeout-Error");
 	    		if(i == 4) connectionTimeoutOver();
 	    	} catch (Exception e) {
+	    		e.printStackTrace();
 	    		System.out.println("Eingabe-Error");
 	    		connectionIOError();
 	    		break;
@@ -230,8 +226,9 @@ public class FileTransferController {
 			clearAllGUI();
 	    	noConnection.setVisible(true);
 	    	connect.setVisible(true);
-	    	labelConnection.setVisible(true);
+	    	labelNoConnection.setVisible(true);
 			TCPClient.deleteConnection();
+			System.out.println("Verbindung getrennt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
