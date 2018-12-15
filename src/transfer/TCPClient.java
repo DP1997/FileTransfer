@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
+import datatypes.FileInformation;
+import utils.FileUtils;
 
 public class TCPClient {
     
@@ -16,21 +18,13 @@ public class TCPClient {
     private static ObjectInputStream ois 		 = null;
     private static ObjectOutputStream oos        = null;
     
-    public static void connectToServer(String serverIP, int serverPort) throws IOException {
-
-	    // Verbindungsaufbau
-	    clientSocket = new Socket(serverIP , serverPort);
-	    System.out.println("connection with server successfully established");
-	    initializeStreams();
-
-        if(clientSocket == null) {   	
-            // Verbindungsaufbau
-            clientSocket = new Socket( serverIP , serverPort );
-            System.out.println("Connection established");
-            
-            // Empfange DirInformation
-            receiveDirInformation();
-        }
+    public static void connectToServer(String serverIP, String serverPort) throws Exception{
+    		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
+    		
+    		Socket clientSocket = new Socket();
+    		// Connect with 2 s timeout
+    		clientSocket.connect(sockaddr, 1000);
+    		System.out.println("Verbindung erfolgreich");
     }
     
     //versucht die alle benötigten Streams zu initialisieren
@@ -58,9 +52,9 @@ public class TCPClient {
 			System.exit(1);
 		}
     }
-    public static void deleteConnection () {
-    	if(clientSocket != null || clientSocket.isConnected()) {
-    		clientSocket.isClosed();
+    public static void deleteConnection () throws IOException {
+    	if(clientSocket != null) {
+    		clientSocket.close();
     	}
     }
     

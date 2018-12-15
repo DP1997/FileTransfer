@@ -12,7 +12,7 @@ class TCPServer {
 
     public static void main(String args[]) {
        
-        try (ServerSocket welcomeSocket = new ServerSocket(3248)){
+        try (ServerSocket welcomeSocket = new ServerSocket(3456)){
             while(true) {
             	try {
             		(new ServerServiceThread(welcomeSocket.accept())).start();

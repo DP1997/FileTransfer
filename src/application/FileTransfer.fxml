@@ -53,8 +53,14 @@
                   <Font size="20.0" />
                </font>
             </Label>
-            <TextField fx:id="textfield_port" layoutX="227.0" layoutY="144.0" />
-            <TextField fx:id="textfield_ip" layoutX="227.0" layoutY="79.0" />
+            <TextField fx:id="textfield_port" layoutX="227.0" layoutY="144.0" prefHeight="25.0" prefWidth="69.0">
+               <font>
+                  <Font name="Arial Bold" size="12.0" />
+               </font></TextField>
+            <TextField fx:id="textfield_ip" layoutX="227.0" layoutY="79.0" prefHeight="25.0" prefWidth="148.0">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font></TextField>
             <Label fx:id="labelNoConnection" layoutX="200.0" layoutY="402.0" text="KEINE VERBINDUNG" textFill="#d71313">
                <font>
                   <Font size="20.0" />
@@ -80,16 +86,26 @@
                   <Font size="20.0" />
                </font>
             </Label>
-            <ImageView fx:id="connect" fitHeight="69.0" fitWidth="71.0" layoutX="447.0" layoutY="92.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="connect" fitHeight="77.0" fitWidth="81.0" layoutX="443.0" layoutY="88.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/icons8-anmelden.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="disconnect" fitHeight="69.0" fitWidth="71.0" layoutX="447.0" layoutY="92.0" pickOnBounds="true" preserveRatio="true" visible="false">
+            <ImageView fx:id="disconnect" fitHeight="77.0" fitWidth="81.0" layoutX="443.0" layoutY="88.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true" visible="false">
                <image>
                   <Image url="@images/icons8-abbruch.png" />
                </image>
             </ImageView>
+            <Label fx:id="labelTryConnect" layoutX="236.0" layoutY="324.0" text="CONNECT . . ." textFill="#ddd8d8" visible="false">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="labelWrongInput" layoutX="200.0" layoutY="402.0" text="UNGÜLTIGE EINGABE" textFill="#d71313" visible="false">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
          </children>
       </AnchorPane>
       <AnchorPane id="downloadView" fx:id="downloadView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;">
