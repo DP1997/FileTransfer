@@ -6,13 +6,17 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
@@ -24,7 +28,7 @@ import javafx.stage.Window;
 
 import transfer.*;
 
-public class FileTransferController {
+public class FileTransferController implements Initializable{
 
     @FXML
     private ImageView conView_indic, downloadView_indic, settingsView_indic;
@@ -46,17 +50,20 @@ public class FileTransferController {
 
 
 
+    @FXML
+    private ListView<String> listView;
     
-    private static ObservableList<String> items = null;
-    private static ListView<String> list 		= null;
+    private ObservableList<String> items;
+   
     
-	private static boolean connected = false;
-    
-    public FileTransferController() {
-    	items = FXCollections.observableArrayList();
-    	list = new ListView<>(items);
-    }
-    
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+    	items = FXCollections.observableArrayList("tes1", "test2");
+    	listView.setItems(items);
+    	listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+    	System.out.println("listView successfully populated");	
+	}
+	
     @FXML
     public void topBarIconClicked(MouseEvent e) {
     	ImageView source = (ImageView) e.getSource();
@@ -236,18 +243,20 @@ public class FileTransferController {
    
     private void requestFileDownload() {
     	//read marked list entry
-    	String fileName = "";
+    	String fileName = listView.getSelectionModel().getSelectedItem();
     	TCPClient.contactServer(fileName);
-    	TCPClient.downloadFileFromServer(fileName);
+    	//TCPClient.downloadFileFromServer(fileName);
     }
     
     private void requestFileListRefresh() {
     	TCPClient.contactServer("refresh");
     	TCPClient.receiveDirInformation();
 		for (int i = 0; i < TCPClient.fileNames.size(); i++) {
-			list.getItems().add(TCPClient.fileNames.get(i) + ", " + TCPClient.fileLengths.get(i) + " Bytes");
+			listView.getItems().add(TCPClient.fileNames.get(i) + ", " + TCPClient.fileLengths.get(i) + " Bytes");
 		}
     }
+
+
 }
     	
 
