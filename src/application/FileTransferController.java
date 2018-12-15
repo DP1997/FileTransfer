@@ -178,6 +178,8 @@ public class FileTransferController implements Initializable{
 	    		break;
 			}
     	}
+    	//receiveDirInformation();
+    	
     }
     private void connect() {
     	clearAllGUI();
