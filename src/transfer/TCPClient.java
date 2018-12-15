@@ -10,26 +10,21 @@ import utils.FileUtils;
 
 public class TCPClient {
 
-    private final static String serverIP = "192.168.0.7";
-    private final static int serverPort = 3248;
-    public static boolean connectionSuccessful = false;
+    private final static String serverIP = "127.0.0.1";
+    private final static int serverPort = 3456;
     
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
-    private static Socket clientSocket = null;
+    public static Socket clientSocket = null;
 
     public static ArrayList<String> fileNames = null;
     public static ArrayList<Long> fileLengths = null;
     
-    public static void connectToServer(String serverIP, int serverPort) throws IOException {
-        if(clientSocket == null) {   	
-            // Verbindungsaufbau
-            clientSocket = new Socket( serverIP , serverPort );
-            System.out.println("Connection established");
-            connectionSuccessful = true;
-            
-            // Empfange DirInformation
-            receiveDirInformation();
-        }
+    public static void connectToServer(String serverIP, String serverPort) throws Exception{
+    		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
+  
+    		// Connect with 2 s timeout
+    		clientSocket.connect(sockaddr, 1000);
+    		System.out.println("Verbindung hat geklappt");
     }
     
     public static void contactServer(String action){
@@ -42,9 +37,9 @@ public class TCPClient {
     	}
     	
     }
-    public static void deleteConnection () {
+    public static void deleteConnection () throws IOException {
     	if(clientSocket != null || clientSocket.isConnected()) {
-    		clientSocket.isClosed();
+    		clientSocket.close();
     	}
     }
     

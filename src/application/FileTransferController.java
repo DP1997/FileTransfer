@@ -2,6 +2,10 @@ package application;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -37,11 +41,16 @@ public class FileTransferController {
     private TextField textfield_port, textfield_ip, textfield_dpath;
     
     @FXML
-    private Label labelConnection, labelNoConnection, labelErrorConnection;
+    private Label labelConnection, labelNoConnection, labelErrorConnection, labelTryConnect, labelWrongInput;
+
+
+
 
     
     private static ObservableList<String> items = null;
     private static ListView<String> list 		= null;
+    
+	private static boolean connected = false;
     
     public FileTransferController() {
     	items = FXCollections.observableArrayList();
@@ -116,12 +125,18 @@ public class FileTransferController {
     	ImageView source = (ImageView) e.getSource();
     	
     	//connectionView
-    	if(source.getId().equals("connect") && connect.isVisible()) {
+    	if(source.getId().equals("connect") && connect.isVisible() && 
+    			(TCPClient.clientSocket == null || TCPClient.clientSocket.isClosed())
+    			|| !TCPClient.clientSocket.isConnected()) {
     		establishConnection();
     	}
-    	if(source.getId().equals("disconnect") && disconnect.isVisible()) {
+    	
+    	if(source.getId().equals("disconnect") && disconnect.isVisible() &&
+    			(TCPClient.clientSocket != null || !TCPClient.clientSocket.isClosed())
+    			|| TCPClient.clientSocket.isConnected()){
     		deleteConnection();
-    	}    	
+    	}
+    	    	
     	//downloadView
     	if(source.getId().equals("button_download")) {
     		//request file download
@@ -142,34 +157,86 @@ public class FileTransferController {
     }
     
     private void establishConnection() {
-    	boolean connected = false;
-    	String ip = textfield_ip.getText();
-    	String port = textfield_port.getText();
-    	try {
-			TCPClient.connectToServer(ip, Integer.valueOf(port));
-			connected = true;
-		} catch (Exception e) {
-			labelErrorConnection.setVisible(true);
-			labelNoConnection.setVisible(false);
-			e.printStackTrace();
-		}
-    	if(connected) {
-		noConnection.setVisible(false);
-		labelNoConnection.setVisible(false);
-		
-		labelConnection.setVisible(true);
-		connectionEstablished.setVisible(true);
-		/*
-		disconnect.setVisible(true);
-		connect.setVisible(false);
-		*/
+    	clearAllGUI();
+    	for(int i = 0; i < 5; i ++) {
+	    	try {
+	    		connect();
+	    		String serverIP = textfield_ip.getText();
+	    		String serverPort = textfield_port.getText();
+	    		TCPClient.connectToServer(serverIP, serverPort);
+	    		connectionSuc();
+	    		break;
+	    	} catch(SocketTimeoutException e) {
+	    		System.out.println("Timeout-Error");
+	    		if(i == 4) connectionTimeoutOver();
+	    	} catch (Exception e) {
+	    		System.out.println("Eingabe-Error");
+	    		connectionIOError();
+	    		break;
+			}
     	}
     }
-    private void deleteConnection() {
-    	TCPClient.deleteConnection();
+    private void connect() {
+    	clearAllGUI();
+    	labelTryConnect.setVisible(true);
+    	noConnection.setVisible(false);
+    	connect.setVisible(false);
+    	textfield_ip.setEditable(false);
+    	textfield_port.setEditable(false);
     }
-    
-    
+    private void connectionSuc() {
+    	clearAllGUI();
+    	labelTryConnect.setVisible(false);
+    	labelConnection.setVisible(true);
+    	connectionEstablished.setVisible(true);
+    	disconnect.setVisible(true);
+    	textfield_ip.setEditable(false);
+    	textfield_port.setEditable(false);
+    }
+    private void connectionTimeoutOver() {
+    	clearAllGUI();
+    	labelErrorConnection.setVisible(true);
+    	noConnection.setVisible(true);
+    	connect.setVisible(true);
+    }
+    private void connectionIOError() {
+    	clearAllGUI();
+    	noConnection.setVisible(true);
+    	labelWrongInput.setVisible(true);
+    	connect.setVisible(true);
+    }
+    private void clearAllGUI() {
+    	labelConnection.setVisible(false);
+    	labelNoConnection.setVisible(false);
+    	labelErrorConnection.setVisible(false);
+    	labelTryConnect.setVisible(false);
+    	labelWrongInput.setVisible(false);
+    	
+    	connect.setVisible(false);
+    	disconnect.setVisible(false);
+    	noConnection.setVisible(false);
+    	connectionEstablished.setVisible(false);
+    	textfield_ip.setEditable(true);
+    	textfield_port.setEditable(true);
+    	
+    }
+
+    private void receiveDirInformation() {
+		TCPClient.receiveDirInformation();	
+	}
+
+	private void deleteConnection() {
+    	try {
+			clearAllGUI();
+	    	noConnection.setVisible(true);
+	    	connect.setVisible(true);
+	    	labelConnection.setVisible(true);
+			TCPClient.deleteConnection();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+   
     private void requestFileDownload() {
     	//read marked list entry
     	String fileName = "";
