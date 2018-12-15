@@ -17,8 +17,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -51,17 +54,22 @@ public class FileTransferController implements Initializable{
 
 
     @FXML
-    private ListView<String> listView;
+    private TableView<String> tableView;
     
     private ObservableList<String> items;
    
     
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-    	items = FXCollections.observableArrayList("tes1", "test2");
-    	listView.setItems(items);
-    	listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-    	System.out.println("listView successfully populated");	
+    	items = FXCollections.observableArrayList();
+    	tableView.setItems(items);
+    	TableColumn<String, String> fileNameCol = new TableColumn<String, String>("FILENAME");
+    	fileNameCol.setCellValueFactory(new PropertyValueFactory("FILENAME"));
+    	TableColumn<String, String> fileLengthCol = new TableColumn<String, String>("SIZE IN BYTES");
+    	fileLengthCol.setCellValueFactory(new PropertyValueFactory("SIZE IN BYTES"));
+    	tableView.getColumns().setAll(fileNameCol, fileLengthCol);
+    	tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+    	System.out.println("tableView successfully populated");	
 	}
 	
     @FXML
@@ -245,16 +253,16 @@ public class FileTransferController implements Initializable{
    
     private void requestFileDownload() {
     	//read marked list entry
-    	String fileName = listView.getSelectionModel().getSelectedItem();
+    	String fileName = tableView.getSelectionModel().getSelectedItem();
     	TCPClient.contactServer(fileName);
-    	//TCPClient.downloadFileFromServer(fileName);
+    	//TCPClient.downloadFileFromServer(fileName); 
     }
     
     private void requestFileListRefresh() {
     	TCPClient.contactServer("refresh");
     	TCPClient.receiveDirInformation();
 		for (int i = 0; i < TCPClient.fileNames.size(); i++) {
-			listView.getItems().add(TCPClient.fileNames.get(i) + ", " + TCPClient.fileLengths.get(i) + " Bytes");
+			tableView.getItems().add(TCPClient.fileNames.get(i) + ", " + TCPClient.fileLengths.get(i) + " Bytes");
 		}
     }
 
