@@ -14,11 +14,19 @@ class TCPServer {
        
         try (ServerSocket welcomeSocket = new ServerSocket(3248)){
             while(true) {
-            	(new ServerServiceThread(welcomeSocket.accept())).start();
+            	try {
+            		(new ServerServiceThread(welcomeSocket.accept())).start();
+            	} catch (Exception e) {
+                	System.err.println("ServerServiceThread could not be initialized");
+                	e.printStackTrace();
+                	System.exit(1);
+            	}
             }
 
         } catch (IOException e) {
+        	System.err.println("server welcomeSocket could not be initialized");
         	e.printStackTrace();
+        	System.exit(1);
         }
     }
 }
