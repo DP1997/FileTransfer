@@ -17,10 +17,20 @@ public class TCPClient {
     private static ObjectOutputStream oos        = null;
     
     public static void connectToServer(String serverIP, int serverPort) throws IOException {
+
 	    // Verbindungsaufbau
 	    clientSocket = new Socket(serverIP , serverPort);
 	    System.out.println("connection with server successfully established");
 	    initializeStreams();
+
+        if(clientSocket == null) {   	
+            // Verbindungsaufbau
+            clientSocket = new Socket( serverIP , serverPort );
+            System.out.println("Connection established");
+            
+            // Empfange DirInformation
+            receiveDirInformation();
+        }
     }
     
     //versucht die alle benötigten Streams zu initialisieren
@@ -47,6 +57,11 @@ public class TCPClient {
 			ae.printStackTrace();
 			System.exit(1);
 		}
+    }
+    public static void deleteConnection () {
+    	if(clientSocket != null || clientSocket.isConnected()) {
+    		clientSocket.isClosed();
+    	}
     }
     
 //    //versucht alle offenen Streams zu schließen
