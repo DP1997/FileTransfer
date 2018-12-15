@@ -193,7 +193,7 @@ public class FileTransferController implements Initializable{
     	//read marked list entry
     	String fileName = tableView.getSelectionModel().getSelectedItem();
     	TCPClient.contactServer(fileName);
-    	//TCPClient.downloadFileFromServer(fileName);
+    	//TCPClient.downloadFileFromServer(fileName); 
     }
     
     private void requestFileListRefresh() {
