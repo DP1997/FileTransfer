@@ -119,24 +119,9 @@ public class TCPClient {
     //lese Datei von Server aus InputStream
     public static void downloadFileFromServer(String fileName) {
     	String filePath = sharePath + fileName;
-     
-    	try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath)) ){
-    		File myFile = (File) ois.readObject();
-    		
-    		// hier ois readByte und progressBar
-    		byte[] fileContent = Files.readAllBytes(myFile.toPath());
-    		bos.write(fileContent);
-		
-        } catch (AssertionError ae) {
-			System.err.println("some client streams are null!");
-			ae.printStackTrace();
-			System.exit(1);
-		} catch (Exception e) {
-        	System.err.println("some streams could not be initialized!");
-			e.printStackTrace();
-			System.exit(1);
-		}  
+
     }
+    
     // empfange Share-Ordner Informationen von Server
     public static void receiveDirInformation() { 
 			try {

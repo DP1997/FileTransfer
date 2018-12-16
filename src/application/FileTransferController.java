@@ -305,7 +305,7 @@ public class FileTransferController implements Initializable{
     	//aufpassen bei mehreren , im String
     	String[] fileName = row.split(",");
     	TCPClient.contactServer(fileName[0]);
-    	//TCPClient.downloadFileFromServer(fileName[0]); 
+    	TCPClient.downloadFileFromServer(fileName[0]); 
     }
     
     private void requestFileListRefresh() {
