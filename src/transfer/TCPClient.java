@@ -32,7 +32,7 @@ public class TCPClient {
     }
     public static void setDownloadPath(String sharePath) {	
     	if(TCPClient.sharePath != "BITTE PFAD ANGEBEN" && TCPClient.sharePath != null) {
-        	TCPClient.sharePath = sharePath;	
+        	TCPClient.sharePath = sharePath; 	
     	}
     	//otherwise error
     	
