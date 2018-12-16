@@ -6,16 +6,17 @@ import java.net.*;
 import java.util.ArrayList;
 
 import datatypes.FileInformation;
+import datatypes.ProgressStream;
 import utils.FileUtils;
 
 public class TCPClient {
     
-    private static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
+    public static String sharePath = "";
     private static Socket clientSocket = null;
     
-    private static ObjectInputStream ois 		 = null;
-    private static ObjectOutputStream oos        = null;
-    private static InputStream is 				 = null;
+    private static ObjectInputStream ois = null;
+    private static ObjectOutputStream oos = null;
+    private static ProgressStream ps = null;
     
     public static ArrayList<FileInformation> fileInformation = null;
 
@@ -37,7 +38,6 @@ public class TCPClient {
     	//otherwise error
     	
     }
-    
     public static void showInExplorer() throws IOException {
     	Desktop.getDesktop().open(new File(sharePath));
     }
@@ -56,8 +56,8 @@ public class TCPClient {
 			oos = new ObjectOutputStream(clientSocket.getOutputStream());
 			oos.flush();
 			ois = new ObjectInputStream(clientSocket.getInputStream());
-			is = clientSocket.getInputStream();
-			assert(oos != null && ois != null && is != null);
+			ps = new ProgressStream(clientSocket.getInputStream());
+			assert(oos != null && ois != null && ps != null);
 			System.out.println("ObjectStreams have been successfully initialized");
 		} catch (IOException e) {
 			System.err.println("ObjectStreams could not be initialized");
@@ -122,24 +122,26 @@ public class TCPClient {
     //lese Datei von Server aus InputStream
     public static void downloadFileFromServer(String fileName) {
     	String filePath = sharePath + fileName;
+    	
      
     	try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
         	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
-        	
             assert(bos != null && baos != null);
-            	byte[] aByte = new byte[1];
-                int bytesRead;
-
-                bytesRead = is.read(aByte, 0, aByte.length);
-                do {
-                        baos.write(aByte);
-                        bytesRead = is.read(aByte);
-                } while (bytesRead != -1);
-
-                System.out.println("Die Datei wurde empfangen");
-                                
-                bos.write(baos.toByteArray());
-                bos.flush();             
+    		// read fileLength from Client in order to avoid read-blocking and closing the socket on serverside (EOF)
+            // marshalling
+            byte[] fileLengthInBytes = new byte[4];
+            ps.read(fileLengthInBytes);
+            int fileLength = unmarshalling(fileLengthInBytes);
+            
+            // send data
+        	byte[] file = new byte[fileLength];
+            ps.read(file);
+            
+            // write data in boas to put it on the disk
+            baos.write(file);
+            bos.write(baos.toByteArray());
+            bos.flush();   
+            System.out.println("Die Datei wurde empfangen");
 		
         } catch (AssertionError ae) {
 			System.err.println("some client streams are null!");
@@ -150,6 +152,14 @@ public class TCPClient {
 			e.printStackTrace();
 			System.exit(1);
 		}  
+    }
+    private static int unmarshalling(byte[] buffer) {
+    	int n = 0;
+    	for(int i = 0; i < 4; i++) {
+    		n<<=8;
+    		n |= (int) buffer[i] & 0xFF;
+    	}
+    	return n;
     }
     
     // empfange Share-Ordner Informationen von Server
@@ -166,12 +176,11 @@ public class TCPClient {
 			} catch (ClassNotFoundException e) {
 				System.err.println("error occured while reading from ObjectInputStream");
 				e.printStackTrace();
-				System.exit(1);
 			} catch (IOException e) {
-				System.err.println("error occured while reading from ObjectInputStream");
+				System.out.println("Keine Verbindung zum Server mehr");
 				e.printStackTrace();
-				System.exit(1);
-			} 
+			}
+			
 
     }
     
