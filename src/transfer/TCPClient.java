@@ -1,5 +1,6 @@
 package transfer;
 
+import java.awt.Desktop;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import utils.FileUtils;
 
 public class TCPClient {
     
-    private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
+    private static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private static Socket clientSocket = null;
     
     private static ObjectInputStream ois 		 = null;
@@ -27,6 +28,18 @@ public class TCPClient {
     		System.out.println("connection with server successfully established");
     		initializeStreams();
     }
+
+    public static void setDownloadPath(String sharePath) {	
+    	if(TCPClient.sharePath != "BITTE PFAD ANGEBEN" && TCPClient.sharePath != null) {
+        	TCPClient.sharePath = sharePath; 	
+    	}
+    	//otherwise error
+    	
+    }
+    public static void showInExplorer() throws IOException {
+    	Desktop.getDesktop().open(new File(sharePath));
+    }
+
     
     //versucht die alle benötigten Streams zu initialisieren
     private static void initializeStreams() {
@@ -140,6 +153,7 @@ public class TCPClient {
 		}  
     }
     */
+    
     // empfange Share-Ordner Informationen von Server
     public static void receiveDirInformation() { 
 			try {

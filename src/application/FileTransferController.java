@@ -176,7 +176,7 @@ public class FileTransferController implements Initializable{
 		} catch (Exception e) {
 	        Alert alert = new Alert(AlertType.ERROR);
 	        alert.setHeaderText("Fehlerhafter Pfad!");
-	        alert.setContentText("Bitte überprüfen Sie den gesetzten Pfad und versuchen Sie es erneut.");
+	        alert.setContentText("Bitte ï¿½berprï¿½fen Sie den gesetzten Pfad und versuchen Sie es erneut.");
 	        alert.showAndWait();
 		}
 	}
@@ -303,6 +303,7 @@ public class FileTransferController implements Initializable{
     	//read marked list entry
     	String row = listView.getSelectionModel().getSelectedItem();
     	//aufpassen bei mehreren , im String
+    	//von rechts lesen
     	String[] fileName = row.split(",");
     	TCPClient.contactServer(fileName[0]);
     	//TCPClient.downloadFileFromServer(fileName[0]); 
