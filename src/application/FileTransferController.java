@@ -333,6 +333,7 @@ public class FileTransferController implements Initializable{
     	TCPClient.downloadFileFromServer(fileName[0]);
     	
     	listView.setCellFactory(param -> new ListCell<String>() {
+    		
             @Override
             public void updateItem(String name, boolean empty) {
                 super.updateItem(name, empty);
