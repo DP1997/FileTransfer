@@ -1,22 +1,25 @@
 package transfer;
 
+import java.awt.Desktop;
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 import datatypes.FileInformation;
+import datatypes.ProgressStream;
 import utils.FileUtils;
 
 public class TCPClient {
     
-    private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
+    public static String sharePath = "";
     private static Socket clientSocket = null;
 
     public static ArrayList<String> fileNames = null;
     public static ArrayList<Long> fileLengths = null;
     
-    private static ObjectInputStream ois 		 = null;
-    private static ObjectOutputStream oos        = null;
+    private static ObjectInputStream ois = null;
+    private static ObjectOutputStream oos = null;
     
     public static void connectToServer(String serverIP, String serverPort) throws Exception{
     		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
@@ -25,6 +28,16 @@ public class TCPClient {
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
     		System.out.println("Verbindung erfolgreich");
+    }
+    public static void setDownloadPath(String sharePath) {	
+    	if(TCPClient.sharePath != "BITTE PFAD ANGEBEN" && TCPClient.sharePath != null) {
+        	TCPClient.sharePath = sharePath;	
+    	}
+    	//otherwise error
+    	
+    }
+    public static void showInExplorer() throws IOException {
+    	Desktop.getDesktop().open(new File(sharePath));
     }
     
     //versucht die alle benötigten Streams zu initialisieren
@@ -103,42 +116,26 @@ public class TCPClient {
     }
     
     //lese Datei von Server aus InputStream
-    /*
     public static void downloadFileFromServer(String fileName) {
-    	String filePath = sharePath + "\\" + fileName;
+    	String filePath = sharePath + fileName;
      
-    	try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
-        	
-            assert(bos != null && baos != null);
-            	byte[] aByte = new byte[1];
-                int bytesRead;
-                int byteCounter = 0;
-
-                bytesRead = is.read(aByte, 0, aByte.length);
-                do {
-                		byteCounter++;
-                        baos.write(aByte);
-                        bytesRead = is.read(aByte);
-                } while (bytesRead != -1);
-
-                System.out.println("Die Datei wurde empfangen");
-                System.out.println("Dateigroese: " + byteCounter);
-                                
-                bos.write(baos.toByteArray());
-                bos.flush();             
+    	try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath)) ){
+    		File myFile = (File) ois.readObject();
+    		
+    		// hier ois readByte und progressBar
+    		byte[] fileContent = Files.readAllBytes(myFile.toPath());
+    		bos.write(fileContent);
 		
         } catch (AssertionError ae) {
 			System.err.println("some client streams are null!");
 			ae.printStackTrace();
 			System.exit(1);
-		} catch (IOException e) {
+		} catch (Exception e) {
         	System.err.println("some streams could not be initialized!");
 			e.printStackTrace();
 			System.exit(1);
 		}  
     }
-    */
     // empfange Share-Ordner Informationen von Server
     public static void receiveDirInformation() { 
 			try {

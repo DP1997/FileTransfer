@@ -9,16 +9,22 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javax.swing.ProgressMonitor;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -48,7 +54,8 @@ public class FileTransferController implements Initializable{
     private TextField textfield_port, textfield_ip, textfield_dpath;
     
     @FXML
-    private Label labelConnection, labelNoConnection, labelErrorConnection, labelTryConnect, labelWrongInput;
+    private Label labelConnection, labelNoConnection, labelErrorConnection, 
+    labelTryConnect, labelWrongInput;
 
 
 
@@ -58,6 +65,8 @@ public class FileTransferController implements Initializable{
     
     private ObservableList<String> items;
    
+    @FXML
+    private ProgressBar progressBar;
     
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -131,7 +140,34 @@ public class FileTransferController implements Initializable{
 		File selectedDirectory = chooser.showDialog(stage);
 		if(selectedDirectory != null) {
 			textfield_dpath.setText(selectedDirectory.getAbsolutePath());
+			// Der Pfad muss an das Betriebssystem angepasst werden
+			// Bei Windows wird der Pfad mit \\ angegeben, bei Linux mit /
+			String os = System.getProperty("os.name").toLowerCase();
+			String textField = textfield_dpath.getText();
+			String downloadPath = textField;
+			// windows
+			if(os.contains("win")) {
+				System.out.println("windows erkannt");
+				 downloadPath = textField.replace("\\","\\\\") + "\\\\";
+			}
+			if(os.contains("nix")) {
+				System.out.println("linux erkannt");
+				downloadPath = downloadPath + "/";
+			}
+			TCPClient.setDownloadPath(downloadPath);
 			geprueftHaken.setVisible(true);
+			System.out.println("Pfad gesetzt: " + downloadPath);
+		}
+		
+	}
+	private void showInExplorer() {
+		try {
+			TCPClient.showInExplorer();
+		} catch (Exception e) {
+	        Alert alert = new Alert(AlertType.ERROR);
+	        alert.setHeaderText("Fehlerhafter Pfad!");
+	        alert.setContentText("Bitte überprüfen Sie den gesetzten Pfad und versuchen Sie es erneut.");
+	        alert.showAndWait();
 		}
 	}
     
@@ -158,7 +194,7 @@ public class FileTransferController implements Initializable{
     		requestFileListRefresh();
     	}
     	else if(source.getId().equals("button_explorer")) {
-    		//open file explorer view
+    		showInExplorer();
     	}
     	
     	//settingsView
@@ -174,22 +210,22 @@ public class FileTransferController implements Initializable{
 	    		String serverIP = textfield_ip.getText();
 	    		String serverPort = textfield_port.getText();
 	    		TCPClient.connectToServer(serverIP, serverPort);
-	    		connectionSuc();
+	    		connectionSucGUI();
 	    		break;
 	    	} catch(SocketTimeoutException e) {
 	    		System.out.println("Timeout-Error");
-	    		if(i == 4) connectionTimeoutOver();
+	    		if(i == 4) connectionTimeoutOverGUI();
 	    	} catch (Exception e) {
 	    		e.printStackTrace();
 	    		System.out.println("Eingabe-Error");
-	    		connectionIOError();
+	    		connectionIOErrorGUI();
 	    		break;
 			}
     	}
     	//receiveDirInformation();
     	
     }
-    private void connect() {
+    private void connectGUI() {
     	clearAllGUI();
     	labelTryConnect.setVisible(true);
     	noConnection.setVisible(false);
@@ -197,7 +233,7 @@ public class FileTransferController implements Initializable{
     	textfield_ip.setEditable(false);
     	textfield_port.setEditable(false);
     }
-    private void connectionSuc() {
+    private void connectionSucGUI() {
     	clearAllGUI();
     	labelTryConnect.setVisible(false);
     	labelConnection.setVisible(true);
@@ -206,13 +242,13 @@ public class FileTransferController implements Initializable{
     	textfield_ip.setEditable(false);
     	textfield_port.setEditable(false);
     }
-    private void connectionTimeoutOver() {
+    private void connectionTimeoutOverGUI() {
     	clearAllGUI();
     	labelErrorConnection.setVisible(true);
     	noConnection.setVisible(true);
     	connect.setVisible(true);
     }
-    private void connectionIOError() {
+    private void connectionIOErrorGUI() {
     	clearAllGUI();
     	noConnection.setVisible(true);
     	labelWrongInput.setVisible(true);
@@ -232,6 +268,8 @@ public class FileTransferController implements Initializable{
     	textfield_ip.setEditable(true);
     	textfield_port.setEditable(true);
     	
+    }
+    private void handleProgressBar() {
     }
 
     private void receiveDirInformation() {
