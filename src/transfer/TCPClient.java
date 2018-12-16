@@ -15,6 +15,7 @@ public class TCPClient {
     
     private static ObjectInputStream ois 		 = null;
     private static ObjectOutputStream oos        = null;
+    private static InputStream is 				 = null;
     
     public static ArrayList<FileInformation> fileInformation = null;
 
@@ -54,7 +55,8 @@ public class TCPClient {
 			oos = new ObjectOutputStream(clientSocket.getOutputStream());
 			oos.flush();
 			ois = new ObjectInputStream(clientSocket.getInputStream());
-			assert(oos != null && ois != null);
+			is = clientSocket.getInputStream();
+			assert(oos != null && ois != null && is != null);
 			System.out.println("ObjectStreams have been successfully initialized");
 		} catch (IOException e) {
 			System.err.println("ObjectStreams could not be initialized");
@@ -117,9 +119,8 @@ public class TCPClient {
     }
     
     //lese Datei von Server aus InputStream
-    /*
     public static void downloadFileFromServer(String fileName) {
-    	String filePath = sharePath + "\\" + fileName;
+    	String filePath = sharePath + fileName;
      
     	try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
         	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
@@ -127,17 +128,14 @@ public class TCPClient {
             assert(bos != null && baos != null);
             	byte[] aByte = new byte[1];
                 int bytesRead;
-                int byteCounter = 0;
 
                 bytesRead = is.read(aByte, 0, aByte.length);
                 do {
-                		byteCounter++;
                         baos.write(aByte);
                         bytesRead = is.read(aByte);
                 } while (bytesRead != -1);
 
                 System.out.println("Die Datei wurde empfangen");
-                System.out.println("Dateigroese: " + byteCounter);
                                 
                 bos.write(baos.toByteArray());
                 bos.flush();             
@@ -152,7 +150,6 @@ public class TCPClient {
 			System.exit(1);
 		}  
     }
-    */
     
     // empfange Share-Ordner Informationen von Server
     public static void receiveDirInformation() { 

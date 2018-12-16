@@ -22,7 +22,7 @@ public class ServerServiceThread extends Thread{
 	
 	private Socket connection = null;
 	
-    private String sharePath = "/home/donald/Schreibtisch";
+    private String sharePath = "/home/donald/Schreibtisch/";
     private String recievedFileName;
     
     private ObjectInputStream ois 		 = null;
@@ -47,8 +47,9 @@ public class ServerServiceThread extends Thread{
 										break;
 						default: 		if(fileInformation != null) {
 											if(contains(recievedFileName)) {
+												System.out.println("file transfer requested for "+ recievedFileName);
 												sendFileToClient(recievedFileName);
-												System.out.println("Datei: "+recievedFileName+" gesendet");
+												System.out.println("file "+recievedFileName+" transmitted");
 											}
 										}
 						}
@@ -68,7 +69,7 @@ public class ServerServiceThread extends Thread{
 		return false;
 	}
 	
-    //versucht die alle benötigten Streams zu initialisieren
+    //managing streams
     private  void initializeStreams() {
     	
     	try {
@@ -95,27 +96,6 @@ public class ServerServiceThread extends Thread{
 		}
     }
     
-	public void sendFileToClient(String fileName) {
-		String filePath = sharePath + fileName;
-		// ausgew�hlte Datei des Clients
- 	    File myFile = new File(filePath);
- 	    
- 	    byte[] mybytearray = new byte[(int) myFile.length()];
- 	
- 	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
- 	    	assert(bis != null);
-	    	bis.read(mybytearray, 0, mybytearray.length);
-	        bos.write(mybytearray, 0, mybytearray.length);
-	        bos.flush(); 	
- 	    } catch (FileNotFoundException e) {
- 	        e.printStackTrace();
- 	    } catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}	
-
-	}
-	
 	public void shareDirInformation() {
 		try {
 			System.out.println("sending directory information");
@@ -133,5 +113,39 @@ public class ServerServiceThread extends Thread{
 			System.exit(1);
 		}
 	}
+	
+	public void sendFileToClient(String fileName) {
+		//build path to file
+		String filePath = sharePath + fileName;
+ 	    File myFile = new File(filePath);
+ 	    
+ 	    byte[] data = new byte[(int) myFile.length()];
+ 	    byte[] header = parseIntToByte((int)myFile.length());
+ 	    
+ 	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
+ 	    	assert(bis != null);
+	    	bis.read(data, 0, data.length);
+	    	bos.write(header, 0, header.length);
+	        bos.write(data, 0, data.length);
+	        bos.flush();
+ 	    } catch (FileNotFoundException e) {
+ 	        e.printStackTrace();
+ 	    } catch (IOException ioe) {
+			System.err.println("connection lost");
+			ioe.printStackTrace();
+		}	
+
+	}
+	
+	private byte[] parseIntToByte(int fileLength) {
+		byte[] b = new byte[4];
+		int shift = 0;
+		for (int i=3; i>=0; i--) {
+			b[i] = (byte) (fileLength >> shift);
+			shift += 8;
+		}
+		return b;
+	}
+
 }
 
