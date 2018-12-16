@@ -11,20 +11,21 @@ public class TCPClient {
     
     private final static String sharePath = "C:\\Users\\Mirco\\Desktop\\testordner";
     private static Socket clientSocket = null;
-
-    public static ArrayList<String> fileNames = null;
-    public static ArrayList<Long> fileLengths = null;
     
     private static ObjectInputStream ois 		 = null;
     private static ObjectOutputStream oos        = null;
     
+    public static ArrayList<FileInformation> fileInformation = null;
+
+    
     public static void connectToServer(String serverIP, String serverPort) throws Exception{
     		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
     		
-    		Socket clientSocket = new Socket();
+    		clientSocket = new Socket();
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
-    		System.out.println("Verbindung erfolgreich");
+    		System.out.println("connection with server successfully established");
+    		initializeStreams();
     }
     
     //versucht die alle benötigten Streams zu initialisieren
@@ -143,12 +144,13 @@ public class TCPClient {
     public static void receiveDirInformation() { 
 			try {
 				System.out.println("receiving server-directory information...");
-	        	fileNames = (ArrayList<String>) ois.readObject();
-	        	fileLengths  = (ArrayList<Long>) ois.readObject();
-	        	System.out.println("directory content recieved:");
-				for (int i = 0; i < fileNames.size(); i++) {
-					System.out.println(fileNames.get(i) + " " + fileLengths.get(i) + " Bytes");
+				fileInformation = new ArrayList<FileInformation>();
+				int fileCount = (Integer)ois.readObject();
+				System.out.println(fileCount);
+				for(int i = 0; i < fileCount; i++) {
+					fileInformation.add(new FileInformation((String)ois.readObject(), (String)ois.readObject()));
 				}
+	        	System.out.println("directory content recieved");
 			} catch (IOException | ClassNotFoundException e) {
 				System.err.println("error occured while reading from ObjectInputStream");
 				e.printStackTrace();

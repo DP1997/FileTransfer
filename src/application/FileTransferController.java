@@ -7,9 +7,12 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import datatypes.FileInformation;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -54,22 +57,31 @@ public class FileTransferController implements Initializable{
 
 
     @FXML
-    private TableView<String> tableView;
+    private ListView<String> listView;
     
     private ObservableList<String> items;
    
     
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		
     	items = FXCollections.observableArrayList();
+    	listView.setItems(items);
+    	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    	System.out.println("listView successfully populated");	;	
+
+    	/*
+    	TableColumn<FileInformation, String> fileNameCol = new TableColumn<FileInformation, String>("FILENAME");
+    	fileNameCol.setCellValueFactory(new PropertyValueFactory<FileInformation, String>("fileName"));
+
+    	TableColumn<FileInformation, String> fileLengthCol = new TableColumn<FileInformation, String>("SIZE IN BYTES");
+    	fileNameCol.setCellValueFactory(new PropertyValueFactory<FileInformation, String>("fileLength"));    	
+    	
+    	//tableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    	tableView.getColumns().addAll(fileNameCol, fileLengthCol);
+
     	tableView.setItems(items);
-    	TableColumn<String, String> fileNameCol = new TableColumn<String, String>("FILENAME");
-    	fileNameCol.setCellValueFactory(new PropertyValueFactory("FILENAME"));
-    	TableColumn<String, String> fileLengthCol = new TableColumn<String, String>("SIZE IN BYTES");
-    	fileLengthCol.setCellValueFactory(new PropertyValueFactory("SIZE IN BYTES"));
-    	tableView.getColumns().setAll(fileNameCol, fileLengthCol);
-    	tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-    	System.out.println("tableView successfully populated");	
+    	*/
 	}
 	
     @FXML
@@ -251,17 +263,21 @@ public class FileTransferController implements Initializable{
    
     private void requestFileDownload() {
     	//read marked list entry
-    	String fileName = tableView.getSelectionModel().getSelectedItem();
-    	TCPClient.contactServer(fileName);
-    	//TCPClient.downloadFileFromServer(fileName); 
+    	String row = listView.getSelectionModel().getSelectedItem();
+    	//aufpassen bei mehreren , im String
+    	String[] fileName = row.split(",");
+    	TCPClient.contactServer(fileName[0]);
+    	//TCPClient.downloadFileFromServer(fileName[0]); 
     }
     
     private void requestFileListRefresh() {
     	TCPClient.contactServer("refresh");
     	TCPClient.receiveDirInformation();
-		for (int i = 0; i < TCPClient.fileNames.size(); i++) {
-			tableView.getItems().add(TCPClient.fileNames.get(i) + ", " + TCPClient.fileLengths.get(i) + " Bytes");
+    	listView.getItems().clear();
+		for (FileInformation fi : TCPClient.fileInformation) {
+			listView.getItems().add(fi.fileName+ ", " + fi.fileLength + " Bytes");
 		}
+    	
     }
 
 
