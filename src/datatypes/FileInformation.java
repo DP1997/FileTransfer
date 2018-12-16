@@ -1,11 +1,21 @@
 package datatypes;
 
+import java.io.Serializable;
+
+import javafx.beans.property.SimpleStringProperty;
+
 public class FileInformation {
-	public String fileName;
-	public long byteLength;
 	
-	public FileInformation(String fileName, long byteLength) {
+	public final String fileName;
+	public final String fileLength;
+	
+	public FileInformation(String fileName, String byteLength) {
 		this.fileName = fileName;
-		this.byteLength = byteLength;
+		this.fileLength = byteLength;
+	}
+	
+	@Override
+	public String toString() {
+		return fileName+", "+fileLength;	
 	}
 }

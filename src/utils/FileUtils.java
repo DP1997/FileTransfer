@@ -4,25 +4,26 @@ import java.io.File;
 import java.util.ArrayList;
 
 import datatypes.FileInformation;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
 
 public class FileUtils {
 	
-	public static ArrayList<String> getFileNames(String path) {
+	
+	public static ArrayList<FileInformation> getFileInformation(String path) {
 		
-		ArrayList<String> fileNames = new ArrayList<String>();
-		
+		ArrayList<FileInformation> fileInformation = new ArrayList<FileInformation>();
+				
 		File folder = new File(path);
 		File[] files = folder.listFiles();
 		for (int i = 0; i < files.length; i++) {
 		  if (files[i].isFile()) {
-			  fileNames.add(files[i].getName());
+			  fileInformation.add(new FileInformation(files[i].getName(), Long.toString(files[i].length())));
 		  } 
 		}
-		return fileNames;
+		return fileInformation;
 	}
-	public static ArrayList<Long> getFileLengths(String path) {
+	
+/*
+	public static ArrayList<String> getFileNames(String path) {
 		ArrayList<Long> fileLengths = new ArrayList<Long>();
 		
 		File folder = new File(path);
@@ -44,6 +45,8 @@ public class FileUtils {
 			}	
 		}
 	*/
+	
+	
 	public static String getChosenFileName(String sharePath) {
 		String chosenFile = sharePath + "/xd2.txt";
 		return chosenFile;
