@@ -119,7 +119,7 @@ public class TCPClient {
     //lese Datei von Server aus InputStream
     public static void downloadFileFromServer(String fileName) {
     	String filePath = sharePath + fileName;
-
+    	
     }
     
     // empfange Share-Ordner Informationen von Server
