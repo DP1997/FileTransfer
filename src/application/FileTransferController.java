@@ -13,8 +13,10 @@ import java.util.ResourceBundle;
 import javax.swing.ProgressMonitor;
 
 import datatypes.FileInformation;
+import datatypes.ProgressStream;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -22,6 +24,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -33,8 +36,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
-
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import transfer.*;
@@ -57,7 +61,9 @@ public class FileTransferController implements Initializable{
     
     @FXML
     private Label labelConnection, labelNoConnection, labelErrorConnection, labelTryConnect, labelWrongInput;
-
+    
+    @FXML
+    private RadioButton radioSettings;
 
 
 
@@ -76,7 +82,9 @@ public class FileTransferController implements Initializable{
     	listView.setItems(items);
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     	System.out.println("listView successfully populated");	;	
-
+    	
+    	// initialize ProgressBar binding
+    	initializeProgressBar();
     	/*
     	TableColumn<FileInformation, String> fileNameCol = new TableColumn<FileInformation, String>("FILENAME");
     	fileNameCol.setCellValueFactory(new PropertyValueFactory<FileInformation, String>("fileName"));
@@ -127,6 +135,9 @@ public class FileTransferController implements Initializable{
     	else if(source.getId().equals("shutdown")) {
     		Platform.exit();
     	}
+    	else if(source.getId().equals("minimize")) {
+    		minimizeStageOfNode((Node) e.getSource());
+    	}
     	
     }
     
@@ -176,7 +187,7 @@ public class FileTransferController implements Initializable{
 		} catch (Exception e) {
 	        Alert alert = new Alert(AlertType.ERROR);
 	        alert.setHeaderText("Fehlerhafter Pfad!");
-	        alert.setContentText("Bitte ï¿½berprï¿½fen Sie den gesetzten Pfad und versuchen Sie es erneut.");
+	        alert.setContentText("Bitte überprüfen Sie den gesetzten Pfad und versuchen Sie es erneut.");
 	        alert.showAndWait();
 		}
 	}
@@ -198,6 +209,8 @@ public class FileTransferController implements Initializable{
     	else if(source.getId().equals("button_download")) {
     		//request file download
     		requestFileDownload();
+    		// settings opens showInExplorer Method when selected
+    		if(radioSettings.isSelected() == true) showInExplorer();
     	}
     	else if(source.getId().equals("button_refresh")) {
     		//request file refresh
@@ -211,6 +224,9 @@ public class FileTransferController implements Initializable{
     	else if(source.getId().equals("button_explorer2")) {
     		chooseDownloadDirectory(e);
     	}
+    }
+    private void minimizeStageOfNode(Node node) {
+        ((Stage) (node).getScene().getWindow()).setIconified(true);
     }
     
     private void establishConnection(){
@@ -279,7 +295,9 @@ public class FileTransferController implements Initializable{
     	textfield_port.setEditable(true);
     	
     }
-    private void handleProgressBar() {
+    public void initializeProgressBar() {
+    	progressBar.setStyle("-fx-accent: green;");
+    	progressBar.progressProperty().bind(ProgressStream.bytesReadProperty());
     }
 
     private void receiveDirInformation() {

@@ -17,7 +17,7 @@
             <Image url="@images/icons8-sortieren-hoch-96.png" />
          </image>
       </ImageView>
-      <AnchorPane fx:id="topbar" prefHeight="107.0" prefWidth="600.0" style="-fx-background-color: #3D4956;">
+      <AnchorPane fx:id="topbar" prefHeight="107.0" prefWidth="592.0" style="-fx-background-color: #3D4956;">
          <children>
             <ImageView fx:id="openConView" fitHeight="69.0" fitWidth="71.0" layoutX="30.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -39,8 +39,13 @@
                   <Image url="@images/icons8-herunterfahren-96.png" />
                </image>
             </ImageView>
+            <ImageView fx:id="minimize" fitHeight="25.0" fitWidth="24.0" layoutX="578.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/icons8-minus-2-96.png" />
+               </image>
+            </ImageView>
          </children></AnchorPane>
-      <AnchorPane fx:id="connectionView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;">
+      <AnchorPane fx:id="connectionView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;" visible="false">
          <children>
             <Label layoutX="71.0" layoutY="77.0" text="IP-ADRESSE" textFill="#ddd8d8">
                <font>
@@ -129,7 +134,7 @@
                   <Image url="@images/icons8-synchronisieren-filled-96.png" />
                </image>
             </ImageView>
-            <ProgressBar layoutX="95.0" layoutY="293.0" prefWidth="200.0" progress="0.0" />
+            <ProgressBar fx:id="progressBar" layoutX="95.0" layoutY="293.0" prefHeight="25.0" prefWidth="400.0" progress="0.0" />
             <ListView fx:id="listView" layoutX="95.0" layoutY="45.0" prefHeight="200.0" prefWidth="400.0" />
          </children>
       </AnchorPane>
@@ -164,6 +169,11 @@
                   <Image url="@images/icons8-geprüft-96.png" />
                </image>
             </ImageView>
+            <RadioButton fx:id="radioSettings" layoutX="40.0" layoutY="166.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="392.0" text="Ordner nach Download öffnen" textFill="#f2813b" wrapText="true">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </RadioButton>
          </children>
       </AnchorPane>
    </children>

@@ -16,7 +16,7 @@ public class TCPClient {
     
     private static ObjectInputStream ois = null;
     private static ObjectOutputStream oos = null;
-    private static InputStream is = null;
+    private static ProgressStream ps = null;
     
     public static ArrayList<FileInformation> fileInformation = null;
 
@@ -56,8 +56,8 @@ public class TCPClient {
 			oos = new ObjectOutputStream(clientSocket.getOutputStream());
 			oos.flush();
 			ois = new ObjectInputStream(clientSocket.getInputStream());
-			is = clientSocket.getInputStream();
-			assert(oos != null && ois != null && is != null);
+			ps = new ProgressStream(clientSocket.getInputStream());
+			assert(oos != null && ois != null && ps != null);
 			System.out.println("ObjectStreams have been successfully initialized");
 		} catch (IOException e) {
 			System.err.println("ObjectStreams could not be initialized");
@@ -130,12 +130,12 @@ public class TCPClient {
     		// read fileLength from Client in order to avoid read-blocking and closing the socket on serverside (EOF)
             // marshalling
             byte[] fileLengthInBytes = new byte[4];
-            is.read(fileLengthInBytes);
+            ps.read(fileLengthInBytes);
             int fileLength = unmarshalling(fileLengthInBytes);
             
             // send data
         	byte[] file = new byte[fileLength];
-            is.read(file);
+            ps.read(file);
             
             // write data in boas to put it on the disk
             baos.write(file);
@@ -176,12 +176,11 @@ public class TCPClient {
 			} catch (ClassNotFoundException e) {
 				System.err.println("error occured while reading from ObjectInputStream");
 				e.printStackTrace();
-				System.exit(1);
 			} catch (IOException e) {
-				System.err.println("error occured while reading from ObjectInputStream");
+				System.out.println("Keine Verbindung zum Server mehr");
 				e.printStackTrace();
-				System.exit(1);
-			} 
+			}
+			
 
     }
     
