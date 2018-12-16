@@ -27,6 +27,7 @@ public class ServerServiceThread extends Thread{
     
     private ObjectInputStream ois 		 = null;
     private ObjectOutputStream oos        = null;
+    private BufferedOutputStream bos = null;
 
     private static ArrayList<FileInformation> fileInformation = null;
 	
@@ -46,7 +47,7 @@ public class ServerServiceThread extends Thread{
 										break;
 						default: 		if(fileInformation != null) {
 											if(contains(recievedFileName)) {
-												sendFileToClient();
+												sendFileToClient(recievedFileName);
 												System.out.println("Datei: "+recievedFileName+" gesendet");
 											}
 										}
@@ -80,7 +81,8 @@ public class ServerServiceThread extends Thread{
 			oos = new ObjectOutputStream(connection.getOutputStream());
 			oos.flush();
 			ois = new ObjectInputStream(connection.getInputStream());
-			assert(oos != null && ois != null);
+			bos = new BufferedOutputStream(connection.getOutputStream());
+			assert(oos != null && ois != null && bos != null);
 			System.out.println("ObjectStreams have been successfully initialized");
 		} catch (IOException e) {
 			System.err.println("ObjectStreams could not be initialized");
@@ -93,33 +95,33 @@ public class ServerServiceThread extends Thread{
 		}
     }
     
-	public void sendFileToClient() {
-		String filePath = sharePath + "/" + recievedFileName;
-		System.out.println("transmitting file at "+filePath+" to client");
+	public void sendFileToClient(String fileName) {
+		String filePath = sharePath + fileName;
 		// ausgew�hlte Datei des Clients
-		assert(filePath != null);
-	    File myFile = new File(filePath);
-	    try {
-			oos.writeObject(myFile);
-			System.out.println("file transmitted");
-		} catch (AssertionError e) {
-			System.err.println("filePath is null");
-			e.printStackTrace();
-			System.exit(1);
-		} catch (IOException e) {
-			System.err.println("error occured while writing in ObjectOutputStream");
-			e.printStackTrace();
-			System.exit(1);
-		}
+ 	    File myFile = new File(filePath);
+ 	    
+ 	    byte[] mybytearray = new byte[(int) myFile.length()];
+ 	
+ 	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
+ 	    	assert(bis != null);
+	    	bis.read(mybytearray, 0, mybytearray.length);
+	        bos.write(mybytearray, 0, mybytearray.length);
+	        bos.flush(); 	
+ 	    } catch (FileNotFoundException e) {
+ 	        e.printStackTrace();
+ 	    } catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}	
 
 	}
 	
 	public void shareDirInformation() {
 		try {
 			System.out.println("sending directory information");
-			ArrayList<FileInformation> fiArray = FileUtils.getFileInformation(sharePath);
-			oos.writeObject(fiArray.size());
-			for(FileInformation fi : fiArray) {
+			fileInformation = FileUtils.getFileInformation(sharePath);
+			oos.writeObject(fileInformation.size());
+			for(FileInformation fi : fileInformation) {
 				oos.writeObject(fi.fileName);
 				oos.writeObject(fi.fileLength);
 				System.out.println(fi.fileName + ", " + fi.fileLength + " Bytes");
