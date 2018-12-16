@@ -57,7 +57,12 @@ public class ServerServiceThread extends Thread{
 				} catch (IOException | ClassNotFoundException e) {
 					System.err.println("error occured while reading from ObjectInputStream");
 					e.printStackTrace();
-					System.exit(1);
+					try {
+						connection.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 	}
@@ -88,11 +93,9 @@ public class ServerServiceThread extends Thread{
 		} catch (IOException e) {
 			System.err.println("ObjectStreams could not be initialized");
 			e.printStackTrace();
-			System.exit(1);
 		} catch (AssertionError ae) {
 			System.err.println("ObjectStreams are null");
 			ae.printStackTrace();
-			System.exit(1);
 		}
     }
     
@@ -110,7 +113,6 @@ public class ServerServiceThread extends Thread{
         } catch (IOException e) {
 			System.err.println("error occured while writing in ObjectOutputStream");
 			e.printStackTrace();
-			System.exit(1);
 		}
 	}
 	
@@ -131,7 +133,7 @@ public class ServerServiceThread extends Thread{
  	    } catch (FileNotFoundException e) {
  	        e.printStackTrace();
  	    } catch (IOException ioe) {
-			System.err.println("connection lost");
+			System.err.println("connection lost to client: ");
 			ioe.printStackTrace();
 		}	
 

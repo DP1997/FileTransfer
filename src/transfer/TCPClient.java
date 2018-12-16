@@ -37,6 +37,7 @@ public class TCPClient {
     	//otherwise error
     	
     }
+    
     public static void showInExplorer() throws IOException {
     	Desktop.getDesktop().open(new File(sharePath));
     }

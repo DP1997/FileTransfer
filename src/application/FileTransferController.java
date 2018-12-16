@@ -28,15 +28,18 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 
 import javafx.stage.Window;
-
+import javafx.util.Callback;
 import transfer.*;
 
 public class FileTransferController implements Initializable{
@@ -65,6 +68,8 @@ public class FileTransferController implements Initializable{
     private ListView<String> listView;
     
     private ObservableList<String> items;
+    private ImageView imageView;
+
    
     @FXML
     private ProgressBar progressBar;
@@ -75,7 +80,26 @@ public class FileTransferController implements Initializable{
     	items = FXCollections.observableArrayList();
     	listView.setItems(items);
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-    	System.out.println("listView successfully populated");	;	
+    	imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
+//    	listView.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+//            @Override
+//            public ListCell<String> call(ListView<String> p) {
+//                return new ListCell<String>() {
+//                    @Override
+//                    protected void updateItem(String item, boolean empty) {
+//                        super.updateItem(item, empty);
+//                        if (item != null) {
+//                            setText(item);
+//
+//                            // decide to add a new styleClass
+//                            // getStyleClass().add("costume style");
+//                            // decide the new font size
+//                            setFont(Font.font(24));
+//                        }
+//                    }
+//                };
+//            }
+//        });
 
     	/*
     	TableColumn<FileInformation, String> fileNameCol = new TableColumn<FileInformation, String>("FILENAME");
@@ -306,7 +330,21 @@ public class FileTransferController implements Initializable{
     	//von rechts lesen
     	String[] fileName = row.split(",");
     	TCPClient.contactServer(fileName[0]);
-    	//TCPClient.downloadFileFromServer(fileName[0]); 
+    	TCPClient.downloadFileFromServer(fileName[0]);
+    	
+    	listView.setCellFactory(param -> new ListCell<String>() {
+            @Override
+            public void updateItem(String name, boolean empty) {
+                super.updateItem(name, empty);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                } else if (name.equals(fileName[0])) {
+                    setText(name);
+                    setGraphic(imageView);
+                }
+            }
+        });
     }
     
     private void requestFileListRefresh() {

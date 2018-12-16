@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="600.0" style="-fx-background-color: null;" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.FileTransferController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="600.0" style="-fx-background-color: null;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.FileTransferController">
    <children>
       <ImageView fx:id="conView_indic" fitHeight="52.0" fitWidth="53.0" layoutX="38.0" layoutY="94.0" pickOnBounds="true" preserveRatio="true" visible="false">
          <image>
@@ -100,14 +100,14 @@
                   <Font size="20.0" />
                </font>
             </Label>
-            <Label fx:id="labelWrongInput" layoutX="200.0" layoutY="402.0" text="UNGÜLTIGE EINGABE" textFill="#d71313" visible="false">
+            <Label fx:id="labelWrongInput" prefHeight="17.0" prefWidth="226.0" text="UNGÜLTIGE EINGABE" textFill="#d71313" visible="false">
                <font>
                   <Font size="20.0" />
                </font>
             </Label>
          </children>
       </AnchorPane>
-      <AnchorPane id="downloadView" fx:id="downloadView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;">
+      <AnchorPane id="downloadView" fx:id="downloadView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;" visible="false">
          <children>
             <RadioButton layoutX="31.0" layoutY="422.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="142.0" text="SELECT ALL" textFill="#f2813b" wrapText="true">
                <font>
@@ -161,7 +161,7 @@
             </ImageView>
             <ImageView fx:id="geprueftHaken" layoutX="236.0" layoutY="264.0" visible="false">
                <image>
-                  <Image url="@images/icons8-geprüft-96.png" />
+                  <Image url="@images/icons8-geprueft-96.png" />
                </image>
             </ImageView>
          </children>
