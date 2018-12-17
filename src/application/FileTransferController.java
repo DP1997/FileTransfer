@@ -15,14 +15,21 @@ import javax.swing.ProgressMonitor;
 import datatypes.FileInformation;
 import datatypes.ProgressStream;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
@@ -31,6 +38,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -46,6 +54,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
+import javafx.util.Duration;
 import transfer.*;
 
 public class FileTransferController implements Initializable{
@@ -59,17 +68,21 @@ public class FileTransferController implements Initializable{
     @FXML
     private ImageView button_download, button_explorer, button_refresh, button_explorer2
     				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished,
-    				  noConnection, connectionEstablished, geprueftHaken, disconnect, connect;
+    				  noConnection, connectionEstablished, geprueftHaken, disconnect, connect,
+    				  downloadSuc, downloadCancel;
 
     @FXML
     private TextField textfield_port, textfield_ip, textfield_dpath;
     
     @FXML
-    private Label labelConnection, labelNoConnection, labelErrorConnection, labelTryConnect, labelWrongInput;
+    private Label labelConnection, labelNoConnection, labelErrorConnection,
+    labelTryConnect, labelWrongInput, labelDownload;
     
     @FXML
     private RadioButton radioSettings;
-
+    
+    @FXML
+    private Button startDownloadButton, cancelDownloadButton;
 
 
 
@@ -77,11 +90,48 @@ public class FileTransferController implements Initializable{
     private ListView<String> listView;
     
     private ObservableList<String> items;
-    //private ImageView imageView;
+    private ImageView imageView;
 
    
     @FXML
-    private ProgressBar progressBar;
+    public ProgressBar progressBar;
+    private Service<Void> downloadThread;
+    
+    
+    @FXML
+    private void clickedDownload(MouseEvent e) {
+    	//String fileName = listView.getSelectionModel().getSelectedItem();
+    	downloadThread = new Service<Void>() {
+        	@Override
+        	protected Task<Void> createTask(){
+        		return new Task<Void>() {
+        			@Override
+        			protected Void call() throws Exception{
+        	    		//request file download
+        				
+        				labelDownload.setVisible(false);
+        				ProgressStream.resetProgress();
+        	    		downloadSuc.setVisible(false);
+        				downloadCancel.setVisible(true);
+        	    		requestFileDownload();
+        				return null;
+        			}
+				};
+        	}
+    	};
+    	downloadThread.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    		@Override
+    		public void handle(WorkerStateEvent event) {
+    			downloadCancel.setVisible(false);
+    			downloadSuc.setVisible(true);
+				ProgressStream.resetProgress();
+				labelDownload.setVisible(true);
+				labelDownload.setText((int)ProgressStream.fileLength + " Bytes übertragen");
+    		}
+    	});
+    	downloadThread.restart();
+    }
+    
     
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -89,8 +139,8 @@ public class FileTransferController implements Initializable{
     	items = FXCollections.observableArrayList();
     	listView.setItems(items);
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-    	//imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
- 	    initializeProgressBar();
+    	imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
+    	initializeProgressBar();
 		//listView.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
 //            @Override
 //            public ListCell<String> call(ListView<String> p) {
@@ -124,6 +174,7 @@ public class FileTransferController implements Initializable{
     	tableView.setItems(items);
     	*/
 	}
+	
 	
     @FXML
     public void topBarIconClicked(MouseEvent e) {
@@ -219,6 +270,13 @@ public class FileTransferController implements Initializable{
 			showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der angegebene Pfad korrekt ist.");
 		}
 	}
+	private void cancelDownload(){
+		// streams clearen
+		downloadCancel.setVisible(false);
+		ProgressStream.resetProgress();
+	    downloadThread.cancel();
+	    System.out.println("cancelled.");		
+	}
     
     @FXML
     public void handleMouseClick(MouseEvent e){
@@ -235,10 +293,8 @@ public class FileTransferController implements Initializable{
     	    	
     	//downloadView
     	else if(source.getId().equals("button_download")) {
-    		//request file download
-    		requestFileDownload();
-    		// settings opens showInExplorer Method when selected
-    		if(radioSettings.isSelected() == true) showInExplorer();
+    		// background Task
+    		clickedDownload(e);
     	}
     	else if(source.getId().equals("button_refresh")) {
     		//request file refresh
@@ -252,12 +308,15 @@ public class FileTransferController implements Initializable{
     	else if(source.getId().equals("button_explorer2")) {
     		chooseDownloadDirectory(e);
     	}
+    	else if(source.getId().equals("downloadCancel")) {
+    		cancelDownload();
+    	}
     }
     private void minimizeStageOfNode(Node node) {
         ((Stage)(node).getScene().getWindow()).setIconified(true);
     }
     
-    private void establishConnection(){    
+    private void establishConnection(){
     	clearAllGUI();
     	for(int i = 0; i < 5; i ++) {
 	    	try {
@@ -275,10 +334,9 @@ public class FileTransferController implements Initializable{
 	    		connectionIOErrorGUI();
 	    		break;
 			}
-    	}
-    	//receiveDirInformation();
-    	
+    	}    	
     }
+    
     private void connectGUI() {
     	clearAllGUI();
     	labelTryConnect.setVisible(true);
@@ -323,21 +381,57 @@ public class FileTransferController implements Initializable{
     	textfield_port.setEditable(true);
     	
     }
+    
     public void initializeProgressBar() {
     	progressBar.setStyle("-fx-accent: green;");
     	progressBar.progressProperty().bind(ProgressStream.bytesReadProperty());
     }
+    
+/*  
+	public static void startProgressTask() {
+		final double EPSILON = 0.0000005;
+	final Task<Void> task = new Task<Void>() {
+        final int N_ITERATIONS = 100;
+
+        @Override
+        protected Void call() throws Exception {
+            for (int i = 0; i < N_ITERATIONS; i++) {
+                updateProgress(i + 1, N_ITERATIONS);
+                // sleep is used to simulate doing some work which takes some time....
+                Thread.sleep(10);
+            }
+
+            return null;
+        }
+    };
+
+    progressBar.progressProperty().bind(
+            task.progressProperty()
+    );
+    // color the bar green when the work is complete.
+    progressBar.progressProperty().addListener(observable -> {
+        if (progressBar.getProgress() >= 1 - EPSILON) {
+            progressBar.setStyle("-fx-accent: forestgreen;");
+        }
+    });
+
+    final Thread thread = new Thread(task, "task-thread");
+    thread.setDaemon(true);
+    thread.start();
+	}
+    */
 
     private void receiveDirInformation() {
 		TCPClient.receiveDirInformation();	
 	}
 
 	private void deleteConnection() {
-		clearAllGUI();
-    	noConnection.setVisible(true);
-    	connect.setVisible(true);
-    	labelNoConnection.setVisible(true);
+    	clearAllGUI();
+		noConnection.setVisible(true);
+		connect.setVisible(true);
+		labelNoConnection.setVisible(true);
 		TCPClient.closeStreams();
+		System.out.println("Verbindung getrennt");
     }
    
     private void requestFileDownload() {
@@ -347,24 +441,25 @@ public class FileTransferController implements Initializable{
     	//von rechts lesen
     	String[] fileName = row.split(",");
     	TCPClient.contactServer(fileName[0]);
-    	
     	TCPClient.downloadFileFromServer(fileName[0]);
     	
-//    	listView.setCellFactory(param -> new ListCell<String>() {
-//    		
-//            @Override
-//            public void updateItem(String name, boolean empty) {
-//                super.updateItem(name, empty);
-//                if (empty) {
-//                    setText(null);
-//                    setGraphic(null);
-//                } else if (name.equals(fileName[0])) {
-//                    setText(name);
-//                    setGraphic(imageView);
-//                }
-//            }
-//        });
     }
+    	/*
+    	listView.setCellFactory(param -> new ListCell<String>() {
+    		
+            @Override
+            public void updateItem(String name, boolean empty) {
+                super.updateItem(name, empty);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                } else if (name.equals(fileName[0])) {
+                    setText(name);
+                    setGraphic(imageView);
+                }
+            }
+        });
+        */
     
     private void requestFileListRefresh() {
     	TCPClient.contactServer("refresh");
@@ -375,6 +470,31 @@ public class FileTransferController implements Initializable{
 		}
     	
     }
+    
+       public static void showAlert(String header, String content) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setHeaderText(header);
+        Label contenLabel = new Label(content);
+        contenLabel.setWrapText(true);
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setContent(contenLabel);
+        ((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
+        dialogPane.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
+        alert.showAndWait();
+    }
+   
+    // ProgressBar
+    /*
+    @FXML
+    public void handle(ActionEvent event) {
+        startDownloadButton.setDisable(true);
+        progressBar.setProgress(0);
+        //cancelDownloadButton.setDisable(false);
+        
+        progressWorker = createWorker();
+
+        progressBar.progressProperty().unbind();
+        progressBar.progressProperty().bind(progressWorker.progressProperty());
     
     public static void showAlert(String header, String content) {
         Alert alert = new Alert(AlertType.ERROR);
@@ -388,7 +508,35 @@ public class FileTransferController implements Initializable{
         alert.showAndWait();
     }
 
+        new Thread(progressWorker).start();
+    }
+    
+    public void initializeProgress() {
+        
+        cancelDownloadButton.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                startDownloadButton.setDisable(false);
+                cancelDownloadButton.setDisable(true);
+                progressWorker.cancel(true);
+                progressBar.progressProperty().unbind();
+                progressBar.setProgress(0);
+                System.out.println("cancelled.");
+            }
+        });
+    }
 
+    public Task createWorker() {
+        return new Task() {
+            @Override
+            protected Object call() throws Exception {
+                for (int i = 0; i < 1631385; i++) {
+                    updateProgress(0, 1631385);
+                }
+                return true;
+            }
+        };
+    } 
+       */
 }
     	
 

@@ -38,7 +38,7 @@ public class Main extends Application {
 					primaryStage.setY(event.getScreenY() - yOffset);
 				}
 			});
-			
+
 			//creating a new scene
 			Scene scene = new Scene(root);
 			scene.setFill(Color.TRANSPARENT);

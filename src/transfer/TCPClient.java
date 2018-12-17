@@ -17,6 +17,7 @@ public class TCPClient {
     
     private static BufferedOutputStream bos = null;
     private static BufferedInputStream bis = null;
+    private static ProgressStream ps = null;
     
     public static ArrayList<FileInformation> fileInformation = null;
 
@@ -149,9 +150,9 @@ public class TCPClient {
             bis.read(fileLengthInBytes);
             int fileLength = unmarshalling(fileLengthInBytes);
             
-            // read data
+            // send data
         	byte[] file = new byte[fileLength];
-            bis.read(file);
+            ps.read(file);
             
             // write data in boas to put it on the disk
             baos.write(file);
