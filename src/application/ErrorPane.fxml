@@ -7,8 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
-<fx:root type="javafx.scene.layout.AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="179.0" prefWidth="478.0" style="-fx-background-color: #3D4956; -fx-border-color: #e67e22; -fx-border-width: 3px;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="179.0" prefWidth="478.0" style="-fx-background-color: #3D4956; -fx-border-color: #e67e22; -fx-border-width: 3px;" type="AnchorPane" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.ErrorPane">
    <children>
       <Button fx:id="exit_imgv" layoutX="382.0" layoutY="123.0" mnemonicParsing="false" onAction="#exit" style="-fx-background-color: #3D4956; -fx-border-color: #f50000;" text="OK" textFill="#f50000">
          <font>

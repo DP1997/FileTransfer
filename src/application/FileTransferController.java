@@ -211,22 +211,7 @@ public class FileTransferController implements Initializable{
 		try {
 			TCPClient.showInExplorer();
 		} catch (Exception e) {
-//	        Alert alert = new Alert(AlertType.ERROR);
-//	        alert.getButtonTypes().
-//	        alert.setHeaderText("Fehlerhafter Pfad!");
-//	        alert.setContentText("Bitte �berpr�fen Sie den gesetzten Pfad und versuchen Sie es erneut.");
-//	        DialogPane dialogPane = alert.getDialogPane();
-//
-//	        dialogPane.getStylesheets().add(
-//	           getClass().getResource("application.css").toExternalForm());
-//	        alert.showAndWait();
-//	     
-//			ErrorPane ep = new ErrorPane();
-//			ep.setTitle("Fehlerhafter Dateipfad!");
-//			ep.setContent("Bitte vergewissern Sie sich, dass der von Ihnen angegbene Pfad korrekt ist.");
-			
-
-			
+			showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der angegebene Pfad korrekt ist.");
 		}
 	}
     
@@ -384,6 +369,18 @@ public class FileTransferController implements Initializable{
 			listView.getItems().add(fi.fileName+ ", " + fi.fileLength + " Bytes");
 		}
     	
+    }
+    
+    public static void showAlert(String header, String content) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setHeaderText(header);
+        Label contenLabel = new Label(content);
+        contenLabel.setWrapText(true);
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setContent(contenLabel);
+        ((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
+        dialogPane.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
+        alert.showAndWait();
     }
 
 
