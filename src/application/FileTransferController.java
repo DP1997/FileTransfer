@@ -14,10 +14,6 @@ import javax.swing.ProgressMonitor;
 
 import datatypes.FileInformation;
 import datatypes.ProgressStream;
-import datatypes.ProgressUpdate2;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -43,6 +39,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
@@ -54,6 +51,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
@@ -264,10 +262,7 @@ public class FileTransferController implements Initializable{
 		try {
 			TCPClient.showInExplorer();
 		} catch (Exception e) {
-	        Alert alert = new Alert(AlertType.ERROR);
-	        alert.setHeaderText("Fehlerhafter Pfad!");
-	        alert.setContentText("Bitte �berpr�fen Sie den gesetzten Pfad und versuchen Sie es erneut.");
-	        alert.showAndWait();
+			showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der angegebene Pfad korrekt ist.");
 		}
 	}
 	private void cancelDownload(){
@@ -303,6 +298,7 @@ public class FileTransferController implements Initializable{
     	else if(source.getId().equals("button_explorer")) {
     		showInExplorer();
     	}
+    	
     	//settingsView
     	else if(source.getId().equals("button_explorer2")) {
     		chooseDownloadDirectory(e);
@@ -333,10 +329,9 @@ public class FileTransferController implements Initializable{
 	    		connectionIOErrorGUI();
 	    		break;
 			}
-    	}
-    	//receiveDirInformation();
-    	
+    	}    	
     }
+    
     private void connectGUI() {
     	clearAllGUI();
     	labelTryConnect.setVisible(true);
@@ -426,16 +421,12 @@ public class FileTransferController implements Initializable{
 	}
 
 	private void deleteConnection() {
-    	try {
-			clearAllGUI();
-	    	noConnection.setVisible(true);
-	    	connect.setVisible(true);
-	    	labelNoConnection.setVisible(true);
-			TCPClient.deleteConnection();
-			System.out.println("Verbindung getrennt");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    	clearAllGUI();
+		noConnection.setVisible(true);
+		connect.setVisible(true);
+		labelNoConnection.setVisible(true);
+		TCPClient.closeStreams();
+		System.out.println("Verbindung getrennt");
     }
    
     private void requestFileDownload() {
@@ -474,6 +465,18 @@ public class FileTransferController implements Initializable{
 		}
     	
     }
+    
+       public static void showAlert(String header, String content) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setHeaderText(header);
+        Label contenLabel = new Label(content);
+        contenLabel.setWrapText(true);
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setContent(contenLabel);
+        ((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
+        dialogPane.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
+        alert.showAndWait();
+    }
    
     // ProgressBar
     /*
@@ -487,6 +490,18 @@ public class FileTransferController implements Initializable{
 
         progressBar.progressProperty().unbind();
         progressBar.progressProperty().bind(progressWorker.progressProperty());
+    
+    public static void showAlert(String header, String content) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setHeaderText(header);
+        Label contenLabel = new Label(content);
+        contenLabel.setWrapText(true);
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setContent(contenLabel);
+        ((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
+        dialogPane.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
+        alert.showAndWait();
+    }
 
         new Thread(progressWorker).start();
     }
