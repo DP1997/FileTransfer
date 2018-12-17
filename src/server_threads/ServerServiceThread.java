@@ -21,8 +21,8 @@ import utils.FileUtils;
 public class ServerServiceThread extends Thread{
 	
 	private Socket connection = null;
-	
-    private String sharePath = "/home/donald/Schreibtisch/";
+	// \\Users\\Mirco\\Desktop\\testordner\\
+    private String sharePath = "\\Users\\Mirco\\Desktop\\testordner\\";
     private String recievedFileName;
     
     private ObjectInputStream ois 		 = null;

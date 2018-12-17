@@ -134,8 +134,19 @@
                   <Image url="@images/icons8-synchronisieren-filled-96.png" />
                </image>
             </ImageView>
-            <ProgressBar fx:id="progressBar" layoutX="95.0" layoutY="293.0" prefHeight="25.0" prefWidth="400.0" progress="0.0" />
+            <ProgressBar fx:id="progressBar" layoutX="95.0" layoutY="293.0" prefHeight="25.0" prefWidth="358.0" progress="0.0" />
             <ListView fx:id="listView" layoutX="95.0" layoutY="45.0" prefHeight="200.0" prefWidth="400.0" />
+            <ImageView fx:id="downloadSuc" fitHeight="45.0" fitWidth="44.0" layoutX="460.0" layoutY="283.0" visible="false">
+               <image>
+                  <Image url="@images/icons8-geprueft-96.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="downloadCancel" fitHeight="45.0" fitWidth="44.0" layoutX="460.0" layoutY="283.0" onMouseClicked="#handleMouseClick" visible="false">
+               <image>
+                  <Image url="@images/icons8-abbruch.png" />
+               </image>
+            </ImageView>
+            <Label fx:id="labelDownload" layoutX="95.0" layoutY="328.0" prefHeight="17.0" prefWidth="358.0" textFill="#53ba3a" />
          </children>
       </AnchorPane>
       <ImageView fx:id="downloadView_indic" fitHeight="52.0" fitWidth="53.0" layoutX="184.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
@@ -166,7 +177,7 @@
             </ImageView>
             <ImageView fx:id="geprueftHaken" layoutX="236.0" layoutY="264.0" visible="false">
                <image>
-                  <Image url="@images/icons8-geprüft-96.png" />
+                  <Image url="@images/icons8-geprueft-96.png" />
                </image>
             </ImageView>
             <RadioButton fx:id="radioSettings" layoutX="40.0" layoutY="166.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="392.0" text="Ordner nach Download öffnen" textFill="#f2813b" wrapText="true">

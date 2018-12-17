@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import datatypes.FileInformation;
 import datatypes.ProgressStream;
+import datatypes.ProgressUpdate2;
 import utils.FileUtils;
 
 public class TCPClient {
@@ -41,7 +42,6 @@ public class TCPClient {
     public static void showInExplorer() throws IOException {
     	Desktop.getDesktop().open(new File(sharePath));
     }
-
     
     //versucht die alle benötigten Streams zu initialisieren
     private static void initializeStreams() {
@@ -133,6 +133,13 @@ public class TCPClient {
             ps.read(fileLengthInBytes);
             int fileLength = unmarshalling(fileLengthInBytes);
             
+            ProgressStream.setFileLength(fileLength);
+            
+            // start pupdater
+            //new datatypes.ProgressUpdater().start();
+            //ProgressUpdate2.startProgressTask();
+            
+            
             // send data
         	byte[] file = new byte[fileLength];
             ps.read(file);
@@ -142,7 +149,6 @@ public class TCPClient {
             bos.write(baos.toByteArray());
             bos.flush();   
             System.out.println("Die Datei wurde empfangen");
-		
         } catch (AssertionError ae) {
 			System.err.println("some client streams are null!");
 			ae.printStackTrace();
