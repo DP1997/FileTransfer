@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import datatypes.FileInformation;
 import datatypes.ProgressStream;
 import static utils.MarshallingUtils.*;
+import static application.FileTransferController.showAlert;
 
 public class TCPClient {
     

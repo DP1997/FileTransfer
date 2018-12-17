@@ -201,12 +201,17 @@ public class FileTransferController implements Initializable{
 				System.out.println("linux erkannt");
 				downloadPath = downloadPath + "/";
 			}
-			TCPClient.setDownloadPath(downloadPath);
+			try {
+				TCPClient.setDownloadPath(downloadPath);
+			} catch (AssertionError assErr) {
+				showAlert("Ungültiger Pfad!", "Der angegebene Pfad darf nicht leer sein.");
+			}
 			geprueftHaken.setVisible(true);
 			System.out.println("Pfad gesetzt: " + downloadPath);
 		}
 		
 	}
+	
 	private void showInExplorer() {
 		try {
 			TCPClient.showInExplorer();
@@ -249,7 +254,7 @@ public class FileTransferController implements Initializable{
     	}
     }
     private void minimizeStageOfNode(Node node) {
-        ((Stage) (node).getScene().getWindow()).setIconified(true);
+        ((Stage)(node).getScene().getWindow()).setIconified(true);
     }
     
     private void establishConnection(){    
