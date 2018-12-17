@@ -2,18 +2,13 @@ package server_threads;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.ArrayList;
+import static utils.MarshallingUtils.*;
 
 import datatypes.FileInformation;
 import utils.FileUtils;
@@ -24,10 +19,9 @@ public class ServerServiceThread extends Thread{
 	
     private String sharePath = "/home/donald/Schreibtisch/";
     private String recievedFileName;
-    
-    private ObjectInputStream ois 		 = null;
-    private ObjectOutputStream oos        = null;
+   
     private BufferedOutputStream bos = null;
+    private BufferedInputStream bis = null;
 
     private static ArrayList<FileInformation> fileInformation = null;
 	
@@ -39,9 +33,21 @@ public class ServerServiceThread extends Thread{
 	}
 	
 	public void run() {
+		byte[] byteBuffer = new byte[4];
+		int lengthOfData;
+		byte[] data;
 			while(!connection.isClosed()) {
 				try {
-					if((recievedFileName = (String) ois.readObject()) != null) {
+					
+		            //retrieve header information
+		            bis.read(byteBuffer);
+		            lengthOfData = unmarshalling(byteBuffer);
+		            System.out.println("incoming msg expected to be "+lengthOfData+" long");
+		            //retrieve data
+		            data = new byte[lengthOfData];
+					if(bis.read(data) != -1) {
+						recievedFileName = new String(data);
+						System.out.println("action: "+recievedFileName+" recieved");
 						switch(recievedFileName) {
 						case "refresh": shareDirInformation();
 										break;
@@ -54,10 +60,17 @@ public class ServerServiceThread extends Thread{
 										}
 						}
 					}
-				} catch (IOException | ClassNotFoundException e) {
-					System.err.println("error occured while reading from ObjectInputStream");
+				} catch (IOException e) {
+					System.err.println("error occured while reading from stream - terminating connection");
 					e.printStackTrace();
-					System.exit(1);
+					closeStreams();
+					try {
+						connection.close();
+					} catch (IOException e1) {
+						System.err.println("cannot close connection - exiting system");
+						e1.printStackTrace();
+						System.exit(1);
+					}
 				}
 			}
 	}
@@ -69,50 +82,110 @@ public class ServerServiceThread extends Thread{
 		return false;
 	}
 	
-    //managing streams
+    //allocate resources needed for the connection
     private  void initializeStreams() {
     	
+    	//check for an active socket
     	try {
     		assert(connection != null && !connection.isClosed());
     	} catch (AssertionError ae) {
-    		System.err.println("clientSocket is null or closed");
+    		System.err.println("socket is null or closed - clean up connection");
+    		//terminate connection
+    		closeStreams();
     	}
 
+    	//allocate streams
     	try {
-			oos = new ObjectOutputStream(connection.getOutputStream());
-			oos.flush();
-			ois = new ObjectInputStream(connection.getInputStream());
 			bos = new BufferedOutputStream(connection.getOutputStream());
-			assert(oos != null && ois != null && bos != null);
-			System.out.println("ObjectStreams have been successfully initialized");
-		} catch (IOException e) {
-			System.err.println("ObjectStreams could not be initialized");
+			bis = new BufferedInputStream(connection.getInputStream());
+			assert(bis != null && bos != null);
+			System.out.println("streams have been successfully initialized");
+		} catch (IOException | AssertionError e) {
+			System.err.println("steams could not be initialized - terminating connection");
 			e.printStackTrace();
-			System.exit(1);
-		} catch (AssertionError ae) {
-			System.err.println("ObjectStreams are null");
-			ae.printStackTrace();
-			System.exit(1);
-		}
+			//terminate connection
+			closeStreams();
+		} 
     }
     
+    //release all allocated resources
+    private void closeStreams() {
+    	
+    	//release BufferedOutputStream
+    	try {
+        	assert(bos != null);
+    		bos.close();
+    		bos = null;
+    		System.out.println("bos successfully released");
+    	} catch (AssertionError ae) {
+    		System.err.println("bos is already released");
+    		ae.printStackTrace();
+    	} catch (IOException e) {
+    		System.err.println("bos could not be closed - setting bos null");
+    		bos = null;
+		}
+    	
+    	//release BufferedInputStream
+    	try {
+        	assert(bis != null);
+    		bis.close();
+    		bis = null;
+    		System.out.println("bis successfully released");
+    	} catch (AssertionError ae) {
+    		System.err.println("bis is already released");
+    		ae.printStackTrace();
+    	} catch (IOException e) {
+    		System.err.println("bos could not be closed - setting bis null");
+    		bis = null;
+		}
+    	
+    	//release socket
+    	try {
+    		assert(connection != null);
+    		connection.close();
+    		System.out.println("socket successfully closed - new connection can be established");
+    	} catch (AssertionError ae) {
+    		System.err.println("socket is already null");
+    		ae.printStackTrace();
+    	} catch (IOException ioe) {
+    		System.err.println("socket could not be closed - setting socket null");
+    		ioe.printStackTrace();
+    		connection = null;
+    	}
+    }
+    
+    //send client information about the files he can request a download for
 	public void shareDirInformation() {
 		try {
-			System.out.println("sending directory information");
+			System.out.println("sending directory information...");
+			//read information about shared files
 			fileInformation = FileUtils.getFileInformation(sharePath);
-			oos.writeObject(fileInformation.size());
+			byte[] header = marshalling(fileInformation.size());
+			//tell client how many files the server will be sending
+			//with each file containing 2 additional send operations
+			bos.write(header);
+			System.out.println("sending "+unmarshalling(header)+" fileInformation-Sets...");
 			for(FileInformation fi : fileInformation) {
-				oos.writeObject(fi.fileName);
-				oos.writeObject(fi.fileLength);
-				System.out.println(fi.fileName + ", " + fi.fileLength + " Bytes");
+				//tell client how long the message will be (in bytes)
+				bos.write(marshalling(fi.fileName.getBytes().length));
+				//send the message
+				bos.write(fi.fileName.getBytes());
+				bos.flush();
+				System.out.print("sending "+fi.fileName+" in "+fi.fileName.getBytes().length+" bytes - ");
+				//do the same for the fileLength
+				bos.write(marshalling(fi.fileLength.getBytes().length));
+				bos.write(fi.fileLength.getBytes());
+				bos.flush();
+				System.out.println("sending "+fi.fileLength+" in "+fi.fileLength.getBytes().length+" bytes");
 			}
 
         } catch (IOException e) {
-			System.err.println("error occured while writing in ObjectOutputStream");
+			System.err.println("error occured while writing in streams - terminating connection");
 			e.printStackTrace();
-			System.exit(1);
+			closeStreams();
 		}
 	}
+	
 	
 	public void sendFileToClient(String fileName) {
 		//build path to file
@@ -120,31 +193,27 @@ public class ServerServiceThread extends Thread{
  	    File myFile = new File(filePath);
  	    
  	    byte[] data = new byte[(int) myFile.length()];
- 	    byte[] header = parseIntToByte((int)myFile.length());
+ 	    byte[] header = marshalling((int)myFile.length());
  	    
  	    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile))) {
  	    	assert(bis != null);
-	    	bis.read(data, 0, data.length);
-	    	bos.write(header, 0, header.length);
-	        bos.write(data, 0, data.length);
+ 	    	//read file from disk into the data byte-array 
+	    	bis.read(data);
+	    	//tell client how long our data will be (in bytes)
+	    	bos.write(header);
+	    	//send data
+	        bos.write(data);
 	        bos.flush();
  	    } catch (FileNotFoundException e) {
+ 	    	System.err.println("specified file could not be found");
  	        e.printStackTrace();
+ 	        //TODO ALERT -> reset share-Path
  	    } catch (IOException ioe) {
-			System.err.println("connection lost");
+			System.err.println("error occured while writing in streams - terminating connection");
 			ioe.printStackTrace();
+			closeStreams();
 		}	
 
-	}
-	
-	private byte[] parseIntToByte(int fileLength) {
-		byte[] b = new byte[4];
-		int shift = 0;
-		for (int i=3; i>=0; i--) {
-			b[i] = (byte) (fileLength >> shift);
-			shift += 8;
-		}
-		return b;
 	}
 
 }

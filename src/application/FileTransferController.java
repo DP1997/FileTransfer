@@ -22,6 +22,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
@@ -30,6 +31,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
@@ -41,6 +43,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import transfer.*;
@@ -74,7 +77,7 @@ public class FileTransferController implements Initializable{
     private ListView<String> listView;
     
     private ObservableList<String> items;
-    private ImageView imageView;
+    //private ImageView imageView;
 
    
     @FXML
@@ -86,7 +89,7 @@ public class FileTransferController implements Initializable{
     	items = FXCollections.observableArrayList();
     	listView.setItems(items);
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-    	imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
+    	//imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
  	    initializeProgressBar();
 		//listView.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
 //            @Override
@@ -208,10 +211,22 @@ public class FileTransferController implements Initializable{
 		try {
 			TCPClient.showInExplorer();
 		} catch (Exception e) {
-	        Alert alert = new Alert(AlertType.ERROR);
-	        alert.setHeaderText("Fehlerhafter Pfad!");
-	        alert.setContentText("Bitte �berpr�fen Sie den gesetzten Pfad und versuchen Sie es erneut.");
-	        alert.showAndWait();
+//	        Alert alert = new Alert(AlertType.ERROR);
+//	        alert.getButtonTypes().
+//	        alert.setHeaderText("Fehlerhafter Pfad!");
+//	        alert.setContentText("Bitte �berpr�fen Sie den gesetzten Pfad und versuchen Sie es erneut.");
+//	        DialogPane dialogPane = alert.getDialogPane();
+//
+//	        dialogPane.getStylesheets().add(
+//	           getClass().getResource("application.css").toExternalForm());
+//	        alert.showAndWait();
+//	     
+//			ErrorPane ep = new ErrorPane();
+//			ep.setTitle("Fehlerhafter Dateipfad!");
+//			ep.setContent("Bitte vergewissern Sie sich, dass der von Ihnen angegbene Pfad korrekt ist.");
+			
+
+			
 		}
 	}
     
@@ -252,7 +267,7 @@ public class FileTransferController implements Initializable{
         ((Stage) (node).getScene().getWindow()).setIconified(true);
     }
     
-    private void establishConnection(){
+    private void establishConnection(){    
     	clearAllGUI();
     	for(int i = 0; i < 5; i ++) {
 	    	try {
@@ -328,16 +343,11 @@ public class FileTransferController implements Initializable{
 	}
 
 	private void deleteConnection() {
-    	try {
-			clearAllGUI();
-	    	noConnection.setVisible(true);
-	    	connect.setVisible(true);
-	    	labelNoConnection.setVisible(true);
-			TCPClient.deleteConnection();
-			System.out.println("Verbindung getrennt");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		clearAllGUI();
+    	noConnection.setVisible(true);
+    	connect.setVisible(true);
+    	labelNoConnection.setVisible(true);
+		TCPClient.closeStreams();
     }
    
     private void requestFileDownload() {
@@ -347,22 +357,23 @@ public class FileTransferController implements Initializable{
     	//von rechts lesen
     	String[] fileName = row.split(",");
     	TCPClient.contactServer(fileName[0]);
+    	
     	TCPClient.downloadFileFromServer(fileName[0]);
     	
-    	listView.setCellFactory(param -> new ListCell<String>() {
-    		
-            @Override
-            public void updateItem(String name, boolean empty) {
-                super.updateItem(name, empty);
-                if (empty) {
-                    setText(null);
-                    setGraphic(null);
-                } else if (name.equals(fileName[0])) {
-                    setText(name);
-                    setGraphic(imageView);
-                }
-            }
-        });
+//    	listView.setCellFactory(param -> new ListCell<String>() {
+//    		
+//            @Override
+//            public void updateItem(String name, boolean empty) {
+//                super.updateItem(name, empty);
+//                if (empty) {
+//                    setText(null);
+//                    setGraphic(null);
+//                } else if (name.equals(fileName[0])) {
+//                    setText(name);
+//                    setGraphic(imageView);
+//                }
+//            }
+//        });
     }
     
     private void requestFileListRefresh() {

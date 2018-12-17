@@ -1,18 +1,13 @@
 package application;
 	
-import java.io.File;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import utils.FileUtils;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 
 
@@ -43,18 +38,6 @@ public class Main extends Application {
 					primaryStage.setY(event.getScreenY() - yOffset);
 				}
 			});
-			
-			/*
-			//setting height and width of the window
-			primaryStage.setMinHeight(638.0);
-			primaryStage.setMinWidth(600.0);
-			//setting title
-			primaryStage.setTitle("FileTransfer");
-			//window should not be resizable
-			primaryStage.setResizable(false);
-			
-			AnchorPane pane = loader.load();
-			*/
 			
 			//creating a new scene
 			Scene scene = new Scene(root);
