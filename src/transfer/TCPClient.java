@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
+import application.FileTransferController;
 import datatypes.FileInformation;
 import datatypes.ProgressStream;
 import static utils.MarshallingUtils.*;
@@ -23,6 +24,7 @@ public class TCPClient {
 
     
     public static void connectToServer(String serverIP, String serverPort) throws Exception {
+    		
     		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
     		
     		clientSocket = new Socket();
@@ -120,7 +122,7 @@ public class TCPClient {
     	}
     }
     
-    //schickt dem Server einen String anhand dieser entscheidet, welche Aktion er auszuführen hat
+    //schickt dem Server einen String anhand dieser entscheidet, welche Aktion er auszufÃ¼hren hat
     // refresh -> shareDirInformation oder fileName -> sendFileToClient
     public static void contactServer(String action){
 		try {
