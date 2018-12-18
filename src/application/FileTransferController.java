@@ -95,7 +95,7 @@ public class FileTransferController implements Initializable{
    
     @FXML
     public ProgressBar progressBar;
-    private Service<Void> downloadThread;
+    private Service<Void> downloadThread, connectThread;
     
     
     @FXML
@@ -126,10 +126,32 @@ public class FileTransferController implements Initializable{
     			downloadSuc.setVisible(true);
 				ProgressStream.resetProgress();
 				labelDownload.setVisible(true);
-				labelDownload.setText((int)ProgressStream.fileLength + " Bytes übertragen");
+				labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " Ã¼bertragen");
     		}
     	});
     	downloadThread.restart();
+    }
+    @FXML
+    private void connectToServer(MouseEvent e) {
+    	//String fileName = listView.getSelectionModel().getSelectedItem();
+    	connectThread = new Service<Void>() {
+        	@Override
+        	protected Task<Void> createTask(){
+        		return new Task<Void>() {
+        			@Override
+        			protected Void call() throws Exception{
+        				establishConnection();
+        				return null;
+        			}
+				};
+        	}
+    	};
+    	connectThread.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    		@Override
+    		public void handle(WorkerStateEvent event) {
+    		}
+    	});
+    	connectThread.start();
     }
     
     
@@ -279,7 +301,7 @@ public class FileTransferController implements Initializable{
     	
     	//connectionView
     	if(source.getId().equals("connect") && connect.isVisible()) {
-    		establishConnection();
+    		connectToServer(e);
     	}
     	
     	else if(source.getId().equals("disconnect") && disconnect.isVisible()) {
@@ -313,10 +335,12 @@ public class FileTransferController implements Initializable{
     
     private void establishConnection(){
     	clearAllGUI();
+    	connectingGUI(true);
+    	String serverIP = textfield_ip.getText();
+    	String serverPort = textfield_port.getText();
+    	
     	for(int i = 0; i < 5; i ++) {
 	    	try {
-	    		String serverIP = textfield_ip.getText();
-	    		String serverPort = textfield_port.getText();
 	    		TCPClient.connectToServer(serverIP, serverPort);
 	    		connectionSucGUI();
 	    		break;
@@ -324,25 +348,21 @@ public class FileTransferController implements Initializable{
 	    		System.out.println("Timeout-Error");
 	    		if(i == 4) connectionTimeoutOverGUI();
 	    	} catch (Exception e) {
-	    		e.printStackTrace();
 	    		System.out.println("Eingabe-Error");
 	    		connectionIOErrorGUI();
 	    		break;
 			}
-    	}    	
+    	}
+    	connectingGUI(false);
     }
     
-    private void connectGUI() {
-    	clearAllGUI();
-    	labelTryConnect.setVisible(true);
-    	noConnection.setVisible(false);
-    	connect.setVisible(false);
-    	textfield_ip.setEditable(false);
-    	textfield_port.setEditable(false);
+    private void connectingGUI(boolean b) {
+    	labelTryConnect.setVisible(b);
+    	textfield_ip.setEditable(!b);
+    	textfield_port.setEditable(!b);
     }
     private void connectionSucGUI() {
     	clearAllGUI();
-    	labelTryConnect.setVisible(false);
     	labelConnection.setVisible(true);
     	connectionEstablished.setVisible(true);
     	disconnect.setVisible(true);
@@ -380,6 +400,21 @@ public class FileTransferController implements Initializable{
     public void initializeProgressBar() {
     	progressBar.setStyle("-fx-accent: green;");
     	progressBar.progressProperty().bind(ProgressStream.bytesReadProperty());
+    }
+    
+    public String formatBytesRead(double bytesRead) {
+    	if (bytesRead < 1000) return bytesRead + " Bytes"; 
+    	else if(bytesRead >= 1000 && bytesRead < 1000000) {
+    		return String.format( "%.2f", bytesRead / (double)1000) + " KB";
+    		
+    	}
+    	else if (bytesRead >= 1000000 && bytesRead < 1000000000) {
+    		return String.format( "%.2f", bytesRead / (double)1000) + " MB";
+    	}
+    	else if (bytesRead >= 1000000000) {
+    		return String.format( "%.2f", bytesRead / (double)1000) + " GB";
+    	}
+    	else return bytesRead + " Bytes";
     }
     
 /*  
@@ -461,7 +496,7 @@ public class FileTransferController implements Initializable{
     	TCPClient.receiveDirInformation();
     	listView.getItems().clear();
 		for (FileInformation fi : TCPClient.fileInformation) {
-			listView.getItems().add(fi.fileName+ ", " + fi.fileLength + " Bytes");
+			listView.getItems().add(fi.fileName+ ", " + formatBytesRead(Double.parseDouble(fi.fileLength)));
 		}
     	
     }
