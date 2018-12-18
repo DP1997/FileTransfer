@@ -90,7 +90,7 @@ public class FileTransferController implements Initializable{
     private ListView<String> listView;
     
     private ObservableList<String> items;
-    private ImageView imageView;
+    //private ImageView imageView;
 
    
     @FXML
@@ -161,7 +161,7 @@ public class FileTransferController implements Initializable{
     	items = FXCollections.observableArrayList();
     	listView.setItems(items);
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-    	imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
+    	//imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
     	initializeProgressBar();
 		//listView.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
 //            @Override
@@ -274,12 +274,17 @@ public class FileTransferController implements Initializable{
 				System.out.println("linux erkannt");
 				downloadPath = downloadPath + "/";
 			}
-			TCPClient.setDownloadPath(downloadPath);
+			try {
+				TCPClient.setDownloadPath(downloadPath);
+			} catch (AssertionError assErr) {
+				showAlert("Ungültiger Pfad!", "Der angegebene Pfad darf nicht leer sein.");
+			}
 			geprueftHaken.setVisible(true);
 			System.out.println("Pfad gesetzt: " + downloadPath);
 		}
 		
 	}
+	
 	private void showInExplorer() {
 		try {
 			TCPClient.showInExplorer();
@@ -330,7 +335,7 @@ public class FileTransferController implements Initializable{
     	}
     }
     private void minimizeStageOfNode(Node node) {
-        ((Stage) (node).getScene().getWindow()).setIconified(true);
+        ((Stage)(node).getScene().getWindow()).setIconified(true);
     }
     
     private void establishConnection(){
@@ -465,13 +470,26 @@ public class FileTransferController implements Initializable{
     }
    
     private void requestFileDownload() {
-    	//read marked list entry
-    	String row = listView.getSelectionModel().getSelectedItem();
-    	//aufpassen bei mehreren , im String
-    	//von rechts lesen
-    	String[] fileName = row.split(",");
-    	TCPClient.contactServer(fileName[0]);
-    	TCPClient.downloadFileFromServer(fileName[0]);
+    	try {
+	    	//read marked list entry
+	    	String row = listView.getSelectionModel().getSelectedItem();
+	    	assert(row != null);
+	    	//aufpassen bei mehreren , im String
+	    	//von rechts lesen
+	    	StringBuilder sb = new StringBuilder();
+	    	sb.append(row);
+	    	String rRow = sb.reverse().toString();
+	    	String rfileName = rRow.substring(rRow.indexOf(",") +1, rRow.length());
+	    	sb = new StringBuilder();
+	    	sb.append(rfileName);
+	    	String fileName = sb.reverse().toString();	    	
+	    	System.out.println(fileName);
+	    	assert(fileName != null);
+	    	TCPClient.contactServer(fileName);
+	    	TCPClient.downloadFileFromServer(fileName);
+    	} catch(AssertionError assErr) {
+    		showAlert("Ungültige Auswahl!", "Bitte wählen Sie einen Listeneintrag aus, um eine Datei herunterzuladen.");
+    	}
     	
     }
     	/*
@@ -492,11 +510,12 @@ public class FileTransferController implements Initializable{
         */
     
     private void requestFileListRefresh() {
+    	
     	TCPClient.contactServer("refresh");
     	TCPClient.receiveDirInformation();
     	listView.getItems().clear();
 		for (FileInformation fi : TCPClient.fileInformation) {
-			listView.getItems().add(fi.fileName+ ", " + formatBytesRead(Double.parseDouble(fi.fileLength)));
+			listView.getItems().add(fi.fileName+ ", " + fi.fileLength + " Bytes");
 		}
     	
     }
