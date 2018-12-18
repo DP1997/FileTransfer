@@ -40,7 +40,13 @@ public class TCPClient {
     public static void showInExplorer() throws Exception {
     	Desktop.getDesktop().open(new File(sharePath));
     }
-
+    
+	//checks whether the connection is still live
+	//if not, the connection is properly terminated
+	private static void checkConnection(int i) throws IOException {
+		if(i == -1) throw new IOException();
+		return;
+	}
     
     //allocate resources needed for the connection
     public static  void initializeStreams() {
@@ -147,12 +153,12 @@ public class TCPClient {
     		// read fileLength from Client in order to avoid read-blocking and closing the socket on serverside (EOF)
             // marshalling
             byte[] fileLengthInBytes = new byte[4];
-            ps.read(fileLengthInBytes);
+            checkConnection(ps.read(fileLengthInBytes));
             int fileLength = unmarshalling(fileLengthInBytes);
             
             // send data
         	byte[] file = new byte[fileLength];
-            ps.read(file);
+        	checkConnection(ps.read(file));
             
             // write data in boas to put it on the disk
             baos.write(file);
@@ -179,7 +185,7 @@ public class TCPClient {
 				
 				//retrieve how many fileInformation-sets will be send
 	            byte[] fileCountBBuffer = new byte[4];
-	            ps.read(fileCountBBuffer);
+	            checkConnection(ps.read(fileCountBBuffer));
 	            int fileCount = unmarshalling(fileCountBBuffer);
 	            System.out.println(fileCount+" fileInformation-Sets expected");
 	            
@@ -191,24 +197,24 @@ public class TCPClient {
 	        	String fileLength;
 				for(int i = 0; i < fileCount; i++) {
 					//read length of incoming message in bytes
-		            ps.read(lengthOfDataBBuffer);
+		            checkConnection(ps.read(lengthOfDataBBuffer));
 		            //convert length in bytes to int
 		            lengthOfData = unmarshalling(lengthOfDataBBuffer);
 		            System.out.print("incoming msg expected to be "+lengthOfData+" bytes long - ");
 		            //initialize byte array which will contain the received message as bytes
 		            dataBBuffer = new byte[lengthOfData];
 		            //read message as bytes and write it in our buffer
-		            ps.read(dataBBuffer);
+		            checkConnection(ps.read(dataBBuffer));
 		            //convert recieved data to a String
 		            fileName = new String(dataBBuffer);
 		            System.out.println("file "+fileName+" recieved");
 		            
 		            //do the same for the fileLength
-		            ps.read(lengthOfDataBBuffer);
+		            checkConnection(ps.read(lengthOfDataBBuffer));
 		            lengthOfData = unmarshalling(lengthOfDataBBuffer);
 		            System.out.print("incoming msg expected to be "+lengthOfData+" bytes long - ");
 		            dataBBuffer = new byte[lengthOfData];
-		            ps.read(dataBBuffer);
+		            checkConnection(ps.read(dataBBuffer));
 		            fileLength = new String(dataBBuffer);
 		            System.out.println("fileLength recieved: "+fileLength);
 		            //create fileInformation object

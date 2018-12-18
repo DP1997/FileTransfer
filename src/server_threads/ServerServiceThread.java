@@ -87,8 +87,8 @@ public class ServerServiceThread extends Thread{
 	
 	//checks whether the connection is still live
 	//if not, the connection is properly terminated
-	private void checkConnection(int i) {
-		if(i == -1) closeStreams();
+	private void checkConnection(int i) throws IOException {
+		if(i == -1) throw new IOException();
 		return;
 	}
 	
