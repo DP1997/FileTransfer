@@ -195,6 +195,7 @@ public class ServerServiceThread extends Thread{
 	
 	
 	public void sendFileToClient(String fileName) {
+		System.out.println("transmitting file "+fileName+"...");
 		//build path to file
 		String filePath = sharePath + fileName;
  	    File myFile = new File(filePath);

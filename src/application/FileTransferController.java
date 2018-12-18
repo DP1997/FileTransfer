@@ -1,6 +1,11 @@
 package application;
 
+import static application.FileTransferController.showAlert;
+
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -276,11 +281,11 @@ public class FileTransferController implements Initializable{
 			}
 			try {
 				TCPClient.setDownloadPath(downloadPath);
+				geprueftHaken.setVisible(true);
+				System.out.println("Pfad gesetzt: " + downloadPath);
 			} catch (AssertionError assErr) {
 				showAlert("Ungültiger Pfad!", "Der angegebene Pfad darf nicht leer sein.");
 			}
-			geprueftHaken.setVisible(true);
-			System.out.println("Pfad gesetzt: " + downloadPath);
 		}
 		
 	}
@@ -483,12 +488,17 @@ public class FileTransferController implements Initializable{
 	    	sb = new StringBuilder();
 	    	sb.append(rfileName);
 	    	String fileName = sb.reverse().toString();	    	
-	    	System.out.println(fileName);
 	    	assert(fileName != null);
+	    	File f  = new File(TCPClient.sharePath);
+	    	if(!(f.exists() && f.isDirectory())) throw new AssertionError();
+	    	System.out.println("Path is valid");
 	    	TCPClient.contactServer(fileName);
-	    	TCPClient.downloadFileFromServer(fileName);
+		    TCPClient.downloadFileFromServer(fileName);
+
     	} catch(AssertionError assErr) {
-    		showAlert("Ungültige Auswahl!", "Bitte wählen Sie einen Listeneintrag aus, um eine Datei herunterzuladen.");
+        	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.");
+    	} catch (NullPointerException npex) {
+        	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.");
     	}
     	
     }
