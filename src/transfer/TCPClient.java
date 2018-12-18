@@ -16,7 +16,7 @@ public class TCPClient {
     private static Socket clientSocket = null;
     
     private static BufferedOutputStream bos = null;
-    private static BufferedInputStream bis = null;
+    //private static BufferedInputStream bis = null;
     private static ProgressStream ps = null;
     
     public static ArrayList<FileInformation> fileInformation = null;
@@ -57,8 +57,8 @@ public class TCPClient {
     	//allocate streams
     	try {
 			bos = new BufferedOutputStream(clientSocket.getOutputStream());
-			bis = new BufferedInputStream(new ProgressStream(clientSocket.getInputStream()));
-			assert(bis != null && bos != null);
+			ps = new ProgressStream(clientSocket.getInputStream());
+			assert(ps != null && bos != null);
 			System.out.println("streams have been successfully initialized");
 		} catch (IOException | AssertionError e) {
 			System.err.println("steams could not be initialized - terminating connection");
@@ -87,16 +87,16 @@ public class TCPClient {
     	
     	//release BufferedInputStream
     	try {
-        	assert(bis != null);
-    		bis.close();
-    		bis = null;
-    		System.out.println("bis successfully released");
+        	assert(ps != null);
+    		ps.close();
+    		ps = null;
+    		System.out.println("ps successfully released");
     	} catch (AssertionError ae) {
-    		System.err.println("bis is already released");
+    		System.err.println("ps is already released");
     		ae.printStackTrace();
     	} catch (IOException e) {
-    		System.err.println("bos could not be closed - setting bis null");
-    		bis = null;
+    		System.err.println("ps could not be closed - setting bis null");
+    		ps = null;
 		}
     	
     	//release socket
@@ -128,7 +128,7 @@ public class TCPClient {
 		} catch (AssertionError e) {
 			System.err.println("action is null");
 			e.printStackTrace();
-			//TODO ALERT ->
+			showAlert("Die angeforderte Aktion ist nicht verfügbar!", "Bitte wählen Sie eine andere.");
 		} catch (IOException e) {
 			System.err.println("error occured while writing in streams - terminating connection");
 			e.printStackTrace();
@@ -147,7 +147,7 @@ public class TCPClient {
     		// read fileLength from Client in order to avoid read-blocking and closing the socket on serverside (EOF)
             // marshalling
             byte[] fileLengthInBytes = new byte[4];
-            bis.read(fileLengthInBytes);
+            ps.read(fileLengthInBytes);
             int fileLength = unmarshalling(fileLengthInBytes);
             
             // send data
@@ -179,7 +179,7 @@ public class TCPClient {
 				
 				//retrieve how many fileInformation-sets will be send
 	            byte[] fileCountBBuffer = new byte[4];
-	            bis.read(fileCountBBuffer);
+	            ps.read(fileCountBBuffer);
 	            int fileCount = unmarshalling(fileCountBBuffer);
 	            System.out.println(fileCount+" fileInformation-Sets expected");
 	            
@@ -191,24 +191,24 @@ public class TCPClient {
 	        	String fileLength;
 				for(int i = 0; i < fileCount; i++) {
 					//read length of incoming message in bytes
-		            bis.read(lengthOfDataBBuffer);
+		            ps.read(lengthOfDataBBuffer);
 		            //convert length in bytes to int
 		            lengthOfData = unmarshalling(lengthOfDataBBuffer);
 		            System.out.print("incoming msg expected to be "+lengthOfData+" bytes long - ");
 		            //initialize byte array which will contain the received message as bytes
 		            dataBBuffer = new byte[lengthOfData];
 		            //read message as bytes and write it in our buffer
-		            bis.read(dataBBuffer);
+		            ps.read(dataBBuffer);
 		            //convert recieved data to a String
 		            fileName = new String(dataBBuffer);
 		            System.out.println("file "+fileName+" recieved");
 		            
 		            //do the same for the fileLength
-		            bis.read(lengthOfDataBBuffer);
+		            ps.read(lengthOfDataBBuffer);
 		            lengthOfData = unmarshalling(lengthOfDataBBuffer);
 		            System.out.print("incoming msg expected to be "+lengthOfData+" bytes long - ");
 		            dataBBuffer = new byte[lengthOfData];
-		            bis.read(dataBBuffer);
+		            ps.read(dataBBuffer);
 		            fileLength = new String(dataBBuffer);
 		            System.out.println("fileLength recieved: "+fileLength);
 		            //create fileInformation object

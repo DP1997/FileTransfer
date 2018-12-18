@@ -17,7 +17,8 @@ public class ServerServiceThread extends Thread{
 	
 	private Socket connection = null;
 	// \\Users\\Mirco\\Desktop\\testordner\\
-    private String sharePath = "\\Users\\Mirco\\Desktop\\testordner\\";
+    //private String sharePath = "\\Users\\Mirco\\Desktop\\testordner\\";
+	private String sharePath = "/home/donald/Schreibtisch/";
     private String recievedFileName;
    
     private BufferedOutputStream bos = null;
@@ -33,33 +34,35 @@ public class ServerServiceThread extends Thread{
 	}
 	
 	public void run() {
-		byte[] byteBuffer = new byte[4];
+		//length of data in bytes
+		byte[] lod_byte = new byte[4];
+		//length of data as Integer
 		int lengthOfData;
+		//data in bytes
 		byte[] data;
 			while(!connection.isClosed()) {
 				try {
-					
 		            //retrieve header information
-		            bis.read(byteBuffer);
-		            lengthOfData = unmarshalling(byteBuffer);
-		            System.out.println("incoming msg expected to be "+lengthOfData+" long");
+		            checkConnection(bis.read(lod_byte));
+		            lengthOfData = unmarshalling(lod_byte);
+		            System.out.println("incoming msg expected to be "+lengthOfData+" bytes long");
 		            //retrieve data
 		            data = new byte[lengthOfData];
-					if(bis.read(data) != -1) {
-						recievedFileName = new String(data);
-						System.out.println("action: "+recievedFileName+" recieved");
-						switch(recievedFileName) {
-						case "refresh": shareDirInformation();
-										break;
-						default: 		if(fileInformation != null) {
-											if(contains(recievedFileName)) {
-												System.out.println("file transfer requested for "+ recievedFileName);
-												sendFileToClient(recievedFileName);
-												System.out.println("file "+recievedFileName+" transmitted");
-											}
+		            checkConnection(bis.read(data));
+					recievedFileName = new String(data);
+					System.out.println("action: "+recievedFileName+" recieved");
+					switch(recievedFileName) {
+					case "refresh": shareDirInformation();
+									break;
+					default: 		if(fileInformation != null) {
+										if(contains(recievedFileName)) {
+											System.out.println("file transfer requested for "+ recievedFileName);
+											sendFileToClient(recievedFileName);
+											System.out.println("file "+recievedFileName+" transmitted");
 										}
-						}
+									}
 					}
+	
 				} catch (IOException e) {
 					System.err.println("error occured while reading from stream - terminating connection");
 					e.printStackTrace();
@@ -80,6 +83,13 @@ public class ServerServiceThread extends Thread{
 			if (fi.fileName.equals(fileName)) return true;
 		}
 		return false;
+	}
+	
+	//checks whether the connection is still live
+	//if not, the connection is properly terminated
+	private void checkConnection(int i) {
+		if(i == -1) closeStreams();
+		return;
 	}
 	
     //allocate resources needed for the connection
@@ -119,7 +129,6 @@ public class ServerServiceThread extends Thread{
     		System.out.println("bos successfully released");
     	} catch (AssertionError ae) {
     		System.err.println("bos is already released");
-    		ae.printStackTrace();
     	} catch (IOException e) {
     		System.err.println("bos could not be closed - setting bos null");
     		bos = null;
@@ -133,7 +142,6 @@ public class ServerServiceThread extends Thread{
     		System.out.println("bis successfully released");
     	} catch (AssertionError ae) {
     		System.err.println("bis is already released");
-    		ae.printStackTrace();
     	} catch (IOException e) {
     		System.err.println("bos could not be closed - setting bis null");
     		bis = null;
@@ -146,7 +154,6 @@ public class ServerServiceThread extends Thread{
     		System.out.println("socket successfully closed - new connection can be established");
     	} catch (AssertionError ae) {
     		System.err.println("socket is already null");
-    		ae.printStackTrace();
     	} catch (IOException ioe) {
     		System.err.println("socket could not be closed - setting socket null");
     		ioe.printStackTrace();
@@ -207,7 +214,7 @@ public class ServerServiceThread extends Thread{
  	    } catch (FileNotFoundException e) {
  	    	System.err.println("specified file could not be found");
  	        e.printStackTrace();
- 	        //TODO ALERT -> reset share-Path
+ 	        closeStreams();
  	    } catch (IOException ioe) {
 			System.err.println("error occured while writing in streams - terminating connection");
 			ioe.printStackTrace();

@@ -1,31 +1,17 @@
 package application;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
-
-import javax.swing.ProgressMonitor;
-
 import datatypes.FileInformation;
 import datatypes.ProgressStream;
 import javafx.application.Platform;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -34,27 +20,19 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import javafx.util.Callback;
-import javafx.util.Duration;
 import transfer.*;
 
 public class FileTransferController implements Initializable{
@@ -90,7 +68,7 @@ public class FileTransferController implements Initializable{
     private ListView<String> listView;
     
     private ObservableList<String> items;
-    private ImageView imageView;
+    //private ImageView imageView;
 
    
     @FXML
@@ -126,7 +104,7 @@ public class FileTransferController implements Initializable{
     			downloadSuc.setVisible(true);
 				ProgressStream.resetProgress();
 				labelDownload.setVisible(true);
-				labelDownload.setText((int)ProgressStream.fileLength + " Bytes �bertragen");
+				labelDownload.setText((int)ProgressStream.fileLength + " Bytes �bertragen");
     		}
     	});
     	downloadThread.restart();
@@ -139,7 +117,7 @@ public class FileTransferController implements Initializable{
     	items = FXCollections.observableArrayList();
     	listView.setItems(items);
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-    	imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
+    	//imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
     	initializeProgressBar();
 		//listView.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
 //            @Override
@@ -435,13 +413,26 @@ public class FileTransferController implements Initializable{
     }
    
     private void requestFileDownload() {
-    	//read marked list entry
-    	String row = listView.getSelectionModel().getSelectedItem();
-    	//aufpassen bei mehreren , im String
-    	//von rechts lesen
-    	String[] fileName = row.split(",");
-    	TCPClient.contactServer(fileName[0]);
-    	TCPClient.downloadFileFromServer(fileName[0]);
+    	try {
+	    	//read marked list entry
+	    	String row = listView.getSelectionModel().getSelectedItem();
+	    	assert(row != null);
+	    	//aufpassen bei mehreren , im String
+	    	//von rechts lesen
+	    	StringBuilder sb = new StringBuilder();
+	    	sb.append(row);
+	    	String rRow = sb.reverse().toString();
+	    	String rfileName = rRow.substring(rRow.indexOf(",") +1, rRow.length());
+	    	sb = new StringBuilder();
+	    	sb.append(rfileName);
+	    	String fileName = sb.reverse().toString();	    	
+	    	System.out.println(fileName);
+	    	assert(fileName != null);
+	    	TCPClient.contactServer(fileName);
+	    	TCPClient.downloadFileFromServer(fileName);
+    	} catch(AssertionError assErr) {
+    		showAlert("Ungültige Auswahl!", "Bitte wählen Sie einen Listeneintrag aus, um eine Datei herunterzuladen.");
+    	}
     	
     }
     	/*
@@ -462,6 +453,7 @@ public class FileTransferController implements Initializable{
         */
     
     private void requestFileListRefresh() {
+    	
     	TCPClient.contactServer("refresh");
     	TCPClient.receiveDirInformation();
     	listView.getItems().clear();
