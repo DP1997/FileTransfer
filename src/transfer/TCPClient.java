@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import datatypes.FileInformation;
 import datatypes.ProgressStream;
+import javafx.application.Platform;
+
 import static utils.MarshallingUtils.*;
 import static application.FileTransferController.showAlert;
 
@@ -136,10 +138,11 @@ public class TCPClient {
 		} catch (AssertionError e) {
 			System.err.println("action is null");
 			e.printStackTrace();
-			showAlert("Die angeforderte Aktion ist nicht verfügbar!", "Bitte wählen Sie eine andere.");
+			showAlert("Die angeforderte Aktion ist nicht verfügbar!", "Bitte wählen Sie eine andere.", false);
 		} catch (IOException e) {
 			System.err.println("error occured while writing in streams - terminating connection");
 			e.printStackTrace();
+			showAlert("Verbindungsfehler", "Die Verbindung zum Server wurde unterbrochen", false);
 			closeStreams();
 		}
     }
@@ -151,7 +154,7 @@ public class TCPClient {
     	System.out.println("downloading...");
     	try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
     			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
-            assert(bos != null && baos != null);
+            assert(bos == null && baos != null);
     		// read fileLength from Client in order to avoid read-blocking and closing the socket on serverside (EOF)
             // marshalling
             byte[] fileLengthInBytes = new byte[4];
@@ -168,14 +171,15 @@ public class TCPClient {
             bos.flush();   
             System.out.println("file downloaded");
 		
-        } catch (AssertionError ae) {
-			System.err.println("some streams are null");
-			ae.printStackTrace();
-			//TODO ALERT -> retry
+        } catch (AssertionError assErr) {
+			System.err.println("streams for writing on disk could not be initialized");
+			assErr.printStackTrace();
+			showAlert("Fehler beim Download", "Einige - für den Download relevante - Streams konnten nicht allokiert werden. Das System muss beendet werden.", true);
 		} catch (IOException e) {
-        	System.err.println("some streams could not be initialized");
+        	System.err.println("connection to server lost");
 			e.printStackTrace();
-			//TODO ALERT -> retry
+			showAlert("Verbindungsfehler!", "Die Verbindung zum Server wurde unterbrochen", false);
+			closeStreams();
 		}  
     }
 
@@ -226,7 +230,7 @@ public class TCPClient {
 			} catch (IOException e) {
 				System.out.println("error occured while reading from streams - terminating connection");
 				e.printStackTrace();
-				showAlert("Verbindungsfehler!", "Die Verbindung zum Server ist abgebrochen.");
+				showAlert("Verbindungsfehler!", "Die Verbindung zum Server ist abgebrochen.", false);
 				closeStreams();
 			}
 			

@@ -1,7 +1,5 @@
 package application;
 
-import static application.FileTransferController.showAlert;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,6 +10,8 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -275,7 +275,7 @@ public class FileTransferController implements Initializable{
 				System.out.println("windows erkannt");
 				 downloadPath = textField.replace("\\","\\\\") + "\\\\";
 			}
-			if(os.contains("nix")) {
+			if(os.contains("nix") || os.contains("nux")) {
 				System.out.println("linux erkannt");
 				downloadPath = downloadPath + "/";
 			}
@@ -284,7 +284,7 @@ public class FileTransferController implements Initializable{
 				geprueftHaken.setVisible(true);
 				System.out.println("Pfad gesetzt: " + downloadPath);
 			} catch (AssertionError assErr) {
-				showAlert("Ungültiger Pfad!", "Der angegebene Pfad darf nicht leer sein.");
+				showAlert("Ungültiger Pfad!", "Der angegebene Pfad darf nicht leer sein.", false);
 			}
 		}
 		
@@ -294,7 +294,7 @@ public class FileTransferController implements Initializable{
 		try {
 			TCPClient.showInExplorer();
 		} catch (Exception e) {
-			showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der angegebene Pfad korrekt ist.");
+			showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der angegebene Pfad korrekt ist.", false);
 		}
 	}
 	private void cancelDownload(){
@@ -322,6 +322,7 @@ public class FileTransferController implements Initializable{
     	else if(source.getId().equals("button_download")) {
     		// background Task
     		clickedDownload(e);
+
     	}
     	else if(source.getId().equals("button_refresh")) {
     		//request file refresh
@@ -475,32 +476,27 @@ public class FileTransferController implements Initializable{
     }
    
     private void requestFileDownload() {
-    	try {
+	    try {
 	    	//read marked list entry
 	    	String row = listView.getSelectionModel().getSelectedItem();
-	    	assert(row != null);
-	    	//aufpassen bei mehreren , im String
-	    	//von rechts lesen
+	        assert(row != null);
+	        Paths.get(TCPClient.sharePath);
 	    	StringBuilder sb = new StringBuilder();
 	    	sb.append(row);
 	    	String rRow = sb.reverse().toString();
 	    	String rfileName = rRow.substring(rRow.indexOf(",") +1, rRow.length());
 	    	sb = new StringBuilder();
 	    	sb.append(rfileName);
-	    	String fileName = sb.reverse().toString();	    	
-	    	assert(fileName != null);
-	    	File f  = new File(TCPClient.sharePath);
-	    	if(!(f.exists() && f.isDirectory())) throw new AssertionError();
-	    	System.out.println("Path is valid");
+	    	String fileName = sb.reverse().toString();
 	    	TCPClient.contactServer(fileName);
 		    TCPClient.downloadFileFromServer(fileName);
+	    } catch (InvalidPathException | NullPointerException ex) {
+	        ex.printStackTrace();
+        	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.", false);
+	    } catch (AssertionError assErr) {
+        	showAlert("Ungültiger Aufruf!", "Bitte markieren Sie eine Datei aus der Liste, die Sie herunterladen möchten.", false);
+	    }   
 
-    	} catch(AssertionError assErr) {
-        	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.");
-    	} catch (NullPointerException npex) {
-        	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.");
-    	}
-    	
     }
     	/*
     	listView.setCellFactory(param -> new ListCell<String>() {
@@ -530,16 +526,19 @@ public class FileTransferController implements Initializable{
     	
     }
     
-       public static void showAlert(String header, String content) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setHeaderText(header);
-        Label contenLabel = new Label(content);
-        contenLabel.setWrapText(true);
-        DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.setContent(contenLabel);
-        ((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
-        dialogPane.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
-        alert.showAndWait();
+    public static void showAlert(String header, String content, boolean fatal) {
+    	Platform.runLater(() -> {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setHeaderText(header);
+			Label contenLabel = new Label(content);
+			contenLabel.setWrapText(true);
+			DialogPane dialogPane = alert.getDialogPane();
+			dialogPane.setContent(contenLabel);
+			((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
+			dialogPane.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
+			alert.showAndWait();
+			if(fatal) System.exit(1);
+    	});
     }
    
     // ProgressBar
