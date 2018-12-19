@@ -36,33 +36,43 @@ import shared_resources.datatypes.ProgressStream;
 
 public class ServerApplicationController implements Initializable{
 
+	//topbar
     @FXML
-    private ImageView conView_indic, downloadView_indic, settingsView_indic;
+    private AnchorPane topbar;
+    @FXML
+    private ImageView bt_openConView, bt_openInfoView, bt_shutdown, bt_minimize, bt_openClientCon;
 
+    //views
     @FXML
-    private AnchorPane topbar, downloadView, connectionView, settingsView;
-
-    @FXML
-    private ImageView button_download, button_explorer, button_refresh, button_explorer2
-    				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished,
-    				  noConnection, connectionEstablished, geprueftHaken, disconnect, connect,
-    				  downloadSuc, downloadCancel;
-
-    @FXML
-    private TextField textfield_port, textfield_ip, textfield_dpath;
+    private AnchorPane infoView, clientConView, connectionView;
     
+    //viewIndicators
     @FXML
-    private Label labelConnection, labelNoConnection, labelErrorConnection,
-    labelTryConnect, labelWrongInput, labelDownload;
+    private ImageView imgV_conViewIndic, imgV_clientConViewIndic, imgV_infoViewIndic;
     
+    //connectionView
     @FXML
-    private RadioButton radioSettings;
-    
+    private TextField tf_port, tf_sharePath;
     @FXML
-    private Button startDownloadButton, cancelDownloadButton;
+    private Label lb_offlineText, lb_onlineText;
+    @FXML
+    private ImageView lb_offline, lb_online, bt_hostServer, bt_openExplorer;
 
+    //clientConnectionView
     @FXML
-    private ListView<String> listView;
+    private Label lb_clientKicked;
+    @FXML
+    private ListView<String> lv_clients;
+    @FXML
+    private ImageView bt_kickClient;
+    
+    //informationView
+    @FXML
+    private Label lb_serverIP, lb_serverPort, lb_sharePath;
+    @FXML
+    private ImageView imgV_infoChecked;
+
+
     
     private ObservableList<String> items;
     //private ImageView imageView;
@@ -70,8 +80,8 @@ public class ServerApplicationController implements Initializable{
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
     	items = FXCollections.observableArrayList();
-    	listView.setItems(items);
-    	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    	lv_clients.setItems(items);
+    	lv_clients.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 	}
 	
 	   @FXML
@@ -79,32 +89,32 @@ public class ServerApplicationController implements Initializable{
 	    	ImageView source = (ImageView) e.getSource();
 	    	if(source.getId().equals("openConView")) {
 	    		if(connectionView.isVisible()) {
-	    			visibilityControl(connectionView, conView_indic, false);
+	    			visibilityControl(connectionView, imgV_conViewIndic, false);
 	    		}
 	    		else {
-	    			visibilityControl(connectionView, conView_indic, true);
-	    			visibilityControl(downloadView, downloadView_indic, false);
-	    			visibilityControl(settingsView, settingsView_indic, false);
+	    			visibilityControl(connectionView, imgV_conViewIndic, true);
+	    			visibilityControl(clientConView, imgV_clientConViewIndic, false);
+	    			visibilityControl(infoView, imgV_infoViewIndic, false);
 	    		}
 	    	}
-	    	else if(source.getId().equals("openDownloadView")) {
-	      		if(downloadView.isVisible()) {
-	    			visibilityControl(downloadView, downloadView_indic, false);
+	    	else if(source.getId().equals("openclientConView")) {
+	      		if(clientConView.isVisible()) {
+	    			visibilityControl(clientConView, imgV_clientConViewIndic, false);
 	    		}
 	    		else {
-	    			visibilityControl(downloadView, downloadView_indic, true);
-	    			visibilityControl(connectionView, conView_indic, false);
-	    			visibilityControl(settingsView, settingsView_indic, false);
+	    			visibilityControl(clientConView, imgV_clientConViewIndic, true);
+	    			visibilityControl(connectionView, imgV_conViewIndic, false);
+	    			visibilityControl(infoView, imgV_infoViewIndic, false);
 	    		}
 	    	}
 	    	else if(source.getId().equals("openSettingsView")) {
-	      		if(settingsView.isVisible()) {
-	    			visibilityControl(settingsView, settingsView_indic, false);
+	      		if(infoView.isVisible()) {
+	    			visibilityControl(infoView, imgV_infoViewIndic, false);
 	    		}
 	    		else {
-	    			visibilityControl(settingsView, settingsView_indic, true);
-	    			visibilityControl(downloadView, downloadView_indic, false);
-	    			visibilityControl(connectionView, conView_indic, false);
+	    			visibilityControl(infoView, imgV_infoViewIndic, true);
+	    			visibilityControl(clientConView, imgV_clientConViewIndic, false);
+	    			visibilityControl(connectionView, imgV_conViewIndic, false);
 	    		}
 	    	}
 	    	else if(source.getId().equals("shutdown")) {
@@ -135,11 +145,11 @@ public class ServerApplicationController implements Initializable{
 			chooser.setTitle("Download-Ordner angeben");
 			File selectedDirectory = chooser.showDialog(stage);
 			if(selectedDirectory != null) {
-				textfield_dpath.setText(selectedDirectory.getAbsolutePath());
+				tf_sharePath.setText(selectedDirectory.getAbsolutePath());
 				// Der Pfad muss an das Betriebssystem angepasst werden
 				// Bei Windows wird der Pfad mit \\ angegeben, bei Linux mit /
 				String os = System.getProperty("os.name").toLowerCase();
-				String textField = textfield_dpath.getText();
+				String textField = tf_sharePath.getText();
 				String downloadPath = textField;
 				// windows
 				if(os.contains("win")) {
@@ -152,7 +162,6 @@ public class ServerApplicationController implements Initializable{
 				}
 				try {
 					TCPClient.setDownloadPath(downloadPath);
-					geprueftHaken.setVisible(true);
 					System.out.println("Pfad gesetzt: " + downloadPath);
 				} catch (AssertionError assErr) {
 					showAlert("Ungültiger Pfad!", "Der angegebene Pfad darf nicht leer sein.", false);
@@ -168,13 +177,7 @@ public class ServerApplicationController implements Initializable{
 				showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der angegebene Pfad korrekt ist.", false);
 			}
 		}
-		private void cancelDownload(){
-			// streams clearen
-			downloadCancel.setVisible(false);
-			ProgressStream.resetProgress();
-		    downloadThread.cancel();
-		    System.out.println("cancelled.");		
-		}
+
 	    
 	    @FXML
 	    public void handleMouseClick(MouseEvent e){
@@ -189,7 +192,7 @@ public class ServerApplicationController implements Initializable{
 	    		deleteConnection();
 	    	}
 	    	    	
-	    	//downloadView
+	    	//clientConView
 	    	else if(source.getId().equals("button_download")) {
 	    		// background Task
 	    		clickedDownload(e);
@@ -245,8 +248,8 @@ public class ServerApplicationController implements Initializable{
 	    }
 	    private void connectionSucGUI() {
 	    	clearAllGUI();
-	    	labelConnection.setVisible(true);
-	    	connectionEstablished.setVisible(true);
+	    	lb_onlineText.setVisible(true);
+	    	lb_online.setVisible(true);
 	    	disconnect.setVisible(true);
 	    	textfield_ip.setEditable(false);
 	    	textfield_port.setEditable(false);
@@ -254,26 +257,26 @@ public class ServerApplicationController implements Initializable{
 	    private void connectionTimeoutOverGUI() {
 	    	clearAllGUI();
 	    	labelErrorConnection.setVisible(true);
-	    	noConnection.setVisible(true);
+	    	lb_offline.setVisible(true);
 	    	connect.setVisible(true);
 	    }
 	    private void connectionIOErrorGUI() {
 	    	clearAllGUI();
-	    	noConnection.setVisible(true);
+	    	lb_offline.setVisible(true);
 	    	labelWrongInput.setVisible(true);
 	    	connect.setVisible(true);
 	    }
 	    private void clearAllGUI() {
-	    	labelConnection.setVisible(false);
-	    	labelNoConnection.setVisible(false);
+	    	lb_onlineText.setVisible(false);
+	    	lb_offlineText.setVisible(false);
 	    	labelErrorConnection.setVisible(false);
 	    	labelTryConnect.setVisible(false);
 	    	labelWrongInput.setVisible(false);
 	    	
 	    	connect.setVisible(false);
 	    	disconnect.setVisible(false);
-	    	noConnection.setVisible(false);
-	    	connectionEstablished.setVisible(false);
+	    	lb_offline.setVisible(false);
+	    	lb_online.setVisible(false);
 	    	textfield_ip.setEditable(true);
 	    	textfield_port.setEditable(true);
 	    	
@@ -286,9 +289,9 @@ public class ServerApplicationController implements Initializable{
 
 		private void deleteConnection() {
 	    	clearAllGUI();
-			noConnection.setVisible(true);
+			lb_offline.setVisible(true);
 			connect.setVisible(true);
-			labelNoConnection.setVisible(true);
+			lb_offlineText.setVisible(true);
 			TCPClient.closeStreams();
 			System.out.println("Verbindung getrennt");
 	    }

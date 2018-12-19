@@ -2,8 +2,6 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -14,27 +12,27 @@
    <children>
       <AnchorPane fx:id="topbar" layoutX="-5.0" prefHeight="107.0" prefWidth="608.0" style="-fx-background-color: #3D4956;">
          <children>
-            <ImageView fx:id="openConView" fitHeight="69.0" fitWidth="71.0" layoutX="34.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bt_openConView" fitHeight="69.0" fitWidth="71.0" layoutX="34.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-wlan-96%20(1).png" />
                </image>
             </ImageView>
-            <ImageView fx:id="openSettingsView" fitHeight="69.0" fitWidth="71.0" layoutX="329.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bt_openInfoView" fitHeight="69.0" fitWidth="71.0" layoutX="329.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-info-filled-100.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="shutdown" fitHeight="69.0" fitWidth="71.0" layoutX="482.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bt_shutdown" fitHeight="69.0" fitWidth="71.0" layoutX="482.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-herunterfahren-96.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="minimize" fitHeight="25.0" fitWidth="24.0" layoutX="578.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bt_minimize" fitHeight="25.0" fitWidth="24.0" layoutX="578.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-minus-2-96.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="openDownloadView1" fitHeight="69.0" fitWidth="71.0" layoutX="180.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bt_openClientCon" fitHeight="69.0" fitWidth="71.0" layoutX="180.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-kontakte-filled-100.png" />
                </image>
@@ -47,113 +45,69 @@
                   <Font size="20.0" />
                </font>
             </Label>
-            <TextField fx:id="textfield_port" layoutX="200.0" layoutY="222.0" prefHeight="25.0" prefWidth="69.0">
+            <TextField fx:id="tf_port" layoutX="200.0" layoutY="222.0" prefHeight="25.0" prefWidth="69.0">
                <font>
                   <Font name="Arial Bold" size="12.0" />
                </font></TextField>
-            <Label fx:id="labelNoConnection" layoutX="217.0" layoutY="402.0" text="SERVER OFFLINE" textFill="#d71313">
+            <Label fx:id="lb_offlineText" layoutX="217.0" layoutY="402.0" text="SERVER OFFLINE" textFill="#d71313">
                <font>
                   <Font size="20.0" />
                </font>
             </Label>
-            <ImageView fx:id="noConnection" fitHeight="69.0" fitWidth="71.0" layoutX="256.0" layoutY="304.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="lb_offline" fitHeight="69.0" fitWidth="71.0" layoutX="256.0" layoutY="304.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-getrennt-filled-100.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="connectionEstablished" fitHeight="69.0" fitWidth="71.0" layoutX="256.0" layoutY="304.0" pickOnBounds="true" preserveRatio="true" visible="false">
+            <ImageView fx:id="lb_online" fitHeight="69.0" fitWidth="71.0" layoutX="256.0" layoutY="304.0" pickOnBounds="true" preserveRatio="true" visible="false">
                <image>
                   <Image url="@../shared_resources/images/icons8-verbunden-filled-100.png" />
                </image>
             </ImageView>
-            <Label fx:id="labelConnection" layoutX="219.0" layoutY="402.0" text="SERVER ONLINE" textFill="#53ba3a" visible="false">
+            <Label fx:id="lb_onlineText" layoutX="219.0" layoutY="402.0" text="SERVER ONLINE" textFill="#53ba3a" visible="false">
                <font>
                   <Font size="20.0" />
                </font>
             </Label>
-            <Label fx:id="labelErrorConnection" layoutX="97.0" layoutY="402.0" text="FEHLER BEIM VERBINDEN MIT DEM SERVER" textFill="#d71313" visible="false">
-               <font>
-                  <Font size="20.0" />
-               </font>
-            </Label>
-            <ImageView fx:id="connect" fitHeight="69.0" fitWidth="69.0" layoutX="360.0" layoutY="195.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bt_hostServer" fitHeight="69.0" fitWidth="69.0" layoutX="360.0" layoutY="195.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-wlan-router-filled-100.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="disconnect" fitHeight="77.0" fitWidth="81.0" layoutX="443.0" layoutY="88.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true" visible="false">
-               <image>
-                  <Image url="@../shared_resources/images/icons8-abbruch.png" />
-               </image>
-            </ImageView>
-            <Label fx:id="labelTryConnect" layoutX="214.0" layoutY="324.0" text="CONNECTING . . ." textFill="#ddd8d8" visible="false">
-               <font>
-                  <Font size="20.0" />
-               </font>
-            </Label>
-            <Label fx:id="labelWrongInput" layoutX="200.0" layoutY="402.0" text="UNGÜLTIGE EINGABE" textFill="#d71313" visible="false">
-               <font>
-                  <Font size="20.0" />
-               </font>
-            </Label>
             <Label layoutX="59.0" layoutY="66.0" text="ORDNER FREIGEBEN" textFill="#ddd8d8">
                <font>
                   <Font size="20.0" />
                </font>
             </Label>
-            <TextField fx:id="textfield_dpath1" editable="false" layoutX="59.0" layoutY="117.0" prefHeight="26.0" prefWidth="392.0" text="BITTE PFAD ANGEBEN">
+            <TextField fx:id="tf_sharePath" editable="false" layoutX="59.0" layoutY="117.0" prefHeight="26.0" prefWidth="392.0" text="BITTE PFAD ANGEBEN">
                <font>
                   <Font name="Arial Unicode MS" size="12.0" />
                </font>
             </TextField>
-            <ImageView fx:id="button_explorer21" fitHeight="69.0" fitWidth="71.0" layoutX="473.0" layoutY="96.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="bt_openExplorer" fitHeight="69.0" fitWidth="71.0" layoutX="473.0" layoutY="96.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-ordner-öffnen-filled-96.png" />
                </image>
             </ImageView>
          </children>
       </AnchorPane>
-      <AnchorPane id="downloadView" fx:id="downloadView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;" visible="false">
+      <AnchorPane id="downloadView" fx:id="clientConView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;" visible="false">
          <children>
-            <RadioButton layoutX="31.0" layoutY="422.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="142.0" text="SELECT ALL" textFill="#f2813b" wrapText="true">
-               <font>
-                  <Font size="17.0" />
-               </font>
-            </RadioButton>
-            <ImageView fx:id="button_download" fitHeight="69.0" fitWidth="71.0" layoutX="482.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../shared_resources/images/icons8-herunterladen-96.png" />
-               </image>
-            </ImageView>
-            <ImageView fx:id="button_explorer" fitHeight="69.0" fitWidth="71.0" layoutX="381.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../shared_resources/images/icons8-ordner-öffnen-filled-96.png" />
-               </image>
-            </ImageView>
-            <ImageView fx:id="button_refresh" fitHeight="69.0" fitWidth="69.0" layoutX="275.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../shared_resources/images/icons8-synchronisieren-filled-96.png" />
-               </image>
-            </ImageView>
-            <ProgressBar fx:id="progressBar" layoutX="95.0" layoutY="293.0" prefHeight="25.0" prefWidth="358.0" progress="0.0" />
-            <ListView fx:id="listView" layoutX="95.0" layoutY="45.0" prefHeight="200.0" prefWidth="400.0" />
-            <ImageView fx:id="downloadSuc" fitHeight="45.0" fitWidth="44.0" layoutX="460.0" layoutY="283.0" visible="false">
-               <image>
-                  <Image url="@../shared_resources/images/icons8-geprueft-96.png" />
-               </image>
-            </ImageView>
-            <ImageView fx:id="downloadCancel" fitHeight="45.0" fitWidth="44.0" layoutX="460.0" layoutY="283.0" onMouseClicked="#handleMouseClick" visible="false">
+            <ImageView fx:id="bt_kickClient" fitHeight="69.0" fitWidth="71.0" layoutX="435.0" layoutY="430.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-abbruch.png" />
                </image>
             </ImageView>
-            <Label fx:id="labelDownload" layoutX="95.0" layoutY="328.0" prefHeight="17.0" prefWidth="358.0" textFill="#53ba3a" />
-            <ListView fx:id="listView" layoutX="95.0" layoutY="45.0" prefHeight="200.0" prefWidth="400.0" />
+            <Label fx:id="lb_clientKicked" layoutX="95.0" layoutY="443.0" prefHeight="30.0" prefWidth="311.0" textFill="#f51313">
+               <font>
+                  <Font size="16.0" />
+               </font></Label>
+            <ListView fx:id="lv_clients" layoutX="95.0" layoutY="45.0" prefHeight="368.0" prefWidth="400.0" />
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="settingsView" layoutY="125.0" prefHeight="528.0" prefWidth="601.0" style="-fx-background-color: #3D4956;" visible="false">
+      <AnchorPane fx:id="infoView" layoutY="125.0" prefHeight="528.0" prefWidth="601.0" style="-fx-background-color: #3D4956;" visible="false">
          <children>
-            <ImageView fx:id="geprueftHaken" layoutX="236.0" layoutY="264.0" visible="false">
+            <ImageView fx:id="imgV_infoChecked" layoutX="236.0" layoutY="264.0" visible="false">
                <image>
                   <Image url="@../shared_resources/images/icons8-geprueft-96.png" />
                </image>
@@ -173,34 +127,34 @@
                   <Font size="20.0 " />
                </font>
             </Label>
-            <Label layoutX="215.0" layoutY="128.0" prefHeight="30.0" prefWidth="208.0" text="---" textFill="#ddd8d8">
+            <Label fx:id="lb_serverIP" layoutX="215.0" layoutY="72.0" prefHeight="30.0" prefWidth="208.0" text="---" textFill="#ddd8d8">
                <font>
                   <Font size="20.0 " />
                </font>
             </Label>
-            <Label layoutX="215.0" layoutY="72.0" prefHeight="30.0" prefWidth="208.0" text="---" textFill="#ddd8d8">
+            <Label fx:id="lb_serverPort" layoutX="215.0" layoutY="128.0" prefHeight="30.0" prefWidth="208.0" text="---" textFill="#ddd8d8">
                <font>
                   <Font size="20.0 " />
                </font>
             </Label>
-            <Label layoutX="215.0" layoutY="181.0" prefHeight="30.0" prefWidth="343.0" text="---" textFill="#ddd8d8">
+            <Label fx:id="lb_sharePath" layoutX="215.0" layoutY="181.0" prefHeight="30.0" prefWidth="343.0" text="---" textFill="#ddd8d8">
                <font>
                   <Font size="20.0 " />
                </font>
             </Label>
          </children>
       </AnchorPane>
-      <ImageView fx:id="conView_indic" fitHeight="52.0" fitWidth="53.0" layoutX="37.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <ImageView fx:id="imgV_conViewIndic" fitHeight="52.0" fitWidth="53.0" layoutX="37.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
          <image>
             <Image url="@../shared_resources/images/icons8-sortieren-hoch-96.png" />
          </image>
       </ImageView>
-      <ImageView fx:id="downloadView_indic" fitHeight="52.0" fitWidth="53.0" layoutX="182.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <ImageView fx:id="lb_clientConViewIndic" fitHeight="52.0" fitWidth="53.0" layoutX="182.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
          <image>
             <Image url="@../shared_resources/images/icons8-sortieren-hoch-96.png" />
          </image>
       </ImageView>
-      <ImageView fx:id="settingsView_indic" fitHeight="52.0" fitWidth="53.0" layoutX="334.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <ImageView fx:id="imgV_infoViewIndic" fitHeight="52.0" fitWidth="53.0" layoutX="334.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
          <image>
             <Image url="@../shared_resources/images/icons8-sortieren-hoch-96.png" />
          </image>
