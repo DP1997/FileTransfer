@@ -1,4 +1,4 @@
-package utils;
+package shared_resources.utils;
 
 public class MarshallingUtils {
 

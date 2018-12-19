@@ -1,4 +1,6 @@
-package server_threads;
+package server;
+
+import static shared_resources.utils.MarshallingUtils.*;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -8,10 +10,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
-import static utils.MarshallingUtils.*;
 
-import datatypes.FileInformation;
-import utils.FileUtils;
+import shared_resources.datatypes.FileInformation;
+import shared_resources.utils.FileUtils;
 
 public class ServerServiceThread extends Thread{
 	

@@ -1,4 +1,4 @@
-package datatypes;
+package shared_resources.datatypes;
 
 import java.io.IOException;
 import java.io.InputStream;

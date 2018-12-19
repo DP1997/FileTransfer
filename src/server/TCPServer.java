@@ -1,9 +1,7 @@
-package transfer;
+package server;
 
 import java.io.*;
 import java.net.*;
-
-import server_threads.ServerServiceThread;
 
 class TCPServer {
 

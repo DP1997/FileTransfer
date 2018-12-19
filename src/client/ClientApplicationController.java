@@ -1,4 +1,4 @@
-package application;
+package client;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -17,8 +17,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.ProgressMonitor;
 
-import datatypes.FileInformation;
-import datatypes.ProgressStream;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -60,9 +58,10 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import transfer.*;
+import shared_resources.datatypes.FileInformation;
+import shared_resources.datatypes.ProgressStream;
 
-public class FileTransferController implements Initializable{
+public class ClientApplicationController implements Initializable{
 
     @FXML
     private ImageView conView_indic, downloadView_indic, settingsView_indic;
@@ -162,44 +161,10 @@ public class FileTransferController implements Initializable{
     
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
     	items = FXCollections.observableArrayList();
     	listView.setItems(items);
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-    	//imageView = new ImageView(new Image("application/images/icons8-geprueft-96.png"));
     	initializeProgressBar();
-		//listView.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
-//            @Override
-//            public ListCell<String> call(ListView<String> p) {
-//                return new ListCell<String>() {
-//                    @Override
-//                    protected void updateItem(String item, boolean empty) {
-//                        super.updateItem(item, empty);
-//                        if (item != null) {
-//                            setText(item);
-//
-//                            // decide to add a new styleClass
-//                            // getStyleClass().add("costume style");
-//                            // decide the new font size
-//                            setFont(Font.font(24));
-//                        }
-//                    }
-//                };
-//            }
-//        });
-
-    	/*
-    	TableColumn<FileInformation, String> fileNameCol = new TableColumn<FileInformation, String>("FILENAME");
-    	fileNameCol.setCellValueFactory(new PropertyValueFactory<FileInformation, String>("fileName"));
-
-    	TableColumn<FileInformation, String> fileLengthCol = new TableColumn<FileInformation, String>("SIZE IN BYTES");
-    	fileNameCol.setCellValueFactory(new PropertyValueFactory<FileInformation, String>("fileLength"));    	
-    	
-    	//tableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-    	tableView.getColumns().addAll(fileNameCol, fileLengthCol);
-
-    	tableView.setItems(items);
-    	*/
 	}
 	
 	
@@ -535,7 +500,7 @@ public class FileTransferController implements Initializable{
 			DialogPane dialogPane = alert.getDialogPane();
 			dialogPane.setContent(contenLabel);
 			((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
-			dialogPane.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
+			dialogPane.getStylesheets().add(ClientApplication.class.getResource("shared_resources/application.css").toExternalForm());
 			alert.showAndWait();
 			if(fatal) System.exit(1);
     	});

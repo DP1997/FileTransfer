@@ -1,16 +1,16 @@
-package transfer;
+package client;
 
 import java.awt.Desktop;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-import datatypes.FileInformation;
-import datatypes.ProgressStream;
 import javafx.application.Platform;
+import shared_resources.datatypes.FileInformation;
+import shared_resources.datatypes.ProgressStream;
 
-import static utils.MarshallingUtils.*;
-import static application.FileTransferController.showAlert;
+import static client.ClientApplicationController.showAlert;
+import static shared_resources.utils.MarshallingUtils.*;
 
 public class TCPClient {
     

@@ -1,4 +1,4 @@
-package application;
+package client;
 	
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -11,7 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 
-public class Main extends Application {
+public class ClientApplication extends Application {
 	
 	private double xOffset = 0;
 	private double yOffset = 0;
@@ -20,7 +20,7 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			//loading the fxml file
-			Parent root = FXMLLoader.load(Main.class.getResource("FileTransfer.fxml"));
+			Parent root = FXMLLoader.load(ClientApplication.class.getResource("ClientGUI.fxml"));
 			primaryStage.initStyle(StageStyle.TRANSPARENT);
 			
 			

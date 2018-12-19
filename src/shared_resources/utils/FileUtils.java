@@ -1,9 +1,9 @@
-package utils;
+package shared_resources.utils;
 
 import java.io.File;
 import java.util.ArrayList;
 
-import datatypes.FileInformation;
+import shared_resources.datatypes.FileInformation;
 
 public class FileUtils {
 	
