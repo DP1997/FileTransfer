@@ -13,14 +13,12 @@ import java.util.ArrayList;
 
 import shared_resources.datatypes.FileInformation;
 import shared_resources.utils.FileUtils;
+import static server.TCPServer.*;
 
 public class ServerServiceThread extends Thread{
 	
 	private Socket connection = null;
-	// \\Users\\Mirco\\Desktop\\testordner\\
-    //private String sharePath = "\\Users\\Mirco\\Desktop\\testordner\\";
-	private String sharePath = "/home/donald/Schreibtisch/";
-    private String recievedFileName;
+	private String recievedFileName;
    
     private BufferedOutputStream bos = null;
     private BufferedInputStream bis = null;
@@ -41,7 +39,7 @@ public class ServerServiceThread extends Thread{
 		int lengthOfData;
 		//data in bytes
 		byte[] data;
-			while(!connection.isClosed()) {
+			while(!connection.isClosed() && !isInterrupted()) {
 				try {
 		            //retrieve header information
 		            checkConnection(bis.read(lod_byte));
@@ -77,6 +75,7 @@ public class ServerServiceThread extends Thread{
 					}
 				}
 			}
+			closeStreams();
 	}
 	
 	private boolean contains(String fileName) {
@@ -167,7 +166,7 @@ public class ServerServiceThread extends Thread{
 		try {
 			System.out.println("sending directory information...");
 			//read information about shared files
-			fileInformation = FileUtils.getFileInformation(sharePath);
+			fileInformation = FileUtils.getFileInformation(sharedDir);
 			byte[] header = marshalling(fileInformation.size());
 			//tell client how many files the server will be sending
 			//with each file containing 2 additional send operations
@@ -198,7 +197,7 @@ public class ServerServiceThread extends Thread{
 	public void sendFileToClient(String fileName) {
 		System.out.println("transmitting file "+fileName+"...");
 		//build path to file
-		String filePath = sharePath + fileName;
+		String filePath = sharedDir + fileName;
  	    File myFile = new File(filePath);
  	    
  	    byte[] data = new byte[(int) myFile.length()];

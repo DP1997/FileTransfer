@@ -89,6 +89,11 @@
                   <Image url="@../shared_resources/images/icons8-ordner-öffnen-filled-96.png" />
                </image>
             </ImageView>
+            <ImageView fx:id="bt_turnServerOff" fitHeight="69.0" fitWidth="69.0" layoutX="360.0" layoutY="195.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true" visible="false">
+               <image>
+                  <Image url="@../shared_resources/images/icons8-offline-96.png" />
+               </image>
+            </ImageView>
          </children>
       </AnchorPane>
       <AnchorPane id="downloadView" fx:id="clientConView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;" visible="false">
@@ -137,9 +142,9 @@
                   <Font size="20.0 " />
                </font>
             </Label>
-            <Label fx:id="lb_sharePath" layoutX="215.0" layoutY="181.0" prefHeight="30.0" prefWidth="343.0" text="---" textFill="#ddd8d8">
+            <Label fx:id="lb_sharePath" layoutX="215.0" layoutY="181.0" prefHeight="30.0" prefWidth="343.0" text="---" textFill="#ddd8d8" wrapText="true">
                <font>
-                  <Font size="20.0 " />
+                  <Font size="13.0" />
                </font>
             </Label>
          </children>
@@ -149,7 +154,7 @@
             <Image url="@../shared_resources/images/icons8-sortieren-hoch-96.png" />
          </image>
       </ImageView>
-      <ImageView fx:id="lb_clientConViewIndic" fitHeight="52.0" fitWidth="53.0" layoutX="182.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
+      <ImageView fx:id="imgV_clientConViewIndic" fitHeight="52.0" fitWidth="53.0" layoutX="182.0" layoutY="93.0" pickOnBounds="true" preserveRatio="true" visible="false">
          <image>
             <Image url="@../shared_resources/images/icons8-sortieren-hoch-96.png" />
          </image>

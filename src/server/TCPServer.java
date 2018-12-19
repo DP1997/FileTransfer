@@ -2,29 +2,57 @@ package server;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
-class TCPServer {
+import static server.ServerApplicationController.showAlert;
 
-	//TODO 
-    private final static String dir = "/home/donald/Downloads";
+class TCPServer extends Thread {
 
-    public static void main(String args[]) {
-       
-        try (ServerSocket welcomeSocket = new ServerSocket(3248)){
-            while(true) {
+    static String sharedDir = null;
+    private static int port = 0;
+    private static ArrayList<ServerServiceThread> serviceThreads;
+    
+    public TCPServer(String sharedDir, int port) {
+    	TCPServer.sharedDir = sharedDir;
+    	TCPServer.port = port;
+    	TCPServer.serviceThreads = new ArrayList<>();
+    	System.out.println("server successfully initialized");
+    }
+
+    public void run() {
+    	
+    	try (ServerSocket welcomeSocket = new ServerSocket(port)){
+            while(!isInterrupted()) {
             	try {
-            		(new ServerServiceThread(welcomeSocket.accept())).start();
+            		serviceThreads.add(new ServerServiceThread(welcomeSocket.accept()));
+            		serviceThreads.get(serviceThreads.size()-1).start();
+            		System.out.println("new ServerServiceThread successfully initialized");
             	} catch (Exception e) {
                 	System.err.println("ServerServiceThread could not be initialized");
                 	e.printStackTrace();
-                	System.exit(1);
+                	showAlert("Verbindungsfehler!", "Eingehende Client-Verbindung konnte nicht entgegengenommen werden.", false);
             	}
             }
 
         } catch (IOException e) {
         	System.err.println("server welcomeSocket could not be initialized");
         	e.printStackTrace();
-        	System.exit(1);
+        	showAlert("FEHLER!", "Der Server konnte nicht gestartet werden.", true);
         }
+    }
+    
+    public void shutDown() {
+    	for (ServerServiceThread sst : serviceThreads) {
+    		sst.interrupt();
+    		while(sst.isAlive()) {
+	    		try {
+					sst.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+    		}
+    	}
+    	serviceThreads = null;
+    	System.out.println("all ServerServiceThreads have been disbanded");
     }
 }

@@ -10,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-
 public class ServerApplication extends Application {
 	
 	private double xOffset = 0;

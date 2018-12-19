@@ -1,9 +1,12 @@
 package server;
 
 import java.io.File;
+import java.net.Inet4Address;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
@@ -33,7 +36,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import shared_resources.datatypes.FileInformation;
 import shared_resources.datatypes.ProgressStream;
-
+																																								
 public class ServerApplicationController implements Initializable{
 
 	//topbar
@@ -56,7 +59,7 @@ public class ServerApplicationController implements Initializable{
     @FXML
     private Label lb_offlineText, lb_onlineText;
     @FXML
-    private ImageView lb_offline, lb_online, bt_hostServer, bt_openExplorer;
+    private ImageView lb_offline, lb_online, bt_hostServer, bt_turnServerOff, bt_openExplorer;
 
     //clientConnectionView
     @FXML
@@ -75,7 +78,8 @@ public class ServerApplicationController implements Initializable{
 
     
     private ObservableList<String> items;
-    //private ImageView imageView;
+    private String sharedDir = null;
+    private TCPServer server = null;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -87,7 +91,8 @@ public class ServerApplicationController implements Initializable{
 	   @FXML
 	    public void topBarIconClicked(MouseEvent e) {
 	    	ImageView source = (ImageView) e.getSource();
-	    	if(source.getId().equals("openConView")) {
+	    	
+	    	if(source.getId().equals("bt_openConView")) {
 	    		if(connectionView.isVisible()) {
 	    			visibilityControl(connectionView, imgV_conViewIndic, false);
 	    		}
@@ -97,7 +102,7 @@ public class ServerApplicationController implements Initializable{
 	    			visibilityControl(infoView, imgV_infoViewIndic, false);
 	    		}
 	    	}
-	    	else if(source.getId().equals("openclientConView")) {
+	    	else if(source.getId().equals("bt_openClientCon")) {
 	      		if(clientConView.isVisible()) {
 	    			visibilityControl(clientConView, imgV_clientConViewIndic, false);
 	    		}
@@ -107,7 +112,7 @@ public class ServerApplicationController implements Initializable{
 	    			visibilityControl(infoView, imgV_infoViewIndic, false);
 	    		}
 	    	}
-	    	else if(source.getId().equals("openSettingsView")) {
+	    	else if(source.getId().equals("bt_openInfoView")) {
 	      		if(infoView.isVisible()) {
 	    			visibilityControl(infoView, imgV_infoViewIndic, false);
 	    		}
@@ -117,10 +122,11 @@ public class ServerApplicationController implements Initializable{
 	    			visibilityControl(connectionView, imgV_conViewIndic, false);
 	    		}
 	    	}
-	    	else if(source.getId().equals("shutdown")) {
+	    	else if(source.getId().equals("bt_shutdown")) {
+	    		shutDownServer();
 	    		Platform.exit();
 	    	}
-	    	else if(source.getId().equals("minimize")) {
+	    	else if(source.getId().equals("bt_minimize")) {
 	    		minimizeStageOfNode((Node) e.getSource());
 	    	}
 	    	
@@ -136,194 +142,147 @@ public class ServerApplicationController implements Initializable{
 	    	}
 	    }
 
-		private void chooseDownloadDirectory(MouseEvent e) {
-	    	// get Stage
-	        Node source = (Node) e.getSource();
-	        Window stage = source.getScene().getWindow();
-	        
-			DirectoryChooser chooser = new DirectoryChooser();
-			chooser.setTitle("Download-Ordner angeben");
-			File selectedDirectory = chooser.showDialog(stage);
-			if(selectedDirectory != null) {
-				tf_sharePath.setText(selectedDirectory.getAbsolutePath());
-				// Der Pfad muss an das Betriebssystem angepasst werden
-				// Bei Windows wird der Pfad mit \\ angegeben, bei Linux mit /
-				String os = System.getProperty("os.name").toLowerCase();
-				String textField = tf_sharePath.getText();
-				String downloadPath = textField;
-				// windows
-				if(os.contains("win")) {
-					System.out.println("windows erkannt");
-					 downloadPath = textField.replace("\\","\\\\") + "\\\\";
-				}
-				if(os.contains("nix") || os.contains("nux")) {
-					System.out.println("linux erkannt");
-					downloadPath = downloadPath + "/";
-				}
-				try {
-					TCPClient.setDownloadPath(downloadPath);
-					System.out.println("Pfad gesetzt: " + downloadPath);
-				} catch (AssertionError assErr) {
-					showAlert("Ung√ºltiger Pfad!", "Der angegebene Pfad darf nicht leer sein.", false);
-				}
-			}
-			
-		}
 		
-		private void showInExplorer() {
-			try {
-				TCPClient.showInExplorer();
-			} catch (Exception e) {
-				showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der angegebene Pfad korrekt ist.", false);
-			}
-		}
-
-	    
-	    @FXML
-	    public void handleMouseClick(MouseEvent e){
-	    	ImageView source = (ImageView) e.getSource();
-	    	
-	    	//connectionView
-	    	if(source.getId().equals("connect") && connect.isVisible()) {
-	    		connectToServer(e);
-	    	}
-	    	
-	    	else if(source.getId().equals("disconnect") && disconnect.isVisible()) {
-	    		deleteConnection();
-	    	}
-	    	    	
-	    	//clientConView
-	    	else if(source.getId().equals("button_download")) {
-	    		// background Task
-	    		clickedDownload(e);
-
-	    	}
-	    	else if(source.getId().equals("button_refresh")) {
-	    		//request file refresh
-	    		requestFileListRefresh();
-	    	}
-	    	else if(source.getId().equals("button_explorer")) {
-	    		showInExplorer();
-	    	}
-	    	
-	    	//settingsView
-	    	else if(source.getId().equals("button_explorer2")) {
-	    		chooseDownloadDirectory(e);
-	    	}
-	    	else if(source.getId().equals("downloadCancel")) {
-	    		cancelDownload();
-	    	}
-	    }
 	    private void minimizeStageOfNode(Node node) {
 	        ((Stage)(node).getScene().getWindow()).setIconified(true);
 	    }
 	    
-	    private void establishConnection(){
-	    	clearAllGUI();
-	    	connectingGUI(true);
-	    	String serverIP = textfield_ip.getText();
-	    	String serverPort = textfield_port.getText();
+	    @FXML
+	    public void handleMouseClick(MouseEvent e){
+	    	ImageView source = (ImageView) e.getSource();
+	    	String sourceID = source.getId();
+	    	//don't handle events from invisible ImageViews
+	    	if(!source.isVisible()) return;
+	    	switch(sourceID) {
 	    	
-	    	for(int i = 0; i < 5; i ++) {
-		    	try {
-		    		TCPClient.connectToServer(serverIP, serverPort);
-		    		connectionSucGUI();
-		    		break;
-		    	} catch(SocketTimeoutException e) {
-		    		System.out.println("Timeout-Error");
-		    		if(i == 4) connectionTimeoutOverGUI();
-		    	} catch (Exception e) {
-		    		System.out.println("Eingabe-Error");
-		    		connectionIOErrorGUI();
-		    		break;
-				}
+	    	case "bt_hostServer": 	 hostServer();
+	    						  	 break;
+	    	
+	    	case "bt_turnServerOff": shutDownServer();
+	    							 break;
+	    							 
+	    	case "bt_openExplorer":  chooseDownloadDirectory(source);
+	    							 break;
+	    	default: break;
 	    	}
-	    	connectingGUI(false);
-	    }
-	    
-	    private void connectingGUI(boolean b) {
-	    	labelTryConnect.setVisible(b);
-	    	textfield_ip.setEditable(!b);
-	    	textfield_port.setEditable(!b);
-	    }
-	    private void connectionSucGUI() {
-	    	clearAllGUI();
-	    	lb_onlineText.setVisible(true);
-	    	lb_online.setVisible(true);
-	    	disconnect.setVisible(true);
-	    	textfield_ip.setEditable(false);
-	    	textfield_port.setEditable(false);
-	    }
-	    private void connectionTimeoutOverGUI() {
-	    	clearAllGUI();
-	    	labelErrorConnection.setVisible(true);
-	    	lb_offline.setVisible(true);
-	    	connect.setVisible(true);
-	    }
-	    private void connectionIOErrorGUI() {
-	    	clearAllGUI();
-	    	lb_offline.setVisible(true);
-	    	labelWrongInput.setVisible(true);
-	    	connect.setVisible(true);
-	    }
-	    private void clearAllGUI() {
-	    	lb_onlineText.setVisible(false);
-	    	lb_offlineText.setVisible(false);
-	    	labelErrorConnection.setVisible(false);
-	    	labelTryConnect.setVisible(false);
-	    	labelWrongInput.setVisible(false);
-	    	
-	    	connect.setVisible(false);
-	    	disconnect.setVisible(false);
-	    	lb_offline.setVisible(false);
-	    	lb_online.setVisible(false);
-	    	textfield_ip.setEditable(true);
-	    	textfield_port.setEditable(true);
-	    	
-	    }
-	    
 
-	    private void receiveDirInformation() {
-			TCPClient.receiveDirInformation();	
+	    }
+
+		private void hostServer() {
+			Path sharedDir;
+			Integer port;
+			
+			try {
+				sharedDir = Paths.get(this.sharedDir);
+			} catch (InvalidPathException | NullPointerException ex) {
+				ex.printStackTrace();
+				System.out.println();
+				showAlert("Ung¸ltiger Pfad", "Bitte geben Sie den Pfad zu einem Ordner an.", false);
+				return;
+			}
+			
+			try {
+				port = Integer.parseInt(tf_port.getText());
+				assert(1024 <= port  && port <= 65535);
+			} catch (NumberFormatException | NullPointerException | AssertionError ex) {
+					ex.printStackTrace();
+					showAlert("Ung¸ltiger Port", "Bitte geben Sie einen Port zwischen 1024 und 65535 an.", false);
+					return;
+			}
+			//host server with given path and port
+			this.server = new TCPServer(sharedDir.toString(), port);
+			hostSucGUI();
+			setInfoView();
+		   }
+		   
+	    private void shutDownServer() {
+	    	if(this.server == null) return;
+		    this.server.shutDown();
+		    this.server = null;
+		    System.out.println("TCPServer has successfully shut down");
+		    defaultConViewGUI();
+		    setInfoView();
+	    }
+	    
+		private void chooseDownloadDirectory(Node source) {
+			try {
+				//only possible if the attached server offline
+				assert(this.server == null);
+		    	//get Stage
+		        Window stage = source.getScene().getWindow();
+				DirectoryChooser chooser = new DirectoryChooser();
+				chooser.setTitle("Download-Ordner angeben");
+				File selectedDirectory = chooser.showDialog(stage);
+				if(selectedDirectory != null) {
+					tf_sharePath.setText(selectedDirectory.getAbsolutePath());
+					// Der Pfad muss an das Betriebssystem angepasst werden
+					// Bei Windows wird der Pfad mit \\ angegeben, bei Linux mit /
+					String os = System.getProperty("os.name").toLowerCase();
+					String textField = tf_sharePath.getText();
+					sharedDir = textField;
+					// windows
+					if(os.contains("win")) {
+						System.out.println("windows erkannt");
+						sharedDir = textField.replace("\\","\\\\") + "\\\\";
+					}
+					else if(os.contains("nix") || os.contains("nux")) {
+						System.out.println("linux erkannt");
+						sharedDir = sharedDir + "/";
+					}
+				} 
+			} catch (AssertionError e) {
+				showAlert("Unzul‰ssige Aktion", "W‰hrend dem laufenden Betrieb eines Servers, ist es nicht mˆglich dessen Pfad zu ‰ndern", false);
+			}
+			
+		}
+		
+		public void setInfoView() {
+			if (this.server != null) {
+				lb_serverPort.setText(tf_port.getText());
+				lb_sharePath.setText(tf_sharePath.getText());
+				try {
+					lb_serverIP.setText(Inet4Address.getLocalHost().getHostAddress());
+				} catch (UnknownHostException e) {
+					lb_serverIP.setText("UNKNOWN");
+					e.printStackTrace();
+				}
+			} else {
+				lb_serverPort.setText("---");
+				lb_serverIP.setText("---");
+				lb_sharePath.setText("---");
+			}
+		}
+		private void hostSucGUI() {
+			clearAllGUI();
+			lb_onlineText.setVisible(true);
+			lb_onlineText.toFront();
+			lb_online.setVisible(true);
+			lb_online.toFront();
+			bt_turnServerOff.setVisible(true);
+			bt_turnServerOff.toFront();
+			tf_port.setEditable(false);
+		}
+		private void defaultConViewGUI() {
+			clearAllGUI();
+			lb_offline.setVisible(true);
+			lb_offlineText.setVisible(true);
+			bt_hostServer.setVisible(true);
+			lb_offline.toFront();
+			lb_offlineText.toFront();
+			bt_hostServer.toFront();
+
+		}
+		private void clearAllGUI() {
+			lb_onlineText.setVisible(false);
+			lb_offlineText.setVisible(false);
+			lb_offline.setVisible(false);
+			lb_online.setVisible(false);
+			bt_hostServer.setVisible(false);
+			bt_turnServerOff.setVisible(false);
+			tf_port.setEditable(true);
 		}
 
-		private void deleteConnection() {
-	    	clearAllGUI();
-			lb_offline.setVisible(true);
-			connect.setVisible(true);
-			lb_offlineText.setVisible(true);
-			TCPClient.closeStreams();
-			System.out.println("Verbindung getrennt");
-	    }
 	   
-	    	/*
-	    	listView.setCellFactory(param -> new ListCell<String>() {
-	    		
-	            @Override
-	            public void updateItem(String name, boolean empty) {
-	                super.updateItem(name, empty);
-	                if (empty) {
-	                    setText(null);
-	                    setGraphic(null);
-	                } else if (name.equals(fileName[0])) {
-	                    setText(name);
-	                    setGraphic(imageView);
-	                }
-	            }
-	        });
-	        */
-	    
-	    private void requestFileListRefresh() {
-	    	
-	    	TCPClient.contactServer("refresh");
-	    	TCPClient.receiveDirInformation();
-	    	listView.getItems().clear();
-			for (FileInformation fi : TCPClient.fileInformation) {
-				listView.getItems().add(fi.fileName+ ", " + fi.fileLength + " Bytes");
-			}
-	    	
-	    }
-	    
 	    public static void showAlert(String header, String content, boolean fatal) {
 	    	Platform.runLater(() -> {
 				Alert alert = new Alert(AlertType.ERROR);
@@ -332,66 +291,11 @@ public class ServerApplicationController implements Initializable{
 				contenLabel.setWrapText(true);
 				DialogPane dialogPane = alert.getDialogPane();
 				dialogPane.setContent(contenLabel);
+				
 				((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
-				dialogPane.getStylesheets().add(ClientApplication.class.getResource("shared_resources/application.css").toExternalForm());
+				dialogPane.getStylesheets().add(ServerApplicationController.class.getResource("../shared_resources/application.css").toExternalForm());
 				alert.showAndWait();
 				if(fatal) System.exit(1);
 	    	});
-	    }
-	   
-	    // ProgressBar
-	    /*
-	    @FXML
-	    public void handle(ActionEvent event) {
-	        startDownloadButton.setDisable(true);
-	        progressBar.setProgress(0);
-	        //cancelDownloadButton.setDisable(false);
-	        
-	        progressWorker = createWorker();
-
-	        progressBar.progressProperty().unbind();
-	        progressBar.progressProperty().bind(progressWorker.progressProperty());
-	    
-	    public static void showAlert(String header, String content) {
-	        Alert alert = new Alert(AlertType.ERROR);
-	        alert.setHeaderText(header);
-	        Label contenLabel = new Label(content);
-	        contenLabel.setWrapText(true);
-	        DialogPane dialogPane = alert.getDialogPane();
-	        dialogPane.setContent(contenLabel);
-	        ((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
-	        dialogPane.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
-	        alert.showAndWait();
-	    }
-
-	        new Thread(progressWorker).start();
-	    }
-	    
-	    public void initializeProgress() {
-	        
-	        cancelDownloadButton.setOnAction(new EventHandler<ActionEvent>() {
-	            public void handle(ActionEvent event) {
-	                startDownloadButton.setDisable(false);
-	                cancelDownloadButton.setDisable(true);
-	                progressWorker.cancel(true);
-	                progressBar.progressProperty().unbind();
-	                progressBar.setProgress(0);
-	                System.out.println("cancelled.");
-	            }
-	        });
-	    }
-
-	    public Task createWorker() {
-	        return new Task() {
-	            @Override
-	            protected Object call() throws Exception {
-	                for (int i = 0; i < 1631385; i++) {
-	                    updateProgress(0, 1631385);
-	                }
-	                return true;
-	            }
-	        };
-	    } 
-	       */
-	
+	    }	
 }
