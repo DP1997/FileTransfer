@@ -2,6 +2,7 @@ package server;
 
 import java.io.File;
 import java.net.Inet4Address;
+import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -65,7 +66,7 @@ public class ServerApplicationController implements Initializable{
     @FXML
     private Label lb_clientKicked;
     @FXML
-    private ListView<String> lv_clients;
+    private ListView<SocketAddress> lv_clients;
     @FXML
     private ImageView bt_kickClient;
     
@@ -77,14 +78,14 @@ public class ServerApplicationController implements Initializable{
 
 
     
-    private ObservableList<String> items;
+    static ObservableList<SocketAddress> clients;
     private String sharedDir = null;
     private TCPServer server = null;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-    	items = FXCollections.observableArrayList();
-    	lv_clients.setItems(items);
+		clients = FXCollections.observableArrayList();
+    	lv_clients.setItems(clients);
     	lv_clients.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 	}
 	
@@ -191,6 +192,7 @@ public class ServerApplicationController implements Initializable{
 			}
 			//host server with given path and port
 			this.server = new TCPServer(sharedDir.toString(), port);
+			this.server.start();
 			hostSucGUI();
 			setInfoView();
 		   }

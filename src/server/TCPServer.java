@@ -33,6 +33,7 @@ class TCPServer extends Thread {
                 	showAlert("Verbindungsfehler!", "Eingehende Client-Verbindung konnte nicht entgegengenommen werden.", false);
             	}
             }
+            System.err.println("server has been interrupted");
 
         } catch (IOException e) {
         	System.err.println("server welcomeSocket could not be initialized");

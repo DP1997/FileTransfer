@@ -100,7 +100,7 @@
                   <Image url="@../shared_resources/images/icons8-abbruch.png" />
                </image>
             </ImageView>
-            <Label fx:id="labelTryConnect" layoutX="236.0" layoutY="324.0" text="CONNECT . . ." textFill="#ddd8d8" visible="false">
+            <Label fx:id="labelTryConnect" layoutX="236.0" layoutY="324.0" text="VERBINDE..." textFill="#ddd8d8" visible="false">
                <font>
                   <Font size="20.0" />
                </font>

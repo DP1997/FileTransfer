@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import shared_resources.datatypes.FileInformation;
 import shared_resources.utils.FileUtils;
 import static server.TCPServer.*;
+import static server.ServerApplicationController.clients;
 
 public class ServerServiceThread extends Thread{
 	
@@ -24,10 +25,13 @@ public class ServerServiceThread extends Thread{
     private BufferedInputStream bis = null;
 
     private static ArrayList<FileInformation> fileInformation = null;
+    private SocketAddress sockAddr = null;
 	
 	public ServerServiceThread(Socket sock) {
 		super("FileTransferThread");
 		this.connection = sock;
+		sockAddr = connection.getRemoteSocketAddress();
+		clients.add(sockAddr);
 		System.out.println("connection with client successfully established");
 		initializeStreams();
 	}
@@ -159,6 +163,7 @@ public class ServerServiceThread extends Thread{
     		ioe.printStackTrace();
     		connection = null;
     	}
+    	clients.remove(sockAddr);
     }
     
     //send client information about the files he can request a download for
