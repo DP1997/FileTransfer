@@ -79,7 +79,7 @@ public class ServerApplicationController implements Initializable{
 
     
     static ObservableList<SocketAddress> clients;
-    private String sharedDir = null;
+    public static String sharedDir = null;
     private TCPServer server = null;
 
 	@Override
@@ -221,7 +221,6 @@ public class ServerApplicationController implements Initializable{
 					// Bei Windows wird der Pfad mit \\ angegeben, bei Linux mit /
 					String os = System.getProperty("os.name").toLowerCase();
 					String textField = tf_sharePath.getText();
-					sharedDir = textField;
 					// windows
 					if(os.contains("win")) {
 						System.out.println("windows erkannt");
@@ -231,6 +230,7 @@ public class ServerApplicationController implements Initializable{
 						System.out.println("linux erkannt");
 						sharedDir = sharedDir + "/";
 					}
+					System.out.println("choosen directory: "+sharedDir);
 				} 
 			} catch (AssertionError e) {
 				showAlert("Unzulässige Aktion", "Während dem laufenden Betrieb eines Servers, ist es nicht möglich dessen Pfad zu ändern", false);

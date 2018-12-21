@@ -15,6 +15,7 @@ import shared_resources.datatypes.FileInformation;
 import shared_resources.utils.FileUtils;
 import static server.TCPServer.*;
 import static server.ServerApplicationController.clients;
+import static server.ServerApplicationController.sharedDir;
 
 public class ServerServiceThread extends Thread{
 	
@@ -61,7 +62,6 @@ public class ServerServiceThread extends Thread{
 										if(contains(recievedFileName)) {
 											System.out.println("file transfer requested for "+ recievedFileName);
 											sendFileToClient(recievedFileName);
-											System.out.println("file "+recievedFileName+" transmitted");
 										}
 									}
 					}
@@ -69,14 +69,7 @@ public class ServerServiceThread extends Thread{
 				} catch (IOException e) {
 					System.err.println("error occured while reading from stream - terminating connection");
 					e.printStackTrace();
-					closeStreams();
-					try {
-						connection.close();
-					} catch (IOException e1) {
-						System.err.println("cannot close connection - exiting system");
-						e1.printStackTrace();
-						System.exit(1);
-					}
+					closeStreams();	
 				}
 			}
 			closeStreams();
@@ -190,6 +183,7 @@ public class ServerServiceThread extends Thread{
 				bos.flush();
 				System.out.println("sending "+fi.fileLength+" in "+fi.fileLength.getBytes().length+" bytes");
 			}
+			System.out.println("directory information sent");
 
         } catch (IOException e) {
 			System.err.println("error occured while writing in streams - terminating connection");
@@ -203,6 +197,7 @@ public class ServerServiceThread extends Thread{
 		System.out.println("transmitting file "+fileName+"...");
 		//build path to file
 		String filePath = sharedDir + fileName;
+		System.out.println(filePath);
  	    File myFile = new File(filePath);
  	    
  	    byte[] data = new byte[(int) myFile.length()];
@@ -217,6 +212,7 @@ public class ServerServiceThread extends Thread{
 	    	//send data
 	        bos.write(data);
 	        bos.flush();
+			System.out.println("file "+recievedFileName+" transmitted");
  	    } catch (FileNotFoundException e) {
  	    	System.err.println("specified file could not be found");
  	        e.printStackTrace();

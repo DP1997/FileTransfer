@@ -220,6 +220,42 @@ public class ClientApplicationController implements Initializable{
     	}
     }
 
+    @FXML
+    public void handleMouseClick(MouseEvent e){
+    	ImageView source = (ImageView) e.getSource();
+    	
+    	//connectionView
+    	if(source.getId().equals("connect") && connect.isVisible()) {
+    		connectToServer(e);
+    	}
+    	
+    	else if(source.getId().equals("disconnect") && disconnect.isVisible()) {
+    		deleteConnection();
+    	}
+    	    	
+    	//downloadView
+    	else if(source.getId().equals("button_download")) {
+    		// background Task
+    		clickedDownload(e);
+
+    	}
+    	else if(source.getId().equals("button_refresh")) {
+    		//request file refresh
+    		requestFileListRefresh();
+    	}
+    	else if(source.getId().equals("button_explorer")) {
+    		showInExplorer();
+    	}
+    	
+    	//settingsView
+    	else if(source.getId().equals("button_explorer2")) {
+    		chooseDownloadDirectory(e);
+    	}
+    	else if(source.getId().equals("downloadCancel")) {
+    		cancelDownload();
+    	}
+    }
+    
 	private void chooseDownloadDirectory(MouseEvent e) {
     	// get Stage
         Node source = (Node) e.getSource();
@@ -270,41 +306,7 @@ public class ClientApplicationController implements Initializable{
 	    System.out.println("cancelled.");		
 	}
     
-    @FXML
-    public void handleMouseClick(MouseEvent e){
-    	ImageView source = (ImageView) e.getSource();
-    	
-    	//connectionView
-    	if(source.getId().equals("connect") && connect.isVisible()) {
-    		connectToServer(e);
-    	}
-    	
-    	else if(source.getId().equals("disconnect") && disconnect.isVisible()) {
-    		deleteConnection();
-    	}
-    	    	
-    	//downloadView
-    	else if(source.getId().equals("button_download")) {
-    		// background Task
-    		clickedDownload(e);
-
-    	}
-    	else if(source.getId().equals("button_refresh")) {
-    		//request file refresh
-    		requestFileListRefresh();
-    	}
-    	else if(source.getId().equals("button_explorer")) {
-    		showInExplorer();
-    	}
-    	
-    	//settingsView
-    	else if(source.getId().equals("button_explorer2")) {
-    		chooseDownloadDirectory(e);
-    	}
-    	else if(source.getId().equals("downloadCancel")) {
-    		cancelDownload();
-    	}
-    }
+ 
     private void minimizeStageOfNode(Node node) {
         ((Stage)(node).getScene().getWindow()).setIconified(true);
     }
@@ -345,7 +347,7 @@ public class ClientApplicationController implements Initializable{
     	textfield_ip.setEditable(false);
     	textfield_port.setEditable(false);
     }
-    private void connectionTimeoutOverGUI() {
+    public void connectionTimeoutOverGUI() {
     	clearAllGUI();
     	labelErrorConnection.setVisible(true);
     	noConnection.setVisible(true);
@@ -463,23 +465,7 @@ public class ClientApplicationController implements Initializable{
 	    }   
 
     }
-    	/*
-    	listView.setCellFactory(param -> new ListCell<String>() {
-    		
-            @Override
-            public void updateItem(String name, boolean empty) {
-                super.updateItem(name, empty);
-                if (empty) {
-                    setText(null);
-                    setGraphic(null);
-                } else if (name.equals(fileName[0])) {
-                    setText(name);
-                    setGraphic(imageView);
-                }
-            }
-        });
-        */
-    
+
     private void requestFileListRefresh() {
     	
     	TCPClient.contactServer("refresh");
@@ -500,7 +486,7 @@ public class ClientApplicationController implements Initializable{
 			DialogPane dialogPane = alert.getDialogPane();
 			dialogPane.setContent(contenLabel);
 			((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
-			dialogPane.getStylesheets().add(ClientApplication.class.getResource("shared_resources/application.css").toExternalForm());
+			dialogPane.getStylesheets().add(ClientApplication.class.getResource("../shared_resources/application.css").toExternalForm());
 			alert.showAndWait();
 			if(fatal) System.exit(1);
     	});

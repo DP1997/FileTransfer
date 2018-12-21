@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="600.0" style="-fx-background-color: null;" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientApplicationController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="638.0" prefWidth="600.0" style="-fx-background-color: null;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientApplicationController">
    <children>
       <ImageView fx:id="conView_indic" fitHeight="52.0" fitWidth="53.0" layoutX="38.0" layoutY="94.0" pickOnBounds="true" preserveRatio="true" visible="false">
          <image>
@@ -112,7 +112,7 @@
             </Label>
          </children>
       </AnchorPane>
-      <AnchorPane id="downloadView" fx:id="downloadView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;">
+      <AnchorPane id="downloadView" fx:id="downloadView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;" visible="false">
          <children>
             <RadioButton layoutX="31.0" layoutY="422.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="142.0" text="SELECT ALL" textFill="#f2813b" wrapText="true">
                <font>

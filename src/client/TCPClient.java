@@ -53,7 +53,7 @@ public class TCPClient {
 	}
     
     //allocate resources needed for the connection
-    public static  void initializeStreams() {
+    public static void initializeStreams() {
     	
     	//check for an active socket
     	try {
@@ -122,6 +122,8 @@ public class TCPClient {
     		ioe.printStackTrace();
     		clientSocket = null;
     	}
+    	//TODO nach verbindungsfehler muss die conView GUI aktualisiert werden
+    	//client.ClientApplicationController.connectionTimeoutOverGUI();
     }
     
     //schickt dem Server einen String anhand dieser entscheidet, welche Aktion er auszufÃ¼hren hat
