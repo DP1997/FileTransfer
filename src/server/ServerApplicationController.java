@@ -1,6 +1,7 @@
 package server;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
@@ -77,7 +78,6 @@ public class ServerApplicationController implements Initializable{
     private ImageView imgV_infoChecked;
 
 
-    
     static ObservableList<SocketAddress> clients;
     public static String sharedDir = null;
     private TCPServer server = null;
@@ -124,8 +124,7 @@ public class ServerApplicationController implements Initializable{
 	    		}
 	    	}
 	    	else if(source.getId().equals("bt_shutdown")) {
-	    		shutDownServer();
-	    		Platform.exit();
+	    		System.exit(0);
 	    	}
 	    	else if(source.getId().equals("bt_minimize")) {
 	    		minimizeStageOfNode((Node) e.getSource());
@@ -174,11 +173,10 @@ public class ServerApplicationController implements Initializable{
 			Integer port;
 			
 			try {
-				sharedDir = Paths.get(this.sharedDir);
+				sharedDir = Paths.get(ServerApplicationController.sharedDir);
 			} catch (InvalidPathException | NullPointerException ex) {
 				ex.printStackTrace();
-				System.out.println();
-				showAlert("Ungültiger Pfad", "Bitte geben Sie den Pfad zu einem Ordner an.", false);
+				showAlert("Ungï¿½ltiger Pfad", "Bitte geben Sie den Pfad zu einem Ordner an.", false);
 				return;
 			}
 			
@@ -187,7 +185,7 @@ public class ServerApplicationController implements Initializable{
 				assert(1024 <= port  && port <= 65535);
 			} catch (NumberFormatException | NullPointerException | AssertionError ex) {
 					ex.printStackTrace();
-					showAlert("Ungültiger Port", "Bitte geben Sie einen Port zwischen 1024 und 65535 an.", false);
+					showAlert("Ungï¿½ltiger Port", "Bitte geben Sie einen Port zwischen 1024 und 65535 an.", false);
 					return;
 			}
 			//host server with given path and port
@@ -199,7 +197,22 @@ public class ServerApplicationController implements Initializable{
 		   
 	    private void shutDownServer() {
 	    	if(this.server == null) return;
+	    	System.out.println("shutting down...");
 		    this.server.shutDown();
+	    	this.server.interrupt();
+	    	try {
+				this.server.welcomeSocket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+				this.server.welcomeSocket = null;
+			}
+	    	while(this.server.isAlive()) {
+	    		try {
+	    			this.server.join();
+	    		} catch(InterruptedException ex) {
+	    			ex.printStackTrace();
+	    		}
+	    	}
 		    this.server = null;
 		    System.out.println("TCPServer has successfully shut down");
 		    defaultConViewGUI();
@@ -228,12 +241,12 @@ public class ServerApplicationController implements Initializable{
 					}
 					else if(os.contains("nix") || os.contains("nux")) {
 						System.out.println("linux erkannt");
-						sharedDir = sharedDir + "/";
+						sharedDir = textField + "/";
 					}
 					System.out.println("choosen directory: "+sharedDir);
 				} 
 			} catch (AssertionError e) {
-				showAlert("Unzulässige Aktion", "Während dem laufenden Betrieb eines Servers, ist es nicht möglich dessen Pfad zu ändern", false);
+				showAlert("Unzulï¿½ssige Aktion", "Wï¿½hrend dem laufenden Betrieb eines Servers, ist es nicht mï¿½glich dessen Pfad zu ï¿½ndern", false);
 			}
 			
 		}
@@ -254,6 +267,7 @@ public class ServerApplicationController implements Initializable{
 				lb_sharePath.setText("---");
 			}
 		}
+		
 		private void hostSucGUI() {
 			clearAllGUI();
 			lb_onlineText.setVisible(true);
@@ -283,7 +297,6 @@ public class ServerApplicationController implements Initializable{
 			bt_turnServerOff.setVisible(false);
 			tf_port.setEditable(true);
 		}
-
 	   
 	    public static void showAlert(String header, String content, boolean fatal) {
 	    	Platform.runLater(() -> {

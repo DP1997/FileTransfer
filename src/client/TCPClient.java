@@ -15,7 +15,7 @@ import static shared_resources.utils.MarshallingUtils.*;
 public class TCPClient {
     
     public static String sharePath = null;
-    private static Socket clientSocket = null;
+    public static Socket clientSocket = null;
     
     private static BufferedOutputStream bos = null;
     public static BufferedOutputStream bos_fos = null;
@@ -156,13 +156,16 @@ public class TCPClient {
     	System.out.println("downloading...");
     	try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
     			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
-            assert(bos == null && baos != null);
+            assert(bos != null && baos != null);
     		// read fileLength from Client in order to avoid read-blocking and closing the socket on serverside (EOF)
             // marshalling
             byte[] fileLengthInBytes = new byte[4];
             checkConnection(ps.read(fileLengthInBytes));
             int fileLength = unmarshalling(fileLengthInBytes);
             
+            // set fileLength of ProgressStream
+            ProgressStream.setFileLength(fileLength);
+            ProgressStream.resetProgressBar();
             // send data
         	byte[] file = new byte[fileLength];
         	checkConnection(ps.read(file));
@@ -235,6 +238,7 @@ public class TCPClient {
 				showAlert("Verbindungsfehler!", "Die Verbindung zum Server ist abgebrochen.", false);
 				closeStreams();
 			}
+			ProgressStream.resetProgressBar();
 			
 
     }

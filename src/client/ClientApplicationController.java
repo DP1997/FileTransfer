@@ -104,7 +104,7 @@ public class ClientApplicationController implements Initializable{
     
     @FXML
     private void clickedDownload(MouseEvent e) {
-    	//String fileName = listView.getSelectionModel().getSelectedItem();
+    	String fileName = listView.getSelectionModel().getSelectedItem();
     	downloadThread = new Service<Void>() {
         	@Override
         	protected Task<Void> createTask(){
@@ -114,7 +114,7 @@ public class ClientApplicationController implements Initializable{
         	    		//request file download
         				
         				labelDownload.setVisible(false);
-        				ProgressStream.resetProgress();
+        				ProgressStream.resetProgressBar();
         	    		downloadSuc.setVisible(false);
         				downloadCancel.setVisible(true);
         	    		requestFileDownload();
@@ -128,13 +128,17 @@ public class ClientApplicationController implements Initializable{
     		public void handle(WorkerStateEvent event) {
     			downloadCancel.setVisible(false);
     			downloadSuc.setVisible(true);
-				ProgressStream.resetProgress();
+				ProgressStream.resetProgressBar();
 				labelDownload.setVisible(true);
-				labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");
+				labelDownload.setText(fileName +  " übertragen");
+				Platform.runLater(() -> {
+					if(radioSettings.isSelected()) showInExplorer();
+				});
     		}
     	});
     	downloadThread.restart();
     }
+    
     @FXML
     private void connectToServer(MouseEvent e) {
     	//String fileName = listView.getSelectionModel().getSelectedItem();
@@ -301,7 +305,7 @@ public class ClientApplicationController implements Initializable{
 	private void cancelDownload(){
 		// streams clearen
 		downloadCancel.setVisible(false);
-		ProgressStream.resetProgress();
+		ProgressStream.resetProgressBar();
 	    downloadThread.cancel();
 	    System.out.println("cancelled.");		
 	}
@@ -443,6 +447,7 @@ public class ClientApplicationController implements Initializable{
     }
    
     private void requestFileDownload() {
+    	
 	    try {
 	    	//read marked list entry
 	    	String row = listView.getSelectionModel().getSelectedItem();
@@ -467,13 +472,17 @@ public class ClientApplicationController implements Initializable{
     }
 
     private void requestFileListRefresh() {
-    	
-    	TCPClient.contactServer("refresh");
-    	TCPClient.receiveDirInformation();
-    	listView.getItems().clear();
-		for (FileInformation fi : TCPClient.fileInformation) {
-			listView.getItems().add(fi.fileName+ ", " + fi.fileLength + " Bytes");
-		}
+    	try {
+	    	assert(TCPClient.clientSocket != null);
+	    	TCPClient.contactServer("refresh");
+	    	TCPClient.receiveDirInformation();
+	    	listView.getItems().clear();
+			for (FileInformation fi : TCPClient.fileInformation) {
+				listView.getItems().add(fi.fileName+ ", " + fi.fileLength + " Bytes");
+			}
+    	} catch (AssertionError assErr) {
+    		showAlert("Keine Verbindung!", "Bitte stellen Sie eine Verbindung mit einem Server her, um dessen Dateien anzeigen zu lassen.", false);
+    	}
     	
     }
     
