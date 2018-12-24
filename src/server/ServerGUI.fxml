@@ -117,7 +117,7 @@
                   <Image url="@../shared_resources/images/icons8-geprueft-96.png" />
                </image>
             </ImageView>
-            <Label layoutX="56.0" layoutY="72.0" prefHeight="30.0" prefWidth="96.0" text="SERVER IP" textFill="#ddd8d8">
+            <Label layoutX="56.0" layoutY="72.0" prefHeight="30.0" prefWidth="170.0" text="SERVER IP" textFill="#ddd8d8">
                <font>
                   <Font size="20.0 " />
                </font>

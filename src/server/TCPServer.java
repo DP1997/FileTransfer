@@ -11,6 +11,7 @@ class TCPServer extends Thread {
     static String sharedDir = null;
     private static int port = 0;
     private static ArrayList<ServerServiceThread> serviceThreads;
+    public static ServerSocket welcomeSocket;
     
     public TCPServer(String sharedDir, int port) {
     	TCPServer.sharedDir = sharedDir;
@@ -21,8 +22,9 @@ class TCPServer extends Thread {
 
     public void run() {
     	
-    	try (ServerSocket welcomeSocket = new ServerSocket(port)){
-            while(!isInterrupted()) {
+    	try {
+    		welcomeSocket = new ServerSocket(port);
+            while(!isInterrupted() && !welcomeSocket.isClosed()) {
             	try {
             		serviceThreads.add(new ServerServiceThread(welcomeSocket.accept()));
             		serviceThreads.get(serviceThreads.size()-1).start();
@@ -38,15 +40,22 @@ class TCPServer extends Thread {
         } catch (IOException e) {
         	System.err.println("server welcomeSocket could not be initialized");
         	e.printStackTrace();
-        	showAlert("FEHLER!", "Der Server konnte nicht gestartet werden.", true);
+        	showAlert("Fehler!", "Der Server konnte nicht gestartet werden.", true);
         }
     }
     
     public void shutDown() {
+    	System.out.println("	terminating threads...");
     	for (ServerServiceThread sst : serviceThreads) {
-    		sst.interrupt();
+    		try {
+				sst.connection.close();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				sst.connection = null;
+			}
     		while(sst.isAlive()) {
 	    		try {
+					System.out.println("	joining thread " + sst.getId()+"...");
 					sst.join();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -55,5 +64,6 @@ class TCPServer extends Thread {
     	}
     	serviceThreads = null;
     	System.out.println("all ServerServiceThreads have been disbanded");
+    	
     }
 }

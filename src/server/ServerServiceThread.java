@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
 
+import javafx.application.Platform;
 import shared_resources.datatypes.FileInformation;
 import shared_resources.utils.FileUtils;
 import static server.TCPServer.*;
@@ -19,7 +20,7 @@ import static server.ServerApplicationController.sharedDir;
 
 public class ServerServiceThread extends Thread{
 	
-	private Socket connection = null;
+	public Socket connection = null;
 	private String recievedFileName;
    
     private BufferedOutputStream bos = null;
@@ -32,7 +33,7 @@ public class ServerServiceThread extends Thread{
 		super("FileTransferThread");
 		this.connection = sock;
 		sockAddr = connection.getRemoteSocketAddress();
-		clients.add(sockAddr);
+		Platform.runLater(() -> clients.add(sockAddr));
 		System.out.println("connection with client successfully established");
 		initializeStreams();
 	}
@@ -72,6 +73,7 @@ public class ServerServiceThread extends Thread{
 					closeStreams();	
 				}
 			}
+			System.out.println("		ServerServiceThread "+this.getId()+" exiting...");   
 			closeStreams();
 	}
 	
@@ -117,7 +119,7 @@ public class ServerServiceThread extends Thread{
     
     //release all allocated resources
     private void closeStreams() {
-    	
+    	System.out.println("closing streams & connection ...");
     	//release BufferedOutputStream
     	try {
         	assert(bos != null);
@@ -156,7 +158,7 @@ public class ServerServiceThread extends Thread{
     		ioe.printStackTrace();
     		connection = null;
     	}
-    	clients.remove(sockAddr);
+    	Platform.runLater(() -> clients.remove(sockAddr));
     }
     
     //send client information about the files he can request a download for

@@ -165,6 +165,9 @@ public class TCPClient {
             checkConnection(ps.read(fileLengthInBytes));
             int fileLength = unmarshalling(fileLengthInBytes);
             
+            // set fileLength of ProgressStream
+            ProgressStream.setFileLength(fileLength);
+            ProgressStream.resetProgressBar();
             // send data
         	byte[] file = new byte[fileLength];
         	checkConnection(ps.read(file));
@@ -237,6 +240,7 @@ public class TCPClient {
 				showAlert("Verbindungsfehler!", "Die Verbindung zum Server ist abgebrochen.", false);
 				closeStreams();
 			}
+			ProgressStream.resetProgressBar();
 			
 
     }
