@@ -51,12 +51,13 @@ public class ProgressStream extends InputStream implements AutoCloseable {
     public static DoubleProperty bytesReadProperty() {
     	return sdp;
     }
-    public static void resetProgress() {
+    public static void resetProgressBar() {
+    	ProgressStream.progress = 0;
 		ProgressStream.bytesRead = 0;
 		ProgressStream.setProgress(0);
     }
-	public static void setFileLength(int length) {
-		ProgressStream.fileLength = length;
+	public static void setFileLength(int fileLength) {
+		ProgressStream.fileLength = fileLength;
 		
 	}
 }

@@ -15,7 +15,7 @@ import static shared_resources.utils.MarshallingUtils.*;
 public class TCPClient {
     
     public static String sharePath = null;
-    private static Socket clientSocket = null;
+    public static Socket clientSocket = null;
     
     private static BufferedOutputStream bos = null;
     public static BufferedOutputStream bos_fos = null;
@@ -31,6 +31,7 @@ public class TCPClient {
     		clientSocket = new Socket();
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
+    		
     		System.out.println("connection with server successfully established");
     		initializeStreams();
     }
@@ -80,7 +81,10 @@ public class TCPClient {
     
     //release all allocated resources
     public static void closeStreams() {
-    	
+    	// notifies thread to clear the gui
+    	synchronized (ClientApplicationController.connectThread) {
+        	ClientApplicationController.connectThread.notify();			
+		}
     	//release BufferedOutputStream
     	try {
         	assert(bos != null);
@@ -122,8 +126,6 @@ public class TCPClient {
     		ioe.printStackTrace();
     		clientSocket = null;
     	}
-    	//TODO nach verbindungsfehler muss die conView GUI aktualisiert werden
-    	//client.ClientApplicationController.connectionTimeoutOverGUI();
     }
     
     //schickt dem Server einen String anhand dieser entscheidet, welche Aktion er auszufÃ¼hren hat
@@ -156,7 +158,7 @@ public class TCPClient {
     	System.out.println("downloading...");
     	try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
     			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
-            assert(bos == null && baos != null);
+            assert(bos != null && baos != null);
     		// read fileLength from Client in order to avoid read-blocking and closing the socket on serverside (EOF)
             // marshalling
             byte[] fileLengthInBytes = new byte[4];

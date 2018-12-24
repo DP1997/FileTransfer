@@ -14,6 +14,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.ProgressMonitor;
 
@@ -99,7 +100,10 @@ public class ClientApplicationController implements Initializable{
    
     @FXML
     public ProgressBar progressBar;
-    private Service<Void> downloadThread, connectThread;
+    private Service<Void> downloadThread;
+    public static Service<Void> connectThread;
+    
+    public static boolean fatalError = false;
     
     
     @FXML
@@ -112,28 +116,14 @@ public class ClientApplicationController implements Initializable{
         			@Override
         			protected Void call() throws Exception{
         	    		//request file download
-        				
-        				labelDownload.setVisible(false);
-        				ProgressStream.resetProgress();
-        	    		downloadSuc.setVisible(false);
-        				downloadCancel.setVisible(true);
         	    		requestFileDownload();
         				return null;
         			}
 				};
         	}
     	};
-    	downloadThread.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-    		@Override
-    		public void handle(WorkerStateEvent event) {
-    			downloadCancel.setVisible(false);
-    			downloadSuc.setVisible(true);
-				ProgressStream.resetProgress();
-				labelDownload.setVisible(true);
-				labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");
-    		}
-    	});
     	downloadThread.restart();
+    	
     }
     @FXML
     private void connectToServer(MouseEvent e) {
@@ -145,18 +135,31 @@ public class ClientApplicationController implements Initializable{
         			@Override
         			protected Void call() throws Exception{
         				establishConnection();
+        				/*
+    					Platform.runLater(()->{
+        				synchronized(connectThread) {
+        				    try 
+        				    {
+        				    	System.out.println("waiting");
+        				    	connectThread.wait();
+        				    	System.out.println("connectThread notified by closeStreams-Method");
+            						resetGUI();
+        				    		
+        				    } catch (InterruptedException e) {
+        				        showAlert("Unbekannter Fehler","Dies sollte nicht passieren", true);
+        				    }
+        				}
+    					});
+    					*/
         				return null;
         			}
+        			
 				};
         	}
     	};
-    	connectThread.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-    		@Override
-    		public void handle(WorkerStateEvent event) {
-    		}
-    	});
     	connectThread.start();
     }
+    
     
     
 	@Override
@@ -301,7 +304,7 @@ public class ClientApplicationController implements Initializable{
 	private void cancelDownload(){
 		// streams clearen
 		downloadCancel.setVisible(false);
-		ProgressStream.resetProgress();
+		ProgressStream.resetProgressBar();
 	    downloadThread.cancel();
 	    System.out.println("cancelled.");		
 	}
@@ -374,6 +377,13 @@ public class ClientApplicationController implements Initializable{
     	textfield_port.setEditable(true);
     	
     }
+    private void resetGUI() {
+    	clearAllGUI();
+    	labelNoConnection.setVisible(true);
+    	noConnection.setVisible(true);
+    	connect.setVisible(true);
+    	
+    }
     
     public void initializeProgressBar() {
     	progressBar.setStyle("-fx-accent: green;");
@@ -443,6 +453,11 @@ public class ClientApplicationController implements Initializable{
     }
    
     private void requestFileDownload() {
+    	try {
+    		assert(TCPClient.clientSocket != null && !TCPClient.clientSocket.isClosed());
+    	} catch (AssertionError e) {
+    		deleteConnection();
+		}
 	    try {
 	    	//read marked list entry
 	    	String row = listView.getSelectionModel().getSelectedItem();
@@ -456,7 +471,20 @@ public class ClientApplicationController implements Initializable{
 	    	sb.append(rfileName);
 	    	String fileName = sb.reverse().toString();
 	    	TCPClient.contactServer(fileName);
+	    	
+	    	// gui for cancel download
+			labelDownload.setVisible(false);
+			ProgressStream.resetProgressBar();
+    		downloadSuc.setVisible(false);
+			downloadCancel.setVisible(true);
 		    TCPClient.downloadFileFromServer(fileName);
+		    
+	    	// gui for finished and progress reset
+			downloadCancel.setVisible(false);
+			downloadSuc.setVisible(true);
+			ProgressStream.resetProgressBar();
+			labelDownload.setVisible(true);
+			labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");
 	    } catch (InvalidPathException | NullPointerException ex) {
 	        ex.printStackTrace();
         	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.", false);

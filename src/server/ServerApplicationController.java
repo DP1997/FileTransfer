@@ -178,7 +178,7 @@ public class ServerApplicationController implements Initializable{
 			} catch (InvalidPathException | NullPointerException ex) {
 				ex.printStackTrace();
 				System.out.println();
-				showAlert("Ungültiger Pfad", "Bitte geben Sie den Pfad zu einem Ordner an.", false);
+				showAlert("Ungï¿½ltiger Pfad", "Bitte geben Sie den Pfad zu einem Ordner an.", false);
 				return;
 			}
 			
@@ -187,7 +187,7 @@ public class ServerApplicationController implements Initializable{
 				assert(1024 <= port  && port <= 65535);
 			} catch (NumberFormatException | NullPointerException | AssertionError ex) {
 					ex.printStackTrace();
-					showAlert("Ungültiger Port", "Bitte geben Sie einen Port zwischen 1024 und 65535 an.", false);
+					showAlert("Ungï¿½ltiger Port", "Bitte geben Sie einen Port zwischen 1024 und 65535 an.", false);
 					return;
 			}
 			//host server with given path and port
@@ -233,7 +233,7 @@ public class ServerApplicationController implements Initializable{
 					System.out.println("choosen directory: "+sharedDir);
 				} 
 			} catch (AssertionError e) {
-				showAlert("Unzulässige Aktion", "Während dem laufenden Betrieb eines Servers, ist es nicht möglich dessen Pfad zu ändern", false);
+				showAlert("Unzulï¿½ssige Aktion", "Wï¿½hrend dem laufenden Betrieb eines Servers, ist es nicht mï¿½glich dessen Pfad zu ï¿½ndern", false);
 			}
 			
 		}
