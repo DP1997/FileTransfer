@@ -13,6 +13,7 @@ import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
@@ -116,12 +117,6 @@ public class ClientApplicationController implements Initializable{
         			@Override
         			protected Void call() throws Exception{
         	    		//request file download
-
-        				
-        				labelDownload.setVisible(false);
-        				ProgressStream.resetProgressBar();
-        	    		downloadSuc.setVisible(false);
-        				downloadCancel.setVisible(true);
         	    		requestFileDownload();
         				return null;
         			}
@@ -132,19 +127,14 @@ public class ClientApplicationController implements Initializable{
     	downloadThread.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     		@Override
     		public void handle(WorkerStateEvent event) {
-    			downloadCancel.setVisible(false);
-    			downloadSuc.setVisible(true);
-				ProgressStream.resetProgressBar();
-				labelDownload.setVisible(true);
-				labelDownload.setText(fileName +  " übertragen");
 				Platform.runLater(() -> {
-					if(radioSettings.isSelected()) showInExplorer();
+					if(radioSettings.isSelected()) showInExplorer(); 
 				});
     		}
     	});
     	downloadThread.restart();
     }
-    
+     
     @FXML
     private void connectToServer(MouseEvent e) {
     	//String fileName = listView.getSelectionModel().getSelectedItem();
@@ -415,18 +405,18 @@ public class ClientApplicationController implements Initializable{
     }
     
     public String formatBytesRead(double bytesRead) {
-    	if (bytesRead < 1000) return bytesRead + " Bytes"; 
+    	if (bytesRead < 1000) return (int)bytesRead + " Bytes"; 
     	else if(bytesRead >= 1000 && bytesRead < 1000000) {
-    		return String.format( "%.2f", bytesRead / (double)1000) + " KB";
+    		return String.format(Locale.US, "%.2f", bytesRead / (double)1000) + " KB";
     		
     	}
     	else if (bytesRead >= 1000000 && bytesRead < 1000000000) {
-    		return String.format( "%.2f", bytesRead / (double)1000) + " MB";
+    		return String.format(Locale.US, "%.2f", bytesRead / (double)1000000) + " MB";
     	}
     	else if (bytesRead >= 1000000000) {
-    		return String.format( "%.2f", bytesRead / (double)1000) + " GB";
+    		return String.format(Locale.US, "%.2f", bytesRead / (double)1000000000) + " GB";
     	}
-    	else return bytesRead + " Bytes";
+    	else return (int)bytesRead + " Bytes";
     }
     
 /*  
@@ -500,11 +490,13 @@ public class ClientApplicationController implements Initializable{
 		    TCPClient.downloadFileFromServer(fileName);
 		    
 	    	// gui for finished and progress reset
-			downloadCancel.setVisible(false);
-			downloadSuc.setVisible(true);
-			ProgressStream.resetProgressBar();
-			labelDownload.setVisible(true);
-			labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");
+		    Platform.runLater(()->{
+				downloadCancel.setVisible(false);
+				downloadSuc.setVisible(true);
+				ProgressStream.resetProgressBar();
+				labelDownload.setVisible(true);
+				labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");		    	
+		    });
 	    } catch (InvalidPathException | NullPointerException ex) {
 	        ex.printStackTrace();
         	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.", false);
@@ -521,7 +513,7 @@ public class ClientApplicationController implements Initializable{
 	    	TCPClient.receiveDirInformation();
 	    	listView.getItems().clear();
 			for (FileInformation fi : TCPClient.fileInformation) {
-				listView.getItems().add(fi.fileName+ ", " + fi.fileLength + " Bytes");
+				listView.getItems().add(fi.fileName+ ", " + formatBytesRead(Double.parseDouble(fi.fileLength)));
 			}
     	} catch (AssertionError assErr) {
     		showAlert("Keine Verbindung!", "Bitte stellen Sie eine Verbindung mit einem Server her, um dessen Dateien anzeigen zu lassen.", false);

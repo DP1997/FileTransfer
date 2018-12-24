@@ -16,7 +16,7 @@ public class TCPClient {
     
     public static String sharePath = null;
     public static Socket clientSocket = null;
-    
+     
     private static BufferedOutputStream bos = null;
     public static BufferedOutputStream bos_fos = null;
     private static ProgressStream ps = null;
