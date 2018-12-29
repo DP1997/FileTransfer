@@ -223,6 +223,7 @@ public class ServerApplicationController implements Initializable{
 			try {
 				//only possible if the attached server offline
 				assert(this.server == null);
+				if(this.server == null) {
 		    	//get Stage
 		        Window stage = source.getScene().getWindow();
 				DirectoryChooser chooser = new DirectoryChooser();
@@ -244,7 +245,9 @@ public class ServerApplicationController implements Initializable{
 						sharedDir = textField + "/";
 					}
 					System.out.println("choosen directory: "+sharedDir);
-				} 
+				}
+				}
+				else showAlert("Unzul�ssige Aktion", "W�hrend dem laufenden Betrieb eines Servers, ist es nicht m�glich dessen Pfad zu �ndern", false);
 			} catch (AssertionError e) {
 				showAlert("Unzul�ssige Aktion", "W�hrend dem laufenden Betrieb eines Servers, ist es nicht m�glich dessen Pfad zu �ndern", false);
 			}

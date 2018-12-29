@@ -73,7 +73,7 @@ public class ClientApplicationController implements Initializable{
 
     @FXML
     private ImageView button_download, button_explorer, button_refresh, button_explorer2
-    				  ,openConView, openDownloadView, openSettingsView, shutdown, connectToServer, conEstablished,
+    				  ,openConView, openDownloadView, openDownloadViewGrey, openSettingsView, openSettingsViewGrey, shutdown, connectToServer, conEstablished,
     				  noConnection, connectionEstablished, geprueftHaken, disconnect, connect,
     				  downloadSuc, downloadCancel;
 
@@ -102,6 +102,9 @@ public class ClientApplicationController implements Initializable{
     @FXML
     public ProgressBar progressBar;
     private Service<Void> downloadThread;
+
+	public static boolean downloading = true;
+	
     public static Service<Void> connectThread;
     
     public static boolean fatalError = false;
@@ -109,7 +112,6 @@ public class ClientApplicationController implements Initializable{
     
     @FXML
     private void clickedDownload(MouseEvent e) {
-    	String fileName = listView.getSelectionModel().getSelectedItem();
     	downloadThread = new Service<Void>() {
         	@Override
         	protected Task<Void> createTask(){
@@ -130,6 +132,7 @@ public class ClientApplicationController implements Initializable{
 				Platform.runLater(() -> {
 					if(radioSettings.isSelected()) showInExplorer(); 
 				});
+	    		downloading = true;
     		}
     	});
     	downloadThread.restart();
@@ -252,13 +255,18 @@ public class ClientApplicationController implements Initializable{
     	    	
     	//downloadView
     	else if(source.getId().equals("button_download")) {
+    		if(downloading) {
     		// background Task
+        	downloading = false;
     		clickedDownload(e);
-
+    		}
+    		
     	}
     	else if(source.getId().equals("button_refresh")) {
     		//request file refresh
+    		if(downloading) {
     		requestFileListRefresh();
+    		}
     	}
     	else if(source.getId().equals("button_explorer")) {
     		showInExplorer();
@@ -338,6 +346,7 @@ public class ClientApplicationController implements Initializable{
 	    	try {
 	    		TCPClient.connectToServer(serverIP, serverPort);
 	    		connectionSucGUI();
+	    		enableIcons(true);
 	    		break;
 	    	} catch(SocketTimeoutException e) {
 	    		System.out.println("Timeout-Error");
@@ -349,6 +358,12 @@ public class ClientApplicationController implements Initializable{
 			}
     	}
     	connectingGUI(false);
+    }
+    private void enableIcons(boolean b) {
+		openDownloadView.setVisible(b);
+		openSettingsView.setVisible(b);
+		openSettingsViewGrey.setVisible(!b);
+		openDownloadViewGrey.setVisible(!b);
     }
     
     private void connectingGUI(boolean b) {
@@ -363,6 +378,7 @@ public class ClientApplicationController implements Initializable{
     	disconnect.setVisible(true);
     	textfield_ip.setEditable(false);
     	textfield_port.setEditable(false);
+    	
     }
     public void connectionTimeoutOverGUI() {
     	clearAllGUI();
@@ -459,6 +475,7 @@ public class ClientApplicationController implements Initializable{
 
 	private void deleteConnection() {
     	clearAllGUI();
+		enableIcons(false);
 		noConnection.setVisible(true);
 		connect.setVisible(true);
 		labelNoConnection.setVisible(true);
@@ -472,6 +489,7 @@ public class ClientApplicationController implements Initializable{
 	    	//read marked list entry
 	    	String row = listView.getSelectionModel().getSelectedItem();
 	        assert(row != null);
+	        if(row != null) {
 	        Paths.get(TCPClient.sharePath);
 	    	StringBuilder sb = new StringBuilder();
 	    	sb.append(row);
@@ -497,6 +515,7 @@ public class ClientApplicationController implements Initializable{
 				labelDownload.setVisible(true);
 				labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");		    	
 		    });
+	        }
 	    } catch (InvalidPathException | NullPointerException ex) {
 	        ex.printStackTrace();
         	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.", false);
@@ -515,6 +534,8 @@ public class ClientApplicationController implements Initializable{
 			for (FileInformation fi : TCPClient.fileInformation) {
 				listView.getItems().add(fi.fileName+ ", " + formatBytesRead(Double.parseDouble(fi.fileLength)));
 			}
+			labelDownload.setText("Liste aktualisiert");
+			downloadSuc.setVisible(false);
     	} catch (AssertionError assErr) {
     		showAlert("Keine Verbindung!", "Bitte stellen Sie eine Verbindung mit einem Server her, um dessen Dateien anzeigen zu lassen.", false);
     	}    
