@@ -114,7 +114,7 @@
       </AnchorPane>
       <AnchorPane id="downloadView" fx:id="downloadView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;" visible="false">
          <children>
-            <RadioButton layoutX="31.0" layoutY="422.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="142.0" text="SELECT ALL" textFill="#f2813b" wrapText="true">
+            <RadioButton fx:id="rbt_selectAll" layoutX="31.0" layoutY="422.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="142.0" text="SELECT ALL" textFill="#f2813b" wrapText="true">
                <font>
                   <Font size="17.0" />
                </font>

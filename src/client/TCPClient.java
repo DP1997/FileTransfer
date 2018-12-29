@@ -41,9 +41,17 @@ public class TCPClient {
     	assert(sharePath != null);
         TCPClient.sharePath = sharePath; 	
     }
-    
+    //TODO fucking bugs in linux
     public static void showInExplorer() throws Exception {
-    	Desktop.getDesktop().open(new File(sharePath));
+    	try {
+    		assert(Desktop.isDesktopSupported());
+    		System.out.println(Desktop.isDesktopSupported());
+    		assert(Desktop.getDesktop().isSupported(Desktop.Action.BROWSE));
+    		System.out.println(Desktop.getDesktop().isSupported(Desktop.Action.BROWSE));
+        	Desktop.getDesktop().browse(new URI(sharePath.substring(0, sharePath.length()-1)));
+    	} catch (AssertionError assErr) {
+			showAlert("Nicht unterstützte Funktion!", "Auf diesem Gerät ist das Öffnen im Explorer nicht unterstützt.", false);
+    	}
     }
     
 	//checks whether the connection is still live

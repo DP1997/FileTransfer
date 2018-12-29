@@ -13,6 +13,7 @@ import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
@@ -84,7 +85,7 @@ public class ClientApplicationController implements Initializable{
     labelTryConnect, labelWrongInput, labelDownload;
     
     @FXML
-    private RadioButton radioSettings;
+    private RadioButton radioSettings, rbt_selectAll;
     
     @FXML
     private Button startDownloadButton, cancelDownloadButton;
@@ -108,7 +109,6 @@ public class ClientApplicationController implements Initializable{
     
     @FXML
     private void clickedDownload(MouseEvent e) {
-    	String fileName = listView.getSelectionModel().getSelectedItem();
     	downloadThread = new Service<Void>() {
         	@Override
         	protected Task<Void> createTask(){
@@ -116,12 +116,6 @@ public class ClientApplicationController implements Initializable{
         			@Override
         			protected Void call() throws Exception{
         	    		//request file download
-
-        				
-        				labelDownload.setVisible(false);
-        				ProgressStream.resetProgressBar();
-        	    		downloadSuc.setVisible(false);
-        				downloadCancel.setVisible(true);
         	    		requestFileDownload();
         				return null;
         			}
@@ -132,11 +126,6 @@ public class ClientApplicationController implements Initializable{
     	downloadThread.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     		@Override
     		public void handle(WorkerStateEvent event) {
-    			downloadCancel.setVisible(false);
-    			downloadSuc.setVisible(true);
-				ProgressStream.resetProgressBar();
-				labelDownload.setVisible(true);
-				labelDownload.setText(fileName +  " übertragen");
 				Platform.runLater(() -> {
 					if(radioSettings.isSelected()) showInExplorer();
 				});
@@ -311,6 +300,7 @@ public class ClientApplicationController implements Initializable{
 				TCPClient.setDownloadPath(downloadPath);
 				geprueftHaken.setVisible(true);
 				System.out.println("Pfad gesetzt: " + downloadPath);
+				System.out.println("test: "+ downloadPath.substring(0, downloadPath.length()-1));
 			} catch (AssertionError assErr) {
 				showAlert("Ungültiger Pfad!", "Der angegebene Pfad darf nicht leer sein.", false);
 			}
@@ -415,18 +405,18 @@ public class ClientApplicationController implements Initializable{
     }
     
     public String formatBytesRead(double bytesRead) {
-    	if (bytesRead < 1000) return bytesRead + " Bytes"; 
+    	if (bytesRead < 1000) return (int)bytesRead + " Bytes"; 
     	else if(bytesRead >= 1000 && bytesRead < 1000000) {
-    		return String.format( "%.2f", bytesRead / (double)1000) + " KB";
+    		return String.format(Locale.US, "%.2f", bytesRead / (double)1000) + " KB";
     		
     	}
     	else if (bytesRead >= 1000000 && bytesRead < 1000000000) {
-    		return String.format( "%.2f", bytesRead / (double)1000) + " MB";
+    		return String.format(Locale.US, "%.2f", bytesRead / (double)1000000) + " MB";
     	}
     	else if (bytesRead >= 1000000000) {
-    		return String.format( "%.2f", bytesRead / (double)1000) + " GB";
+    		return String.format(Locale.US, "%.2f", bytesRead / (double)1000000000) + " GB";
     	}
-    	else return bytesRead + " Bytes";
+    	else return (int)bytesRead + " Bytes";
     }
     
 /*  
@@ -482,14 +472,9 @@ public class ClientApplicationController implements Initializable{
 	    	//read marked list entry
 	    	String row = listView.getSelectionModel().getSelectedItem();
 	        assert(row != null);
+	        String fileName = formatListEntry(row);
 	        Paths.get(TCPClient.sharePath);
-	    	StringBuilder sb = new StringBuilder();
-	    	sb.append(row);
-	    	String rRow = sb.reverse().toString();
-	    	String rfileName = rRow.substring(rRow.indexOf(",") +1, rRow.length());
-	    	sb = new StringBuilder();
-	    	sb.append(rfileName);
-	    	String fileName = sb.reverse().toString();
+
 	    	TCPClient.contactServer(fileName);
 	    	
 	    	// gui for cancel download
@@ -504,7 +489,7 @@ public class ClientApplicationController implements Initializable{
 			downloadSuc.setVisible(true);
 			ProgressStream.resetProgressBar();
 			labelDownload.setVisible(true);
-			labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");
+			Platform.runLater(() -> labelDownload.setText((fileName + ", "+formatBytesRead(ProgressStream.fileLength))+ " übertragen"));
 	    } catch (InvalidPathException | NullPointerException ex) {
 	        ex.printStackTrace();
         	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.", false);
@@ -512,6 +497,16 @@ public class ClientApplicationController implements Initializable{
         	showAlert("Ungültiger Aufruf!", "Bitte markieren Sie eine Datei aus der Liste, die Sie herunterladen möchten.", false);
 	    }   
 
+    }
+    
+    private String formatListEntry(String row) {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append(row);
+    	String rRow = sb.reverse().toString();
+    	String rfileName = rRow.substring(rRow.indexOf(",") +1, rRow.length());
+    	sb = new StringBuilder();
+    	sb.append(rfileName);
+    	return sb.reverse().toString();
     }
 
     private void requestFileListRefresh() {
@@ -521,7 +516,7 @@ public class ClientApplicationController implements Initializable{
 	    	TCPClient.receiveDirInformation();
 	    	listView.getItems().clear();
 			for (FileInformation fi : TCPClient.fileInformation) {
-				listView.getItems().add(fi.fileName+ ", " + fi.fileLength + " Bytes");
+				listView.getItems().add(fi.fileName+ ", " + formatBytesRead(Double.parseDouble(fi.fileLength)));
 			}
     	} catch (AssertionError assErr) {
     		showAlert("Keine Verbindung!", "Bitte stellen Sie eine Verbindung mit einem Server her, um dessen Dateien anzeigen zu lassen.", false);
