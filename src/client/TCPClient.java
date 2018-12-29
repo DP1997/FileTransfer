@@ -16,7 +16,7 @@ public class TCPClient {
     
     public static String sharePath = null;
     public static Socket clientSocket = null;
-    
+     
     private static BufferedOutputStream bos = null;
     public static BufferedOutputStream bos_fos = null;
     private static ProgressStream ps = null;
@@ -25,13 +25,10 @@ public class TCPClient {
 
     
     public static void connectToServer(String serverIP, String serverPort) throws Exception {
-    		
     		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
-    		
     		clientSocket = new Socket();
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
-    		
     		System.out.println("connection with server successfully established");
     		initializeStreams();
     }
@@ -41,17 +38,15 @@ public class TCPClient {
     	assert(sharePath != null);
         TCPClient.sharePath = sharePath; 	
     }
+    
     //TODO fucking bugs in linux
-    public static void showInExplorer() throws Exception {
-    	try {
+    public static void showInExplorer() throws Exception, AssertionError {
     		assert(Desktop.isDesktopSupported());
-    		System.out.println(Desktop.isDesktopSupported());
     		assert(Desktop.getDesktop().isSupported(Desktop.Action.BROWSE));
-    		System.out.println(Desktop.getDesktop().isSupported(Desktop.Action.BROWSE));
+			String os = System.getProperty("os.name").toLowerCase();
+			//unter Linux führt das Öffnen im Explorer zu Problemen
+			assert((!(os.contains("nix") || os.contains("nux"))) == true);
         	Desktop.getDesktop().browse(new URI(sharePath.substring(0, sharePath.length()-1)));
-    	} catch (AssertionError assErr) {
-			showAlert("Nicht unterstützte Funktion!", "Auf diesem Gerät ist das Öffnen im Explorer nicht unterstützt.", false);
-    	}
     }
     
 	//checks whether the connection is still live
@@ -63,7 +58,6 @@ public class TCPClient {
     
     //allocate resources needed for the connection
     public static void initializeStreams() {
-    	
     	//check for an active socket
     	try {
     		assert(clientSocket != null && !clientSocket.isClosed());

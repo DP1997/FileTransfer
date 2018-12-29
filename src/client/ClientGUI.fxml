@@ -24,12 +24,12 @@
                   <Image url="@../shared_resources/images/icons8-wlan-96%20(1).png" />
                </image>
             </ImageView>
-            <ImageView fx:id="openDownloadView" fitHeight="69.0" fitWidth="71.0" layoutX="175.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="openDownloadView" fitHeight="69.0" fitWidth="71.0" layoutX="175.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true" visible="false">
                <image>
                   <Image url="@../shared_resources/images/icons8-ordner-_downloads_-96.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="openSettingsView" fitHeight="69.0" fitWidth="71.0" layoutX="323.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="openSettingsView" fitHeight="69.0" fitWidth="71.0" layoutX="323.0" layoutY="19.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true" visible="false">
                <image>
                   <Image url="@../shared_resources/images/icons8-einstellungen-filled-96.png" />
                </image>
@@ -42,6 +42,16 @@
             <ImageView fx:id="minimize" fitHeight="25.0" fitWidth="24.0" layoutX="578.0" onMouseClicked="#topBarIconClicked" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-minus-2-96.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="openSettingsViewGrey" fitHeight="69.0" fitWidth="71.0" layoutX="323.0" layoutY="19.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../shared_resources/images/icons8-einstellungen-96-grey.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="openDownloadViewGrey" fitHeight="69.0" fitWidth="71.0" layoutX="175.0" layoutY="19.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../shared_resources/images/icons8-ordner-_downloads_-96-grey.png" />
                </image>
             </ImageView>
          </children></AnchorPane>
@@ -114,22 +124,17 @@
       </AnchorPane>
       <AnchorPane id="downloadView" fx:id="downloadView" layoutY="125.0" prefHeight="528.0" prefWidth="600.0" style="-fx-background-color: #3D4956;" visible="false">
          <children>
-            <RadioButton fx:id="rbt_selectAll" layoutX="31.0" layoutY="422.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="142.0" text="SELECT ALL" textFill="#f2813b" wrapText="true">
-               <font>
-                  <Font size="17.0" />
-               </font>
-            </RadioButton>
-            <ImageView fx:id="button_download" fitHeight="69.0" fitWidth="71.0" layoutX="482.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
+			<ImageView fx:id="button_download" fitHeight="69.0" fitWidth="71.0" layoutX="378.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-herunterladen-96.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="button_explorer" fitHeight="69.0" fitWidth="71.0" layoutX="381.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="button_explorer" fitHeight="69.0" fitWidth="71.0" layoutX="261.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-ordner-öffnen-filled-96.png" />
                </image>
             </ImageView>
-            <ImageView fx:id="button_refresh" fitHeight="69.0" fitWidth="69.0" layoutX="275.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="button_refresh" fitHeight="69.0" fitWidth="69.0" layoutX="146.0" layoutY="410.0" onMouseClicked="#handleMouseClick" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../shared_resources/images/icons8-synchronisieren-filled-96.png" />
                </image>
@@ -181,7 +186,7 @@
                   <Image url="@../shared_resources/images/icons8-geprueft-96.png" />
                </image>
             </ImageView>
-            <RadioButton fx:id="radioSettings" layoutX="40.0" layoutY="166.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="392.0" text="Ordner nach Download öffnen" textFill="#f2813b" wrapText="true">
+            <RadioButton fx:id="radioSettings" layoutX="40.0" layoutY="166.0" mnemonicParsing="false" onAction="#rdbSettingsAction" prefHeight="45.0" prefWidth="392.0" text="Ordner nach Download öffnen" textFill="#f2813b" wrapText="true">
                <font>
                   <Font size="17.0" />
                </font>
