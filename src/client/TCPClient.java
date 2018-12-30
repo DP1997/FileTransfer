@@ -6,6 +6,7 @@ import java.net.*;
 import java.util.ArrayList;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import shared_resources.datatypes.FileInformation;
 import shared_resources.datatypes.ProgressStream;
 
@@ -16,6 +17,7 @@ public class TCPClient {
     
     public static String sharePath = null;
     public static Socket clientSocket = null;
+    public static SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
      
     private static BufferedOutputStream bos = null;
     public static BufferedOutputStream bos_fos = null;
@@ -29,6 +31,7 @@ public class TCPClient {
     		clientSocket = new Socket();
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
+    		connectionStatus.set(true);
     		System.out.println("connection with server successfully established");
     		initializeStreams();
     }
@@ -84,9 +87,9 @@ public class TCPClient {
     //release all allocated resources
     public static void closeStreams() {
     	// notifies thread to clear the gui
-    	synchronized (ClientApplicationController.connectThread) {
-        	ClientApplicationController.connectThread.notify();			
-		}
+//    	synchronized (ClientApplicationController.connectThread) {
+//        	ClientApplicationController.connectThread.notify();			
+//		}
     	//release BufferedOutputStream
     	try {
         	assert(bos != null);
@@ -128,6 +131,7 @@ public class TCPClient {
     		ioe.printStackTrace();
     		clientSocket = null;
     	}
+    	connectionStatus.set(false);
     }
     
     //schickt dem Server einen String anhand dieser entscheidet, welche Aktion er auszufÃ¼hren hat

@@ -149,22 +149,23 @@ public class ClientApplicationController implements Initializable{
         			@Override
         			protected Void call() throws Exception{
         				establishConnection();
-        				/*
-    					Platform.runLater(()->{
-        				synchronized(connectThread) {
-        				    try 
-        				    {
-        				    	System.out.println("waiting");
-        				    	connectThread.wait();
-        				    	System.out.println("connectThread notified by closeStreams-Method");
-            						resetGUI();
-        				    		
-        				    } catch (InterruptedException e) {
-        				        showAlert("Unbekannter Fehler","Dies sollte nicht passieren", true);
-        				    }
+        				
+    					/*Platform.runLater(()->{
+        				synchronized(this) {
+        				    	while(TCPClient.clientSocket != null && !TCPClient.clientSocket.isClosed()) {
+        				    		try {
+		        				    	System.out.println("waiting");
+		        				    	connectThread.wait();
+		        				    	System.out.println("connectThread notified by closeStreams-Method");
+		            					resetGUI();
+        				    		} catch (InterruptedException e) {
+        				    			showAlert("Unbekannter Fehler","Dies sollte nicht passieren", true);
+        				    		}
+        				    	}
         				}
     					});
     					*/
+    					
         				return null;
         			}
         			
@@ -179,24 +180,22 @@ public class ClientApplicationController implements Initializable{
     	connectThread.start();
     }
     
- 
-	public Task<Void> refreshThread = new Task<Void>() {
-		@Override
-		protected Void call() throws Exception {
-			//TODO bugged
-			System.out.println("new refreshThread started");
-			requestFileListRefresh();
-			return null;
-		}
-	};
-  
-    
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
     	items = FXCollections.observableArrayList();
     	listView.setItems(items);
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     	initializeProgressBar();
+    	TCPClient.connectionStatus.addListener((observable, oldValue, newValue) -> {
+    		if(!newValue) {
+    			Platform.runLater(() -> {
+    				connectionTimeoutOverGUI();
+    				visibilityControl(downloadView, downloadView_indic, false);
+    				visibilityControl(settingsView, settingsView_indic, false);
+    				enableIcons(false);
+    			});
+    		}
+    	});
 	}
 	
 	
@@ -277,7 +276,7 @@ public class ClientApplicationController implements Initializable{
     	else if(source.getId().equals("button_refresh")) {
     		//request file refresh
     		if(downloading) {
-    			new Thread(refreshThread).start();
+    			requestFileListRefresh();
     		}
     	}
     	else if(source.getId().equals("button_explorer")) {
