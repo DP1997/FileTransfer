@@ -103,7 +103,7 @@ public class ClientApplicationController implements Initializable{
     public ProgressBar progressBar;
     private Service<Void> downloadThread;
 
-	public static boolean downloading = true;
+	public static boolean enableDownloading = true;
 	
     public static Service<Void> connectThread;
     
@@ -132,7 +132,7 @@ public class ClientApplicationController implements Initializable{
 				Platform.runLater(() -> {
 					if(radioSettings.isSelected()) showInExplorer(); 
 				});
-	    		downloading = true;
+	    		enableDownloading = true;
     		}
     	});
     	downloadThread.restart();
@@ -250,21 +250,24 @@ public class ClientApplicationController implements Initializable{
     	}
     	
     	else if(source.getId().equals("disconnect") && disconnect.isVisible()) {
+    		if(enableDownloading) { 
     		deleteConnection();
+    		}
+    		else showAlert("Fehler beim Ausloggen", "Bitte brechen Sie den laufenden Download ab, um sich auszuloggen.", false);
     	}
     	    	
     	//downloadView
     	else if(source.getId().equals("button_download")) {
-    		if(downloading) {
+    		if(enableDownloading) {
     		// background Task
-        	downloading = false;
+        	enableDownloading = false;
     		clickedDownload(e);
     		}
     		
     	}
     	else if(source.getId().equals("button_refresh")) {
     		//request file refresh
-    		if(downloading) {
+    		if(enableDownloading) {
     		requestFileListRefresh();
     		}
     	}
@@ -328,7 +331,13 @@ public class ClientApplicationController implements Initializable{
 		downloadCancel.setVisible(false);
 		ProgressStream.resetProgressBar();
 	    downloadThread.cancel();
-	    System.out.println("cancelled.");		
+	    System.out.println("cancelled.");
+	    downloadSuc.setVisible(false);
+	    labelDownload.setText("Download abgebrochen");
+	    // refresh socket
+	    deleteConnection();
+	    establishConnection();
+		enableDownloading = true;
 	}
     
  
