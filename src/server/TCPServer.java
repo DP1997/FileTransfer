@@ -21,7 +21,6 @@ class TCPServer extends Thread {
     }
 
     public void run() {
-    	
     	try {
     		welcomeSocket = new ServerSocket(port);
             while(!isInterrupted() && !welcomeSocket.isClosed()) {
@@ -29,6 +28,9 @@ class TCPServer extends Thread {
             		serviceThreads.add(new ServerServiceThread(welcomeSocket.accept()));
             		serviceThreads.get(serviceThreads.size()-1).start();
             		System.out.println("new ServerServiceThread successfully initialized");
+            	} catch (SocketException e) {
+                	e.printStackTrace();
+                	showAlert("Server offline!", "Der Server wurde heruntergefahren.", false);
             	} catch (Exception e) {
                 	System.err.println("ServerServiceThread could not be initialized");
                 	e.printStackTrace();
@@ -63,7 +65,7 @@ class TCPServer extends Thread {
     		}
     	}
     	serviceThreads = null;
-    	System.out.println("all ServerServiceThreads have been disbanded");
+    	System.out.println("	...all ServerServiceThreads have been disbanded");
     	
     }
 }

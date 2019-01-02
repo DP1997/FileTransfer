@@ -6,6 +6,7 @@ import java.net.*;
 import java.util.ArrayList;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import shared_resources.datatypes.FileInformation;
 import shared_resources.datatypes.ProgressStream;
 
@@ -16,6 +17,7 @@ public class TCPClient {
     
     public static String sharePath = null;
     public static Socket clientSocket = null;
+    public static SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
      
     private static BufferedOutputStream bos = null;
     public static BufferedOutputStream bos_fos = null;
@@ -25,13 +27,11 @@ public class TCPClient {
 
     
     public static void connectToServer(String serverIP, String serverPort) throws Exception {
-    		
     		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
-    		
     		clientSocket = new Socket();
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
-    		
+    		connectionStatus.set(true);
     		System.out.println("connection with server successfully established");
     		initializeStreams();
     }
@@ -42,8 +42,14 @@ public class TCPClient {
         TCPClient.sharePath = sharePath; 	
     }
     
-    public static void showInExplorer() throws Exception {
-    	Desktop.getDesktop().open(new File(sharePath));
+    //TODO fucking bugs in linux
+    public static void showInExplorer() throws Exception, AssertionError {
+    		assert(Desktop.isDesktopSupported());
+    		assert(Desktop.getDesktop().isSupported(Desktop.Action.BROWSE));
+			String os = System.getProperty("os.name").toLowerCase();
+			//unter Linux führt das Öffnen im Explorer zu Problemen
+			assert((!(os.contains("nix") || os.contains("nux"))) == true);
+        	Desktop.getDesktop().browse(new URI(sharePath.substring(0, sharePath.length()-1)));
     }
     
 	//checks whether the connection is still live
@@ -55,7 +61,6 @@ public class TCPClient {
     
     //allocate resources needed for the connection
     public static void initializeStreams() {
-    	
     	//check for an active socket
     	try {
     		assert(clientSocket != null && !clientSocket.isClosed());
@@ -82,9 +87,9 @@ public class TCPClient {
     //release all allocated resources
     public static void closeStreams() {
     	// notifies thread to clear the gui
-    	synchronized (ClientApplicationController.connectThread) {
-        	ClientApplicationController.connectThread.notify();			
-		}
+//    	synchronized (ClientApplicationController.connectThread) {
+//        	ClientApplicationController.connectThread.notify();			
+//		}
     	//release BufferedOutputStream
     	try {
         	assert(bos != null);
@@ -126,6 +131,7 @@ public class TCPClient {
     		ioe.printStackTrace();
     		clientSocket = null;
     	}
+    	connectionStatus.set(false);
     }
     
     //schickt dem Server einen String anhand dieser entscheidet, welche Aktion er auszufÃ¼hren hat

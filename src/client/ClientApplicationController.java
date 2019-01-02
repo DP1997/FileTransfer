@@ -1,5 +1,7 @@
 package client;
 
+import static client.ClientApplicationController.showAlert;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -107,8 +109,7 @@ public class ClientApplicationController implements Initializable{
 	
     public static Service<Void> connectThread;
     
-    public static boolean fatalError = false;
-    
+    public static boolean fatalError = false;    
     
     @FXML
     private void clickedDownload(MouseEvent e) {
@@ -148,22 +149,23 @@ public class ClientApplicationController implements Initializable{
         			@Override
         			protected Void call() throws Exception{
         				establishConnection();
-        				/*
-    					Platform.runLater(()->{
-        				synchronized(connectThread) {
-        				    try 
-        				    {
-        				    	System.out.println("waiting");
-        				    	connectThread.wait();
-        				    	System.out.println("connectThread notified by closeStreams-Method");
-            						resetGUI();
-        				    		
-        				    } catch (InterruptedException e) {
-        				        showAlert("Unbekannter Fehler","Dies sollte nicht passieren", true);
-        				    }
+        				
+    					/*Platform.runLater(()->{
+        				synchronized(this) {
+        				    	while(TCPClient.clientSocket != null && !TCPClient.clientSocket.isClosed()) {
+        				    		try {
+		        				    	System.out.println("waiting");
+		        				    	connectThread.wait();
+		        				    	System.out.println("connectThread notified by closeStreams-Method");
+		            					resetGUI();
+        				    		} catch (InterruptedException e) {
+        				    			showAlert("Unbekannter Fehler","Dies sollte nicht passieren", true);
+        				    		}
+        				    	}
         				}
     					});
     					*/
+    					
         				return null;
         			}
         			
@@ -178,13 +180,22 @@ public class ClientApplicationController implements Initializable{
     	connectThread.start();
     }
     
-    
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
     	items = FXCollections.observableArrayList();
     	listView.setItems(items);
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     	initializeProgressBar();
+    	TCPClient.connectionStatus.addListener((observable, oldValue, newValue) -> {
+    		if(!newValue) {
+    			Platform.runLater(() -> {
+    				connectionTimeoutOverGUI();
+    				visibilityControl(downloadView, downloadView_indic, false);
+    				visibilityControl(settingsView, settingsView_indic, false);
+    				enableIcons(false);
+    			});
+    		}
+    	});
 	}
 	
 	
@@ -284,6 +295,17 @@ public class ClientApplicationController implements Initializable{
     	}
     }
     
+    @FXML
+    public void rdbSettingsAction() {
+    	if(!radioSettings.isSelected()) return;
+		String os = System.getProperty("os.name").toLowerCase();
+		//unter Linux führt das Öffnen im Explorer zu Problemen
+		if(!(os.contains("nix") || os.contains("nux"))) return;
+		showAlert("Nicht unterstützte Funktion!", "Auf diesem Gerät ist das Öffnen im Explorer nicht unterstützt.", false);
+		radioSettings.selectedProperty().set(false);
+		radioSettings.setDisable(true);
+    }
+    
 	private void chooseDownloadDirectory(MouseEvent e) {
     	// get Stage
         Node source = (Node) e.getSource();
@@ -322,10 +344,13 @@ public class ClientApplicationController implements Initializable{
 	private void showInExplorer() {
 		try {
 			TCPClient.showInExplorer();
+		} catch(AssertionError assErr) {
+			showAlert("Nicht unterstützte Funktion!", "Auf diesem Gerät ist das Öffnen im Explorer nicht unterstützt.", false);
 		} catch (Exception e) {
 			showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der angegebene Pfad korrekt ist.", false);
 		}
 	}
+	
 	private void cancelDownload(){
 		// streams clearen
 		downloadCancel.setVisible(false);
@@ -498,15 +523,10 @@ public class ClientApplicationController implements Initializable{
 	    	//read marked list entry
 	    	String row = listView.getSelectionModel().getSelectedItem();
 	        assert(row != null);
-	        if(row != null) {
+	        String fileName = formatListEntry(row);
+	        if(fileName != null) {
 	        Paths.get(TCPClient.sharePath);
-	    	StringBuilder sb = new StringBuilder();
-	    	sb.append(row);
-	    	String rRow = sb.reverse().toString();
-	    	String rfileName = rRow.substring(rRow.indexOf(",") +1, rRow.length());
-	    	sb = new StringBuilder();
-	    	sb.append(rfileName);
-	    	String fileName = sb.reverse().toString();
+
 	    	TCPClient.contactServer(fileName);
 	    	
 	    	// gui for cancel download
@@ -536,17 +556,20 @@ public class ClientApplicationController implements Initializable{
 
     private void requestFileListRefresh() {
     	try {
-	    	assert(TCPClient.clientSocket != null);
+	    	assert(TCPClient.clientSocket != null && !TCPClient.clientSocket.isClosed());
 	    	TCPClient.contactServer("refresh");
 	    	TCPClient.receiveDirInformation();
-	    	listView.getItems().clear();
-			for (FileInformation fi : TCPClient.fileInformation) {
-				listView.getItems().add(fi.fileName+ ", " + formatBytesRead(Double.parseDouble(fi.fileLength)));
-			}
-			labelDownload.setText("Liste aktualisiert");
-			downloadSuc.setVisible(false);
+	    	Platform.runLater(() -> {
+		    	listView.getItems().clear();
+				for (FileInformation fi : TCPClient.fileInformation) {
+					listView.getItems().add(fi.fileName+ ", " + formatBytesRead(Double.parseDouble(fi.fileLength)));
+				}
+				labelDownload.setText("Liste aktualisiert");
+				downloadSuc.setVisible(false);
+	    	});
     	} catch (AssertionError assErr) {
     		showAlert("Keine Verbindung!", "Bitte stellen Sie eine Verbindung mit einem Server her, um dessen Dateien anzeigen zu lassen.", false);
+    		Platform.runLater(() -> connectionTimeoutOverGUI());
     	}    
     }
     
