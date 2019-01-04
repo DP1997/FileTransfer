@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.ProgressMonitor;
 
+import com.sun.prism.paint.Color;
+import com.sun.prism.paint.Paint;
+
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -346,17 +349,14 @@ public class ClientApplicationController implements Initializable{
 		// streams clearen
 		downloadCanceled = true;
 		downloadCancel.setVisible(false);
+	    labelDownload.setVisible(false);
 		ProgressStream.resetProgressBar();
 	    downloadThread.cancel();
 	    System.out.println("cancelled.");
 	    // refresh socket
 	    deleteConnection();
 	    establishConnection();
-	    Platform.runLater(() -> {
-		    downloadSuc.setVisible(false);
-		    labelDownload.setText("Download abgebrochen");
-		    downloadCanceled = false;
-	    });
+	    downloadCanceled = true;
 	}
     
  
@@ -463,40 +463,6 @@ public class ClientApplicationController implements Initializable{
     	else return (int)bytesRead + " Bytes";
     }
     
-/*  
-	public static void startProgressTask() {
-		final double EPSILON = 0.0000005;
-	final Task<Void> task = new Task<Void>() {
-        final int N_ITERATIONS = 100;
-
-        @Override
-        protected Void call() throws Exception {
-            for (int i = 0; i < N_ITERATIONS; i++) {
-                updateProgress(i + 1, N_ITERATIONS);
-                // sleep is used to simulate doing some work which takes some time....
-                Thread.sleep(10);
-            }
-
-            return null;
-        }
-    };
-
-    progressBar.progressProperty().bind(
-            task.progressProperty()
-    );
-    // color the bar green when the work is complete.
-    progressBar.progressProperty().addListener(observable -> {
-        if (progressBar.getProgress() >= 1 - EPSILON) {
-            progressBar.setStyle("-fx-accent: forestgreen;");
-        }
-    });
-
-    final Thread thread = new Thread(task, "task-thread");
-    thread.setDaemon(true);
-    thread.start();
-	}
-    */
-
     private void receiveDirInformation() {
 		TCPClient.receiveDirInformation();	
 	}
@@ -529,15 +495,18 @@ public class ClientApplicationController implements Initializable{
 		    TCPClient.downloadFileFromServer(fileName);
 		    
 	    	// gui for finished and progress reset
-		    if(!downloadCanceled) {
 			    Platform.runLater(()->{
 					downloadCancel.setVisible(false);
 					downloadSuc.setVisible(true);
 					ProgressStream.resetProgressBar();
 					labelDownload.setVisible(true);
-					labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");		    	
+					labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");
+					if(downloadCanceled) {
+						labelDownload.setText("Download abgebrochen");
+						downloadSuc.setVisible(false);
+						downloadCanceled = false;
+					}
 			    });
-		    }
 	        }
 	        else showAlert("Ungültiger Aufruf!", "Bitte markieren Sie eine Datei aus der Liste, die Sie herunterladen möchten.", false); 
 	    } catch (InvalidPathException | NullPointerException ex) {
