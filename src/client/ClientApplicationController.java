@@ -98,8 +98,6 @@ public class ClientApplicationController implements Initializable{
     private ListView<String> listView;
     
     private ObservableList<String> items;
-    //private ImageView imageView;
-
    
     @FXML
     public ProgressBar progressBar;
@@ -142,7 +140,6 @@ public class ClientApplicationController implements Initializable{
      
     @FXML
     private void connectToServer(MouseEvent e) {
-    	//String fileName = listView.getSelectionModel().getSelectedItem();
     	connectThread = new Service<Void>() {
         	@Override
         	protected Task<Void> createTask(){
@@ -174,10 +171,10 @@ public class ClientApplicationController implements Initializable{
     		if(!newValue) {
 				if(enableDownloading) {
 	    			Platform.runLater(() -> {
-	        				connectionTimeoutOverGUI();
 		    				visibilityControl(downloadView, downloadView_indic, false);
 		    				visibilityControl(settingsView, settingsView_indic, false);
 		    				enableIcons(false);
+		    				resetGUI();
 	    			});
 				}
     		} else {
@@ -264,6 +261,8 @@ public class ClientApplicationController implements Initializable{
     		// background Task
         	enableDownloading = false;
     		clickedDownload(e);
+    		} else {
+				showAlert("Unzul�ssige Aktion", "Während eines laufenden Downloades kann kein weiterer Download gestartet werden.", false);
     		}
     		
     	}
@@ -271,6 +270,8 @@ public class ClientApplicationController implements Initializable{
     		//request file refresh
     		if(enableDownloading) {
     		requestFileListRefresh();
+    		} else {
+				showAlert("Unzul�ssige Aktion", "Während eines laufenden Downloades kann die Liste nicht aktualisiert werden.", false);
     		}
     	}
     	else if(source.getId().equals("button_explorer")) {
