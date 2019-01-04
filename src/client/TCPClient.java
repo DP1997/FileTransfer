@@ -42,7 +42,6 @@ public class TCPClient {
         TCPClient.sharePath = sharePath; 	
     }
     
-    //TODO fucking bugs in linux
     public static void showInExplorer() throws Exception, AssertionError {
     		assert(Desktop.isDesktopSupported());
     		assert(Desktop.getDesktop().isSupported(Desktop.Action.OPEN));
