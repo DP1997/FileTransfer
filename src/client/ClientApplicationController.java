@@ -178,6 +178,7 @@ public class ClientApplicationController implements Initializable{
 		    				visibilityControl(downloadView, downloadView_indic, false);
 		    				visibilityControl(settingsView, settingsView_indic, false);
 		    				enableIcons(false);
+		    				resetGUI();
 	    			});
 				}
     		} else {
