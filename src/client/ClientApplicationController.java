@@ -109,7 +109,8 @@ public class ClientApplicationController implements Initializable{
 	
     public static Service<Void> connectThread;
     
-    public static boolean fatalError = false;    
+    public static boolean fatalError = false;   
+    public static boolean downloadCanceled = false;
     
     @FXML
     private void clickedDownload(MouseEvent e) {
@@ -343,17 +344,19 @@ public class ClientApplicationController implements Initializable{
 	
 	private void cancelDownload(){
 		// streams clearen
+		downloadCanceled = true;
 		downloadCancel.setVisible(false);
 		ProgressStream.resetProgressBar();
 	    downloadThread.cancel();
 	    System.out.println("cancelled.");
-	    Platform.runLater(() -> {
-		    downloadSuc.setVisible(false);
-		    labelDownload.setText("Download abgebrochen");
-	    });
 	    // refresh socket
 	    deleteConnection();
 	    establishConnection();
+	    Platform.runLater(() -> {
+		    downloadSuc.setVisible(false);
+		    labelDownload.setText("Download abgebrochen");
+		    downloadCanceled = false;
+	    });
 		enableDownloading = true;
 	}
     
@@ -493,13 +496,15 @@ public class ClientApplicationController implements Initializable{
 		    TCPClient.downloadFileFromServer(fileName);
 		    
 	    	// gui for finished and progress reset
-		    Platform.runLater(()->{
-				downloadCancel.setVisible(false);
-				downloadSuc.setVisible(true);
-				ProgressStream.resetProgressBar();
-				labelDownload.setVisible(true);
-				labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");		    	
-		    });
+		    if(!downloadCanceled) {
+			    Platform.runLater(()->{
+					downloadCancel.setVisible(false);
+					downloadSuc.setVisible(true);
+					ProgressStream.resetProgressBar();
+					labelDownload.setVisible(true);
+					labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");		    	
+			    });
+		    }
 	        }
 	    } catch (InvalidPathException | NullPointerException ex) {
 	        ex.printStackTrace();
