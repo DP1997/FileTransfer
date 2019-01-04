@@ -21,12 +21,10 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.ProgressMonitor;
 
-import com.sun.prism.paint.Color;
 
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -58,7 +56,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -112,7 +109,7 @@ public class ClientApplicationController implements Initializable{
     public static Service<Void> connectThread;
     
     public static boolean fatalError = false;   
-    public static SimpleBooleanProperty downloadCanceled = new SimpleBooleanProperty(false);
+    public static boolean downloadCanceled = false;
     
     @FXML
     private void clickedDownload(MouseEvent e) {
@@ -186,24 +183,6 @@ public class ClientApplicationController implements Initializable{
     				connectionSucGUI();    				
     				enableIcons(true);
     			});    			
-    		}
-    	});
-    	downloadCanceled.addListener((observable, oldValue, newValue) -> {
-    		if(newValue) {
-    		    Platform.runLater(() -> {
-    			    downloadSuc.setVisible(false);
-    			    labelDownload.setText("Download abgebrochen");
-    		    });
-    		}
-    		else {
-    	    	// gui for finished and progress reset
-			    Platform.runLater(()-> {
-					downloadCancel.setVisible(false);
-					downloadSuc.setVisible(true);
-					ProgressStream.resetProgressBar();
-					labelDownload.setVisible(true);
-					labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");		    	
-			    });
     		}
     	});
 	}
@@ -366,14 +345,17 @@ public class ClientApplicationController implements Initializable{
 	
 	private void cancelDownload(){
 		// streams clearen
-		downloadCanceled.set(true);
+		downloadCanceled = true;
 		downloadCancel.setVisible(false);
+	    labelDownload.setVisible(false);
 		ProgressStream.resetProgressBar();
 	    downloadThread.cancel();
 	    System.out.println("cancelled.");
 	    // refresh socket
 	    deleteConnection();
 	    establishConnection();
+
+	    downloadCanceled = true;
 	}
     
  
@@ -512,6 +494,30 @@ public class ClientApplicationController implements Initializable{
 				downloadCancel.setVisible(true);
 			    TCPClient.downloadFileFromServer(fileName);
 			    downloadCanceled.set(false);
+		    String fileName = formatListEntry(row);
+	        Paths.get(TCPClient.sharePath);
+	        TCPClient.contactServer(fileName);
+	    	
+	    	// gui for cancel download
+			labelDownload.setVisible(false);
+			ProgressStream.resetProgressBar();
+    		downloadSuc.setVisible(false);
+			downloadCancel.setVisible(true);
+		    TCPClient.downloadFileFromServer(fileName);
+		    
+	    	// gui for finished and progress reset
+			    Platform.runLater(()->{
+					downloadCancel.setVisible(false);
+					downloadSuc.setVisible(true);
+					ProgressStream.resetProgressBar();
+					labelDownload.setVisible(true);
+					labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");
+					if(downloadCanceled) {
+						labelDownload.setText("Download abgebrochen");
+						downloadSuc.setVisible(false);
+						downloadCanceled = false;
+					}
+			    });
 	        }
 	        else showAlert("Ungültiger Aufruf!", "Bitte markieren Sie eine Datei aus der Liste, die Sie herunterladen möchten.", false); 
 	    } catch (InvalidPathException | NullPointerException ex) {
