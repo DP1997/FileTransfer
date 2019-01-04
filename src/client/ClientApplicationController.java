@@ -188,12 +188,14 @@ public class ClientApplicationController implements Initializable{
     	initializeProgressBar();
     	TCPClient.connectionStatus.addListener((observable, oldValue, newValue) -> {
     		if(!newValue) {
+    			if(enableDownloading) {
     			Platform.runLater(() -> {
     				connectionTimeoutOverGUI();
     				visibilityControl(downloadView, downloadView_indic, false);
     				visibilityControl(settingsView, settingsView_indic, false);
     				enableIcons(false);
     			});
+    		}
     		}
     	});
 	}
@@ -412,7 +414,6 @@ public class ClientApplicationController implements Initializable{
     	disconnect.setVisible(true);
     	textfield_ip.setEditable(false);
     	textfield_port.setEditable(false);
-    	
     }
     public void connectionTimeoutOverGUI() {
     	clearAllGUI();
@@ -523,9 +524,15 @@ public class ClientApplicationController implements Initializable{
 	    	//read marked list entry
 	    	String row = listView.getSelectionModel().getSelectedItem();
 	        assert(row != null);
-	        String fileName = formatListEntry(row);
-	        if(fileName != null) {
+	        if(row != null) {
 	        Paths.get(TCPClient.sharePath);
+	    	StringBuilder sb = new StringBuilder();
+	    	sb.append(row);
+	    	String rRow = sb.reverse().toString();
+	    	String rfileName = rRow.substring(rRow.indexOf(",") +1, rRow.length());
+	    	sb = new StringBuilder();
+	    	sb.append(rfileName);
+	    	String fileName = sb.reverse().toString();
 
 	    	TCPClient.contactServer(fileName);
 	    	
@@ -545,6 +552,7 @@ public class ClientApplicationController implements Initializable{
 				labelDownload.setText((formatBytesRead(ProgressStream.fileLength))+ " übertragen");		    	
 		    });
 	        }
+	        else showAlert("Ungültiger Aufruf!", "Bitte markieren Sie eine Datei aus der Liste, die Sie herunterladen möchten.", false); 
 	    } catch (InvalidPathException | NullPointerException ex) {
 	        ex.printStackTrace();
         	showAlert("Fehlerhafter Dateipfad!", "Bitte vergewissern Sie sich, dass der von Ihnen angegebene Pfad korrekt ist.", false);
