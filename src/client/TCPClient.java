@@ -131,6 +131,7 @@ public class TCPClient {
     		clientSocket = null;
     	}
     	connectionStatus.set(false);
+    	ClientApplicationController.enableDownloading = true;
     }
     
     //schickt dem Server einen String anhand dieser entscheidet, welche Aktion er auszufÃ¼hren hat
@@ -169,7 +170,7 @@ public class TCPClient {
             byte[] fileLengthInBytes = new byte[4];
             checkConnection(ps.read(fileLengthInBytes));
             int fileLength = unmarshalling(fileLengthInBytes);
-            
+            ClientApplicationController.enableDownloading = false;
             // set fileLength of ProgressStream
             ProgressStream.setFileLength(fileLength);
             ProgressStream.resetProgressBar();

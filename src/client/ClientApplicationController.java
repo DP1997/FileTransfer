@@ -259,7 +259,6 @@ public class ClientApplicationController implements Initializable{
     	else if(source.getId().equals("button_download")) {
     		if(enableDownloading) {
     		// background Task
-        	enableDownloading = false;
     		clickedDownload(e);
     		} else {
 				showAlert("Unzul�ssige Aktion", "Während eines laufenden Downloades kann kein weiterer Download gestartet werden.", false);
@@ -358,7 +357,6 @@ public class ClientApplicationController implements Initializable{
 		    labelDownload.setText("Download abgebrochen");
 		    downloadCanceled = false;
 	    });
-		enableDownloading = true;
 	}
     
  
