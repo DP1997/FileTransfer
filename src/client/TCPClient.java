@@ -42,14 +42,13 @@ public class TCPClient {
         TCPClient.sharePath = sharePath; 	
     }
     
-    //TODO fucking bugs in linux
     public static void showInExplorer() throws Exception, AssertionError {
     		assert(Desktop.isDesktopSupported());
-    		assert(Desktop.getDesktop().isSupported(Desktop.Action.BROWSE));
+    		assert(Desktop.getDesktop().isSupported(Desktop.Action.OPEN));
 			String os = System.getProperty("os.name").toLowerCase();
 			//unter Linux führt das Öffnen im Explorer zu Problemen
 			assert((!(os.contains("nix") || os.contains("nux"))) == true);
-        	Desktop.getDesktop().browse(new URI(sharePath.substring(0, sharePath.length()-1)));
+        	Desktop.getDesktop().open(new File(sharePath.substring(0, sharePath.length()-1)));
     }
     
 	//checks whether the connection is still live

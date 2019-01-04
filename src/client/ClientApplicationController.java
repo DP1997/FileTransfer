@@ -149,23 +149,6 @@ public class ClientApplicationController implements Initializable{
         			@Override
         			protected Void call() throws Exception{
         				establishConnection();
-        				
-    					/*Platform.runLater(()->{
-        				synchronized(this) {
-        				    	while(TCPClient.clientSocket != null && !TCPClient.clientSocket.isClosed()) {
-        				    		try {
-		        				    	System.out.println("waiting");
-		        				    	connectThread.wait();
-		        				    	System.out.println("connectThread notified by closeStreams-Method");
-		            					resetGUI();
-        				    		} catch (InterruptedException e) {
-        				    			showAlert("Unbekannter Fehler","Dies sollte nicht passieren", true);
-        				    		}
-        				    	}
-        				}
-    					});
-    					*/
-    					
         				return null;
         			}
         			
@@ -188,12 +171,19 @@ public class ClientApplicationController implements Initializable{
     	initializeProgressBar();
     	TCPClient.connectionStatus.addListener((observable, oldValue, newValue) -> {
     		if(!newValue) {
+				if(enableDownloading) {
+	    			Platform.runLater(() -> {
+	        				connectionTimeoutOverGUI();
+		    				visibilityControl(downloadView, downloadView_indic, false);
+		    				visibilityControl(settingsView, settingsView_indic, false);
+		    				enableIcons(false);
+	    			});
+				}
+    		} else {
     			Platform.runLater(() -> {
-    				connectionTimeoutOverGUI();
-    				visibilityControl(downloadView, downloadView_indic, false);
-    				visibilityControl(settingsView, settingsView_indic, false);
-    				enableIcons(false);
-    			});
+    				connectionSucGUI();    				
+    				enableIcons(true);
+    			});    			
     		}
     	});
 	}
@@ -357,8 +347,10 @@ public class ClientApplicationController implements Initializable{
 		ProgressStream.resetProgressBar();
 	    downloadThread.cancel();
 	    System.out.println("cancelled.");
-	    downloadSuc.setVisible(false);
-	    labelDownload.setText("Download abgebrochen");
+	    Platform.runLater(() -> {
+		    downloadSuc.setVisible(false);
+		    labelDownload.setText("Download abgebrochen");
+	    });
 	    // refresh socket
 	    deleteConnection();
 	    establishConnection();
@@ -468,40 +460,6 @@ public class ClientApplicationController implements Initializable{
     	}
     	else return (int)bytesRead + " Bytes";
     }
-    
-/*  
-	public static void startProgressTask() {
-		final double EPSILON = 0.0000005;
-	final Task<Void> task = new Task<Void>() {
-        final int N_ITERATIONS = 100;
-
-        @Override
-        protected Void call() throws Exception {
-            for (int i = 0; i < N_ITERATIONS; i++) {
-                updateProgress(i + 1, N_ITERATIONS);
-                // sleep is used to simulate doing some work which takes some time....
-                Thread.sleep(10);
-            }
-
-            return null;
-        }
-    };
-
-    progressBar.progressProperty().bind(
-            task.progressProperty()
-    );
-    // color the bar green when the work is complete.
-    progressBar.progressProperty().addListener(observable -> {
-        if (progressBar.getProgress() >= 1 - EPSILON) {
-            progressBar.setStyle("-fx-accent: forestgreen;");
-        }
-    });
-
-    final Thread thread = new Thread(task, "task-thread");
-    thread.setDaemon(true);
-    thread.start();
-	}
-    */
 
     private void receiveDirInformation() {
 		TCPClient.receiveDirInformation();	
@@ -518,16 +476,14 @@ public class ClientApplicationController implements Initializable{
     }
    
     private void requestFileDownload() {
-  	
 	    try {
 	    	//read marked list entry
 	    	String row = listView.getSelectionModel().getSelectedItem();
 	        assert(row != null);
-	        String fileName = formatListEntry(row);
-	        if(fileName != null) {
+	        if(row != null) {
+		    String fileName = formatListEntry(row);
 	        Paths.get(TCPClient.sharePath);
-
-	    	TCPClient.contactServer(fileName);
+	        TCPClient.contactServer(fileName);
 	    	
 	    	// gui for cancel download
 			labelDownload.setVisible(false);
@@ -552,6 +508,16 @@ public class ClientApplicationController implements Initializable{
         	showAlert("Ungültiger Aufruf!", "Bitte markieren Sie eine Datei aus der Liste, die Sie herunterladen möchten.", false);
 	    }   
 
+    }
+    
+    private String formatListEntry(String row) {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append(row);
+    	String rRow = sb.reverse().toString();
+    	String rfileName = rRow.substring(rRow.indexOf(",") +1, rRow.length());
+    	sb = new StringBuilder();
+    	sb.append(rfileName);
+    	return sb.reverse().toString();
     }
 
     private void requestFileListRefresh() {
@@ -587,61 +553,7 @@ public class ClientApplicationController implements Initializable{
 			if(fatal) System.exit(1);
     	});
     }
-   
-    // ProgressBar
-    /*
-    @FXML
-    public void handle(ActionEvent event) {
-        startDownloadButton.setDisable(true);
-        progressBar.setProgress(0);
-        //cancelDownloadButton.setDisable(false);
-        
-        progressWorker = createWorker();
-
-        progressBar.progressProperty().unbind();
-        progressBar.progressProperty().bind(progressWorker.progressProperty());
     
-    public static void showAlert(String header, String content) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setHeaderText(header);
-        Label contenLabel = new Label(content);
-        contenLabel.setWrapText(true);
-        DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.setContent(contenLabel);
-        ((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
-        dialogPane.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
-        alert.showAndWait();
-    }
-
-        new Thread(progressWorker).start();
-    }
-    
-    public void initializeProgress() {
-        
-        cancelDownloadButton.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                startDownloadButton.setDisable(false);
-                cancelDownloadButton.setDisable(true);
-                progressWorker.cancel(true);
-                progressBar.progressProperty().unbind();
-                progressBar.setProgress(0);
-                System.out.println("cancelled.");
-            }
-        });
-    }
-
-    public Task createWorker() {
-        return new Task() {
-            @Override
-            protected Object call() throws Exception {
-                for (int i = 0; i < 1631385; i++) {
-                    updateProgress(0, 1631385);
-                }
-                return true;
-            }
-        };
-    } 
-       */
 }
     	
 
