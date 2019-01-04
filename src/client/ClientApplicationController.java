@@ -493,19 +493,8 @@ public class ClientApplicationController implements Initializable{
 	    		downloadSuc.setVisible(false);
 				downloadCancel.setVisible(true);
 			    TCPClient.downloadFileFromServer(fileName);
-			    downloadCanceled.set(false);
-		    String fileName = formatListEntry(row);
-	        Paths.get(TCPClient.sharePath);
-	        TCPClient.contactServer(fileName);
-	    	
-	    	// gui for cancel download
-			labelDownload.setVisible(false);
-			ProgressStream.resetProgressBar();
-    		downloadSuc.setVisible(false);
-			downloadCancel.setVisible(true);
-		    TCPClient.downloadFileFromServer(fileName);
 		    
-	    	// gui for finished and progress reset
+			    // gui for finished and progress reset
 			    Platform.runLater(()->{
 					downloadCancel.setVisible(false);
 					downloadSuc.setVisible(true);
