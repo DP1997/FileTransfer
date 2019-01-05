@@ -27,10 +27,12 @@ public class TCPClient {
 
     
     public static void connectToServer(String serverIP, String serverPort) throws Exception {
+	    	
     		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
     		clientSocket = new Socket();
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
+    		clientSocket.setSoTimeout(3000);
     		connectionStatus.set(true);
     		System.out.println("connection with server successfully established");
     		initializeStreams();
@@ -56,6 +58,19 @@ public class TCPClient {
 	private static void checkConnection(int i) throws IOException {
 		if(i == -1) throw new IOException();
 		return;
+	}
+	public static boolean checkInternetConnection() {
+		//Inet verbindung prüfen
+    	try { 
+            URL url = new URL("https://www.google.de/"); 
+            URLConnection connection = url.openConnection(); 
+            connection.connect();
+            return true;
+        } 
+        catch (Exception e) { 
+            showAlert("Warnung!","Sie haben keine Internetverbindung.", false);
+            return false;
+        }
 	}
     
     //allocate resources needed for the connection

@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -104,13 +105,15 @@ public class ClientApplicationController implements Initializable{
    
     @FXML
     public ProgressBar progressBar;
-    private Service<Void> downloadThread;
 
+    // flag for checking download status
 	public static boolean enableDownloading = true;
 	
+	// background threads for download and connecting
     public static Service<Void> connectThread;
+    private Service<Void> downloadThread;
     
-    public static boolean fatalError = false;   
+    // flag for checking if the download has been canceled
     public static boolean downloadCanceled = false;
     
     @FXML
@@ -133,8 +136,10 @@ public class ClientApplicationController implements Initializable{
     		@Override
     		public void handle(WorkerStateEvent event) {
 				Platform.runLater(() -> {
+					// "Ordner nach Download öffnen" radio button
 					if(radioSettings.isSelected()) showInExplorer(); 
 				});
+				// allow the downloading again, after everything is done
 	    		enableDownloading = true;
     		}
     	});
@@ -149,6 +154,7 @@ public class ClientApplicationController implements Initializable{
         		return new Task<Void>() {
         			@Override
         			protected Void call() throws Exception{
+        				// connecting to server
         				establishConnection();
         				return null;
         			}
@@ -156,11 +162,6 @@ public class ClientApplicationController implements Initializable{
 				};
         	}
     	};
-    	connectThread.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-    		@Override
-    		public void handle(WorkerStateEvent event) {
-    		}
-    	});
     	connectThread.start();
     }
     
@@ -168,15 +169,20 @@ public class ClientApplicationController implements Initializable{
 	public void initialize(URL location, ResourceBundle resources) {
     	items = FXCollections.observableArrayList();
     	listView.setItems(items);
+    	// in order to prevent multiple selections for downloading
     	listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    	// binds the progressBar
     	initializeProgressBar();
+    	// listener triggers, when the connectionStatus-Property changes
     	TCPClient.connectionStatus.addListener((observable, oldValue, newValue) -> {
     		if(!newValue) {
 				if(enableDownloading) {
 	    			Platform.runLater(() -> {
 		    				visibilityControl(downloadView, downloadView_indic, false);
 		    				visibilityControl(settingsView, settingsView_indic, false);
+		    				// grey out the icons and disable them
 		    				enableIcons(false);
+		    				// reset first inventory
 		    				resetGUI();
 	    			});
 				}
@@ -189,7 +195,7 @@ public class ClientApplicationController implements Initializable{
     	});
 	}
 	
-	
+	// topBar
     @FXML
     public void topBarIconClicked(MouseEvent e) {
     	ImageView source = (ImageView) e.getSource();
@@ -241,7 +247,7 @@ public class ClientApplicationController implements Initializable{
     		iv_indic.setVisible(false);
     	}
     }
-
+    // method that checks the id of the clicked button/image
     @FXML
     public void handleMouseClick(MouseEvent e){
     	ImageView source = (ImageView) e.getSource();
@@ -289,6 +295,7 @@ public class ClientApplicationController implements Initializable{
     	}
     }
     
+    // radio button checks the OS and alerts the user for linux
     @FXML
     public void rdbSettingsAction() {
     	if(!radioSettings.isSelected()) return;
@@ -305,6 +312,7 @@ public class ClientApplicationController implements Initializable{
         Node source = (Node) e.getSource();
         Window stage = source.getScene().getWindow();
         
+        // chooser allows only folders
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Download-Ordner angeben");
 		File selectedDirectory = chooser.showDialog(stage);
@@ -325,6 +333,7 @@ public class ClientApplicationController implements Initializable{
 				downloadPath = downloadPath + "/";
 			}
 			try {
+				// sets the Path
 				TCPClient.setDownloadPath(downloadPath);
 				geprueftHaken.setVisible(true);
 				System.out.println("Pfad gesetzt: " + downloadPath);
@@ -350,6 +359,8 @@ public class ClientApplicationController implements Initializable{
 		downloadCanceled = true;
 		downloadCancel.setVisible(false);
 	    labelDownload.setVisible(false);
+	    
+	    // bytesCounter on the InputStream resetted + gui update
 		ProgressStream.resetProgressBar();
 	    downloadThread.cancel();
 	    System.out.println("cancelled.");
@@ -359,17 +370,23 @@ public class ClientApplicationController implements Initializable{
 	    downloadCanceled = true;
 	}
     
- 
+	// minimize
     private void minimizeStageOfNode(Node node) {
         ((Stage)(node).getScene().getWindow()).setIconified(true);
     }
     
     private void establishConnection(){
+    	
+    	// checks the inet-connection and eventually shows a warning
+    	// the method still proceeds, because we don´t always need an inet-connection (e.g. in LAN)
+    	TCPClient.checkInternetConnection(); 
+    	
     	clearAllGUI();
     	connectingGUI(true);
     	String serverIP = textfield_ip.getText();
     	String serverPort = textfield_port.getText();
     	
+    	// tries 5 times
     	for(int i = 0; i < 5; i ++) {
 	    	try {
 	    		TCPClient.connectToServer(serverIP, serverPort);
@@ -384,9 +401,17 @@ public class ClientApplicationController implements Initializable{
 	    		connectionIOErrorGUI();
 	    		break;
 			}
+	    	
     	}
     	connectingGUI(false);
     }
+    // the following methods are for
+    // enable-disable
+    // visiblity
+    // editability
+    //  GUI-Elemets
+    
+    
     private void enableIcons(boolean b) {
 		openDownloadView.setVisible(b);
 		openSettingsView.setVisible(b);
@@ -443,11 +468,13 @@ public class ClientApplicationController implements Initializable{
     	
     }
     
+    // binding the progressBar
     public void initializeProgressBar() {
     	progressBar.setStyle("-fx-accent: green;");
     	progressBar.progressProperty().bind(ProgressStream.bytesReadProperty());
     }
     
+    // formats the bytes for the GUI
     public String formatBytesRead(double bytesRead) {
     	if (bytesRead < 1000) return (int)bytesRead + " Bytes"; 
     	else if(bytesRead >= 1000 && bytesRead < 1000000) {
@@ -462,10 +489,6 @@ public class ClientApplicationController implements Initializable{
     	}
     	else return (int)bytesRead + " Bytes";
     }
-    
-    private void receiveDirInformation() {
-		TCPClient.receiveDirInformation();	
-	}
 
 	private void deleteConnection() {
     	clearAllGUI();
@@ -473,6 +496,7 @@ public class ClientApplicationController implements Initializable{
 		noConnection.setVisible(true);
 		connect.setVisible(true);
 		labelNoConnection.setVisible(true);
+		// close Streams
 		TCPClient.closeStreams();
 		System.out.println("Verbindung getrennt");
     }
@@ -483,8 +507,11 @@ public class ClientApplicationController implements Initializable{
 	    	String row = listView.getSelectionModel().getSelectedItem();
 	        assert(row != null);
 	        if(row != null) {
+	        // formats the listEntry
 		    String fileName = formatListEntry(row);
 	        Paths.get(TCPClient.sharePath);
+	        
+	        // request with chosen fileName
 	        TCPClient.contactServer(fileName);
 	    	
 	    	// gui for cancel download
@@ -492,6 +519,8 @@ public class ClientApplicationController implements Initializable{
 			ProgressStream.resetProgressBar();
     		downloadSuc.setVisible(false);
 			downloadCancel.setVisible(true);
+			
+			// download with chosen fileName
 		    TCPClient.downloadFileFromServer(fileName);
 		    
 	    	// gui for finished and progress reset
@@ -518,6 +547,7 @@ public class ClientApplicationController implements Initializable{
 
     }
     
+    // formats the listEntry to a string to tell the server the fileName
     private String formatListEntry(String row) {
     	StringBuilder sb = new StringBuilder();
     	sb.append(row);
@@ -528,11 +558,15 @@ public class ClientApplicationController implements Initializable{
     	return sb.reverse().toString();
     }
 
+    // refreshing the list filled with the files of the server
     private void requestFileListRefresh() {
     	try {
 	    	assert(TCPClient.clientSocket != null && !TCPClient.clientSocket.isClosed());
+	    	// contact with refresh-call
 	    	TCPClient.contactServer("refresh");
 	    	TCPClient.receiveDirInformation();
+	    	
+	    	// updates on GUI
 	    	Platform.runLater(() -> {
 		    	listView.getItems().clear();
 				for (FileInformation fi : TCPClient.fileInformation) {
@@ -547,6 +581,8 @@ public class ClientApplicationController implements Initializable{
     	}    
     }
     
+    // creates an alert with header, content and the option to be a fatal error or not
+    // fatal errors close the whole application after clicking
     public static void showAlert(String header, String content, boolean fatal) {
     	Platform.runLater(() -> {
 			Alert alert = new Alert(AlertType.ERROR);
