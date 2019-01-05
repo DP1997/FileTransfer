@@ -20,9 +20,11 @@ public class ServerApplication extends Application {
 		try {
 			//loading the fxml file
 			Parent root = FXMLLoader.load(ServerApplication.class.getResource("ServerGUI.fxml"));
+			
+			//custom stage design
 			primaryStage.initStyle(StageStyle.TRANSPARENT);
 			
-			
+			//enable dragging of the stage
 			root.setOnMousePressed(new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent event) {

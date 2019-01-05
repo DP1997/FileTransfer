@@ -17,22 +17,31 @@ public class TCPClient {
     
     public static String sharePath = null;
     public static Socket clientSocket = null;
+    
+    //indicates whether the client is connected to a server or not -> necessary for gui update
     public static SimpleBooleanProperty connectionStatus = new SimpleBooleanProperty(false);
-     
+    
+    //global streams -> these are not allowed to be closed for the lifetime of a connection
+    //which is why they are managed centrally
     private static BufferedOutputStream bos = null;
     public static BufferedOutputStream bos_fos = null;
     private static ProgressStream ps = null;
     
     public static ArrayList<FileInformation> fileInformation = null;
-
     
     public static void connectToServer(String serverIP, String serverPort) throws Exception {
 	    	
+    		
+    		//create new SocketAddress
     		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
     		clientSocket = new Socket();
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
     		clientSocket.setSoTimeout(3000);
+    		//set the socket timeout -> important for instances like pulling the lan-cable, turning of wifi, etc..
+    		//-> throws an IOException after 3 seconds instead of waiting indefinitely 
+    		clientSocket.setSoTimeout(3000);
+    		//update connectionStatus
     		connectionStatus.set(true);
     		System.out.println("connection with server successfully established");
     		initializeStreams();
@@ -44,6 +53,8 @@ public class TCPClient {
         TCPClient.sharePath = sharePath; 	
     }
     
+    //open the download directory in the explorer of the os
+    //also checks whether it is supported on the os
     public static void showInExplorer() throws Exception, AssertionError {
     		assert(Desktop.isDesktopSupported());
     		assert(Desktop.getDesktop().isSupported(Desktop.Action.OPEN));
@@ -100,10 +111,6 @@ public class TCPClient {
     
     //release all allocated resources
     public static void closeStreams() {
-    	// notifies thread to clear the gui
-//    	synchronized (ClientApplicationController.connectThread) {
-//        	ClientApplicationController.connectThread.notify();			
-//		}
     	//release BufferedOutputStream
     	try {
         	assert(bos != null);
