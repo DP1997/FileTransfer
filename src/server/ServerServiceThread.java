@@ -26,13 +26,16 @@ public class ServerServiceThread extends Thread{
     private BufferedOutputStream bos = null;
     private BufferedInputStream bis = null;
 
+    //list of all files and their meta-data
     private static ArrayList<FileInformation> fileInformation = null;
     private SocketAddress sockAddr = null;
 	
+    //constructor
 	public ServerServiceThread(Socket sock) {
 		super("FileTransferThread");
 		this.connection = sock;
 		sockAddr = connection.getRemoteSocketAddress();
+		//add client to the listView
 		Platform.runLater(() -> clients.add(sockAddr));
 		System.out.println("connection with client successfully established");
 		initializeStreams();
@@ -77,6 +80,7 @@ public class ServerServiceThread extends Thread{
 			closeStreams();
 	}
 	
+	//check if the specified filename is contained in the fileInformation array
 	private boolean contains(String fileName) {
 		for(FileInformation fi : fileInformation) {
 			if (fi.fileName.equals(fileName)) return true;
@@ -158,6 +162,7 @@ public class ServerServiceThread extends Thread{
     		ioe.printStackTrace();
     		connection = null;
     	}
+    	//remove the client from the listView
     	Platform.runLater(() -> clients.remove(sockAddr));
     }
     
@@ -194,7 +199,7 @@ public class ServerServiceThread extends Thread{
 		}
 	}
 	
-	
+	//send the requested file to the client
 	public void sendFileToClient(String fileName) {
 		System.out.println("transmitting file "+fileName+"...");
 		//build path to file

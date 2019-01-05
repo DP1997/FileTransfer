@@ -8,11 +8,15 @@ import static server.ServerApplicationController.showAlert;
 
 class TCPServer extends Thread {
 
+	//the directory that will be shared with the clients
     static String sharedDir = null;
     private static int port = 0;
+    //all server threads can be referenced here
     private static ArrayList<ServerServiceThread> serviceThreads;
+    //initial socket
     public static ServerSocket welcomeSocket;
     
+    //constructor: initialization of class variables
     public TCPServer(String sharedDir, int port) {
     	TCPServer.sharedDir = sharedDir;
     	TCPServer.port = port;
@@ -22,10 +26,14 @@ class TCPServer extends Thread {
 
     public void run() {
     	try {
+    		//start the server
     		welcomeSocket = new ServerSocket(port);
+    		//check whether the server is supposed to go offline
             while(!isInterrupted() && !welcomeSocket.isClosed()) {
             	try {
+            		//accept incoming tcp connections
             		serviceThreads.add(new ServerServiceThread(welcomeSocket.accept()));
+            		//start a new thread for each connection
             		serviceThreads.get(serviceThreads.size()-1).start();
             		System.out.println("new ServerServiceThread successfully initialized");
             	} catch (SocketException e) {
@@ -46,8 +54,10 @@ class TCPServer extends Thread {
         }
     }
     
+    //terminate the server
     public void shutDown() {
     	System.out.println("	terminating threads...");
+    	//for all threads -> close their socket and join them
     	for (ServerServiceThread sst : serviceThreads) {
     		try {
 				sst.connection.close();

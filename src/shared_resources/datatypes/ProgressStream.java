@@ -5,6 +5,7 @@ import java.io.InputStream;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
+//necessary for the progressbar implemented in the client application
 public class ProgressStream extends InputStream implements AutoCloseable {
 
     public static long bytesRead = 0 ;
@@ -23,7 +24,7 @@ public class ProgressStream extends InputStream implements AutoCloseable {
         if (result != -1) {
             bytesRead++;
             progress++;
-            // update progress bar not more than 100 times
+            // update progress bar no more than 100 times in one download
             if(progress >= (int)fileLength / 100) {
             	progress = 0;
             	setProgress(ProgressStream.bytesRead);	

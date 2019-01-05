@@ -1,9 +1,6 @@
 package shared_resources.datatypes;
 
-import java.io.Serializable;
-
-import javafx.beans.property.SimpleStringProperty;
-
+//metadata of the files contained in the directory that is shared by the server
 public class FileInformation {
 	
 	public final String fileName;

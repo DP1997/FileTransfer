@@ -31,6 +31,7 @@ public class TCPClient {
     		clientSocket = new Socket();
     		// Connect with 2 s timeout
     		clientSocket.connect(sockaddr, 1000);
+    		clientSocket.setSoTimeout(3000);
     		connectionStatus.set(true);
     		System.out.println("connection with server successfully established");
     		initializeStreams();
