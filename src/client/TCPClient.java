@@ -31,7 +31,6 @@ public class TCPClient {
     
     public static void connectToServer(String serverIP, String serverPort) throws Exception {
 	    	
-    		
     		//create new SocketAddress
     		SocketAddress sockaddr = new InetSocketAddress(serverIP, Integer.valueOf(serverPort));
     		clientSocket = new Socket();
@@ -67,9 +66,10 @@ public class TCPClient {
 	//checks whether the connection is still live
 	//if not, the connection is properly terminated
 	private static void checkConnection(int i) throws IOException {
-		if(i == -1) throw new IOException();
+		if(i == -1 && !ClientApplicationController.downloadCanceled.get()) throw new IOException();
 		return;
 	}
+	
 	public static boolean checkInternetConnection() {
 		//Inet verbindung prüfen
     	try { 
@@ -196,12 +196,18 @@ public class TCPClient {
             // set fileLength of ProgressStream
             ProgressStream.setFileLength(fileLength);
             ProgressStream.resetProgressBar();
-            // send data
-        	byte[] file = new byte[fileLength];
-        	checkConnection(ps.read(file));
+            // read data
+        	//byte[] file = new byte[fileLength];
+        	byte[] aByte = new byte[1];
+        	int bytesRead = 0;
+        	
+        	while (bytesRead < fileLength) {
+            	checkConnection(ps.read(aByte, 0, 1));
+            	++bytesRead;
+            	baos.write(aByte);
+        	}
             
             // write data in boas to put it on the disk
-            baos.write(file);
             bos.write(baos.toByteArray());
             bos.flush();   
             System.out.println("file downloaded");
@@ -210,12 +216,14 @@ public class TCPClient {
 			System.err.println("streams for writing on disk could not be initialized");
 			assErr.printStackTrace();
 			showAlert("Fehler beim Download", "Einige - für den Download relevante - Streams konnten nicht allokiert werden. Das System muss beendet werden.", true);
+		} catch (SocketException se) {
+			throw new NullPointerException();
 		} catch (IOException e) {
         	System.err.println("connection to server lost");
 			e.printStackTrace();
-			showAlert("Verbindungsfehler!", "Die Verbindung zum Server wurde unterbrochen", false);
+			 if (!ClientApplicationController.downloadCanceled.get())showAlert("Verbindungsfehler!", "Die Verbindung zum Server wurde unterbrochen", false);
 			closeStreams();
-		}  
+		} 
     }
 
     // empfange Share-Ordner Informationen von Server
