@@ -29,6 +29,8 @@ public class TCPClient {
     
     public static ArrayList<FileInformation> fileInformation = null;
     
+    public static boolean minimize = true;
+    
     public static void connectToServer(String serverIP, String serverPort) throws Exception {
 	    	
     		
@@ -70,6 +72,13 @@ public class TCPClient {
 		if(i == -1) throw new IOException();
 		return;
 	}
+	
+	private static void checkConnection(int i, int fileLength) throws IOException {
+		if (i != fileLength && ClientApplicationController.readingError) throw new IOException();
+		ClientApplicationController.readingError = true;
+		return;
+	}
+	
 	public static boolean checkInternetConnection() {
 		//Inet verbindung prüfen
     	try { 
@@ -175,6 +184,7 @@ public class TCPClient {
 			System.err.println("error occured while writing in streams - terminating connection");
 			e.printStackTrace();
 			showAlert("Verbindungsfehler", "Die Verbindung zum Server wurde unterbrochen", false);
+			minimize = true;
 			closeStreams();
 		}
     }
@@ -196,9 +206,9 @@ public class TCPClient {
             // set fileLength of ProgressStream
             ProgressStream.setFileLength(fileLength);
             ProgressStream.resetProgressBar();
-            // send data
+            // read data
         	byte[] file = new byte[fileLength];
-        	checkConnection(ps.read(file));
+        	checkConnection(ps.read(file), fileLength);
             
             // write data in boas to put it on the disk
             baos.write(file);
@@ -214,6 +224,7 @@ public class TCPClient {
         	System.err.println("connection to server lost");
 			e.printStackTrace();
 			showAlert("Verbindungsfehler!", "Die Verbindung zum Server wurde unterbrochen", false);
+			minimize = true;
 			closeStreams();
 		}  
     }
@@ -266,6 +277,7 @@ public class TCPClient {
 				System.out.println("error occured while reading from streams - terminating connection");
 				e.printStackTrace();
 				showAlert("Verbindungsfehler!", "Die Verbindung zum Server ist abgebrochen.", false);
+				minimize = true;
 				closeStreams();
 			}
 			ProgressStream.resetProgressBar();

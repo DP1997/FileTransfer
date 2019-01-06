@@ -116,6 +116,9 @@ public class ClientApplicationController implements Initializable{
     // flag for checking if the download has been canceled
     public static boolean downloadCanceled = false;
     
+    // flag for checking downloading error while reading
+    public static boolean readingError = true;
+    
     @FXML
     private void clickedDownload(MouseEvent e) {
     	downloadThread = new Service<Void>() {
@@ -356,6 +359,7 @@ public class ClientApplicationController implements Initializable{
 	
 	private void cancelDownload(){
 		// streams clearen
+		readingError = false;
 		downloadCanceled = true;
 		downloadCancel.setVisible(false);
 	    labelDownload.setVisible(false);
