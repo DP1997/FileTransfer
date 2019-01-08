@@ -67,8 +67,8 @@ public class TCPClient {
 	private static void checkConnection(int i) throws IOException {
 		if(i == -1 && !ClientApplicationController.downloadCanceled.get()) throw new IOException();
 		return;
-	}
-	
+	}	
+
 	public static boolean checkInternetConnection() {
 		//Inet verbindung prüfen
     	try { 

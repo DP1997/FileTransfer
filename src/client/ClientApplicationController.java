@@ -570,7 +570,6 @@ public class ClientApplicationController implements Initializable{
 				for (FileInformation fi : TCPClient.fileInformation) {
 					listView.getItems().add(fi.fileName+ ", " + formatBytesRead(Double.parseDouble(fi.fileLength)));
 				}
-				labelDownload.setVisible(true);
 				labelDownload.setText("Liste aktualisiert");
 				downloadSuc.setVisible(false);
 	    	});
