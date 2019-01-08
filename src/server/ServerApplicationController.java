@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
-
+import client.ClientApplication;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -191,7 +191,7 @@ public class ServerApplicationController implements Initializable{
 			sharedDir = Paths.get(ServerApplicationController.sharedDir);
 		} catch (InvalidPathException | NullPointerException ex) {
 			ex.printStackTrace();
-			showAlert("Ung�ltiger Pfad", "Bitte geben Sie den Pfad zu einem Ordner an.", false);
+			showAlert("Ungültiger Pfad", "Bitte geben Sie den Pfad zu einem Ordner an.", false);
 			return;
 		}
 		
@@ -201,7 +201,7 @@ public class ServerApplicationController implements Initializable{
 			assert(1024 <= port  && port <= 65535);
 		} catch (NumberFormatException | NullPointerException | AssertionError ex) {
 				ex.printStackTrace();
-				showAlert("Ung�ltiger Port", "Bitte geben Sie einen Port zwischen 1024 und 65535 an.", false);
+				showAlert("Ungültiger Port", "Bitte geben Sie einen Port zwischen 1024 und 65535 an.", false);
 				return;
 		}
 
@@ -266,9 +266,9 @@ public class ServerApplicationController implements Initializable{
 				System.out.println("choosen directory: "+sharedDir);
 			}
 			}
-			else showAlert("Unzul�ssige Aktion", "W�hrend dem laufenden Betrieb eines Servers, ist es nicht m�glich dessen Pfad zu �ndern", false);
+			else showAlert("Unzulässige Aktion", "Während dem laufenden Betrieb eines Servers, ist es nicht möglich dessen Pfad zu ändern", false);
 		} catch (AssertionError e) {
-			showAlert("Unzul�ssige Aktion", "W�hrend dem laufenden Betrieb eines Servers, ist es nicht m�glich dessen Pfad zu �ndern", false);
+			showAlert("Unzulässige Aktion", "Während dem laufenden Betrieb eines Servers, ist es nicht möglich dessen Pfad zu ändern", false);
 		}	
 	}
 		
@@ -367,7 +367,7 @@ public class ServerApplicationController implements Initializable{
 			dialogPane.setContent(contenLabel);
 			
 			((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
-			dialogPane.getStylesheets().add(ServerApplicationController.class.getResource("../shared_resources/application.css").toExternalForm());
+			dialogPane.getStylesheets().add(ServerApplication.class.getResource("application.css").toExternalForm());
 			alert.showAndWait();
 			if(fatal) System.exit(1);
     	});

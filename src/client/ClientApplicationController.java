@@ -263,7 +263,7 @@ public class ClientApplicationController implements Initializable{
     		if(enableDownloading) {
     		requestFileListRefresh();
     		} else {
-				showAlert("Unzul�ssige Aktion", "Während eines laufenden Downloades kann die Liste nicht aktualisiert werden.", false);
+				showAlert("Unzulässige Aktion", "Während eines laufenden Downloades kann die Liste nicht aktualisiert werden.", false);
     		}
     	}
     	else if(source.getId().equals("button_explorer")) {
@@ -590,7 +590,7 @@ public class ClientApplicationController implements Initializable{
 			DialogPane dialogPane = alert.getDialogPane();
 			dialogPane.setContent(contenLabel);
 			((Stage)(dialogPane.getScene().getWindow())).initStyle(StageStyle.TRANSPARENT);
-			dialogPane.getStylesheets().add(ClientApplication.class.getResource("../shared_resources/application.css").toExternalForm());
+			dialogPane.getStylesheets().add(ClientApplication.class.getResource("application.css").toExternalForm());
 			alert.showAndWait();
 			if(fatal) System.exit(1);
     	});
