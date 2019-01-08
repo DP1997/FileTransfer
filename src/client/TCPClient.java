@@ -5,7 +5,6 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import shared_resources.datatypes.FileInformation;
 import shared_resources.datatypes.ProgressStream;

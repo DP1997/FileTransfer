@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import javafx.application.Platform;
 import shared_resources.datatypes.FileInformation;
 import shared_resources.utils.FileUtils;
-import static server.TCPServer.*;
 import static server.ServerApplicationController.clients;
 import static server.ServerApplicationController.sharedDir;
 
