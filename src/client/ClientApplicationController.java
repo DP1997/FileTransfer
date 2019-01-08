@@ -285,9 +285,9 @@ public class ClientApplicationController implements Initializable{
     		// background Task
     		clickedDownload(e);
     		} else {
-				showAlert("Unzul�ssige Aktion", "Während eines laufenden Downloades kann kein weiterer Download gestartet werden.", false);
+				showAlert("Unzulässige Aktion", "Während eines laufenden Downloades kann kein weiterer Download gestartet werden.", false);
     		}
-    		
+    			
     	}
     	else if(source.getId().equals("button_refresh")) {
     		//request file refresh
