@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
@@ -13,24 +12,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
-import client.ClientApplication;
-import client.TCPClient;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
@@ -41,8 +33,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import shared_resources.datatypes.FileInformation;
-import shared_resources.datatypes.ProgressStream;
 																																								
 public class ServerApplicationController implements Initializable{
 
@@ -230,10 +220,10 @@ public class ServerApplicationController implements Initializable{
 		this.server.shutDown();
 		this.server.interrupt();
 		try {
-			this.server.welcomeSocket.close();
+			TCPServer.welcomeSocket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-			this.server.welcomeSocket = null;
+			TCPServer.welcomeSocket = null;
 		}
 		while(this.server.isAlive()) {
 			try {
@@ -352,8 +342,11 @@ public class ServerApplicationController implements Initializable{
 			            isConnected = true;
 			        } 
 			        catch (Exception e) { 
-			             if(isConnected) showAlert("Warnung!", "Sie haben keine Internetverbindung. Der Server ist nur lokal erreichbar.", false);
-			             isConnected = false;
+			             if(isConnected) {
+			            	 isConnected = false;
+			            	 showAlert("Warnung!", "Sie haben keine Internetverbindung. Der Server ist nur lokal erreichbar.", false);
+			             }
+			             
 			        }
 					sleep(3000);
 				} catch (InterruptedException e) {
