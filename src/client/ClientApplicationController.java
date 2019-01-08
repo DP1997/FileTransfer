@@ -177,7 +177,7 @@ public class ClientApplicationController implements Initializable{
     	});
 	}
 	
-	// topBar
+	// topBar sd 
     @FXML
     public void topBarIconClicked(MouseEvent e) {
     	ImageView source = (ImageView) e.getSource();
